@@ -51,4 +51,5 @@ if __name__ == "__main__":
     for dataset in datasets:
         print("-" * 10)
         print(dataset)
+        print(f"ID: {dataset.id}")
         print("-" * 10)

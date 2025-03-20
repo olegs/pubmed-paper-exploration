@@ -3,6 +3,7 @@ from typing import List
 
 class GEODataset:
     def __init__(self, metadata: dict[str, List[str]]):
+        self.id = metadata.get("geo_accession")[0]
         self.title: str = metadata.get("title")[0]
         self.experiment_type: str = metadata["type"][0]
         self.summary: str = metadata.get("summary", [""])[0]
@@ -15,7 +16,8 @@ class GEODataset:
 
     def __eq__(self, other):
         return (
-            self.title == other.title
+            self.id == other.id
+            and self.title == other.title
             and self.experiment_type == other.experiment_type
             and self.summary == other.summary
             and set(self.organisms) == set(other.organisms)

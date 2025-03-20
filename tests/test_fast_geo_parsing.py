@@ -1,8 +1,8 @@
 import pytest
 import GEOparse
 from typing import List
-from src.download_geo_datasets import download_geo_dataset
-from src.fetch_scientifc_names import fetch_scientific_names
+from src.ingestion.download_geo_datasets import download_geo_dataset
+from src.ingestion.fetch_scientifc_names import fetch_scientific_names
 
 
 class SlowGEODataset:

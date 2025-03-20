@@ -1,6 +1,6 @@
 from typing import List
 import requests
-from rate_limit import check_limit
+from src.ingestion.rate_limit import check_limit
 
 elink_request_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi"
 

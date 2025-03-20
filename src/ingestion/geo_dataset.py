@@ -1,5 +1,5 @@
 import GEOparse
-from fetch_scientifc_names import fetch_scientific_names
+from src.ingestion.fetch_scientifc_names import fetch_scientific_names
 from typing import List
 
 

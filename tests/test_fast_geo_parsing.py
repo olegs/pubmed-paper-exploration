@@ -25,7 +25,7 @@ def slow_download_geo_dataset(accession: str) -> SlowGEODataset:
     :param accession: GEO accession for the series (ex. GSE12345)
     :return: GEO
     """
-    dataset = GEOparse.get_GEO(geo=accession)
+    dataset = GEOparse.get_GEO(geo=accession, destdir="./Downloads")
     return SlowGEODataset(dataset)
 
 

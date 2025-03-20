@@ -1,6 +1,7 @@
 import requests
 from typing import List
-from rate_limit import check_limit
+from src.ingestion.rate_limit import check_limit
+import re
 
 
 def fetch_geo_accessions(ids: List[str]) -> List[str]:

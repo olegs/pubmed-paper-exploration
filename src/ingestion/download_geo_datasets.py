@@ -31,7 +31,7 @@ def download_geo_dataset(accession: str) -> GEODataset:
     :return: GEO
     """
     print("Downloading {}", accession)
-    download_path, _ = GEOparse.get_GEO_file(geo=accession, destdir="./")
+    download_path, _ = GEOparse.get_GEO_file(geo=accession, destdir="./Downloads")
     with smart_open(download_path) as soft_file:
         metadata_lines = metadata_line_iterator(soft_file)
         metadata = GEOparse.GEOparse.parse_metadata(metadata_lines)

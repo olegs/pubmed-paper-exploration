@@ -1,11 +1,12 @@
 import GEOparse
 from typing import List
 import requests
-from src.ingestion.geo_dataset import GEODataset
+from src.model.geo_dataset import GEODataset
 from src.ingestion.fetch_geo_ids import fetch_geo_ids
 from src.ingestion.rate_limit import check_limit
 from src.ingestion.soft_metadata_line_iterator import metadata_line_iterator
 from src.ingestion.fetch_geo_accessions import fetch_geo_accessions
+from src.ingestion.fetch_scientifc_names import fetch_scientific_names
 from GEOparse.utils import smart_open
 
 
@@ -35,6 +36,7 @@ def download_geo_dataset(accession: str) -> GEODataset:
     with smart_open(download_path) as soft_file:
         metadata_lines = metadata_line_iterator(soft_file)
         metadata = GEOparse.GEOparse.parse_metadata(metadata_lines)
+        metadata["organisms"] = fetch_scientific_names(metadata.get("sample_taxid", []))
         return GEODataset(metadata)
 
     return GEODataset(dataset)

@@ -27,7 +27,7 @@ def download_geo_dataset(accession: str) -> GEODataset:
     """
     Donwloads the GEO dataset with the given accession.
 
-    :param accession: GEO accession for the series (ex. GSE12345)
+    :param accession: GEO accession for the dataset (ex. GSE12345)
     :return: GEO
     """
     print("Downloading {}", accession)
@@ -55,7 +55,7 @@ def fetch_geo_accessions(ids: List[str]) -> List[str]:
         ).content
     )
 
-    # Series are the only type of GEO entry that contain the infromation
+    # Series are the only type of GEO entry that contain all of the infromation
     # we are looking for. Therefore we need to search for series accessions,
     # which begin with GSE.
     return re.findall("Accession: (GSE\d+)", geo_summaries)

@@ -1,5 +1,6 @@
 from typing import List
 import requests
+from rate_limit import check_limit
 
 elink_request_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi"
 
@@ -11,6 +12,7 @@ def fetch_geo_ids(pubmed_ids: List[int]) -> List[int]:
     :param pubmed_ids: List of PubMed IDs to fetch GEO dataset ids for.
     :returns: A list that contains the IDs of the GEO datasets associated with the PubMed IDs.
     """
+    check_limit() 
     response = requests.get(
         elink_request_url,
         params={

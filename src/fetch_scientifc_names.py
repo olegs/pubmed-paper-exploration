@@ -2,6 +2,7 @@ import requests
 from typing import List
 import xml.etree.ElementTree as ET
 from lru_cache_with_list_support import lru_cache_with_list_support
+from rate_limit import check_limit
 
 @lru_cache_with_list_support(maxsize=1000)
 def fetch_scientific_names(taxon_ids: List[str]) -> List[str]:
@@ -11,7 +12,7 @@ def fetch_scientific_names(taxon_ids: List[str]) -> List[str]:
     :param taxon_ids: List of NCBI taxonomy IDs.
     :returns: List of corresponding scientific names, in the same order.
     """
-    
+    check_limit()
     efetch_response = requests.get(
         "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
         params={

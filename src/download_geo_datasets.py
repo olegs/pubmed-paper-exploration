@@ -1,12 +1,12 @@
 import GEOparse
 from typing import List
-import json
 from geo_dataset import GEODataset
 import requests
 import re
 from fetch_geo_ids import fetch_geo_ids
 from rate_limit import check_limit
-
+from soft_metadata_line_iterator import metadata_line_iterator
+from GEOparse.utils import smart_open
 
 
 def download_geo_datasets(pubmed_ids: List[int]) -> List[GEODataset]:
@@ -31,7 +31,12 @@ def download_geo_dataset(accession: str) -> GEODataset:
     :return: GEO
     """
     print("Downloading {}", accession)
-    dataset = GEOparse.get_GEO(geo=accession)
+    download_path, _ = GEOparse.get_GEO_file(geo=accession, destdir="./")
+    with smart_open(download_path) as soft_file:
+        metadata_lines = metadata_line_iterator(soft_file)
+        metadata = GEOparse.GEOparse.parse_metadata(metadata_lines)
+        return GEODataset(metadata)
+
     return GEODataset(dataset)
 
 
@@ -43,10 +48,12 @@ def fetch_geo_accessions(ids: List[str]) -> List[str]:
     :return: List of GEO acessions in the same order.
     """
     check_limit()
-    geo_summaries = str(requests.get(
-        "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
-        {"db": "gds", "id": ",".join(map(str, ids))},
-    ).content)
+    geo_summaries = str(
+        requests.get(
+            "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
+            {"db": "gds", "id": ",".join(map(str, ids))},
+        ).content
+    )
 
     # Series are the only type of GEO entry that contain the infromation
     # we are looking for. Therefore we need to search for series accessions,
@@ -55,11 +62,12 @@ def fetch_geo_accessions(ids: List[str]) -> List[str]:
 
 
 if __name__ == "__main__":
-    datasets = download_geo_datasets([30530648,31820734,31018141,38539015,33763704,32572264])
+    datasets = download_geo_datasets(
+        [30530648, 31820734, 31018141, 38539015, 33763704, 32572264]
+    )
     print(f"Downloaded {len(datasets)} datasets")
 
     for dataset in datasets:
-        print("-"*10)
+        print("-" * 10)
         print(dataset)
-        print("-"*10)
-
+        print("-" * 10)

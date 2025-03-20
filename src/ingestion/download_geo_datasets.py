@@ -58,7 +58,7 @@ def fetch_geo_accessions(ids: List[str]) -> List[str]:
     # Series are the only type of GEO entry that contain all of the infromation
     # we are looking for. Therefore we need to search for series accessions,
     # which begin with GSE.
-    return re.findall("Accession: (GSE\d+)", geo_summaries)
+    return re.findall("Accession: (GSE\\d+)", geo_summaries)
 
 
 if __name__ == "__main__":

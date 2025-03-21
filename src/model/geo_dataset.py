@@ -16,8 +16,7 @@ class GEODataset:
 
     def __eq__(self, other):
         return (
-            self.id == other.id
-            and self.title == other.title
+            self.title == other.title
             and self.experiment_type == other.experiment_type
             and self.summary == other.summary
             and set(self.organisms) == set(other.organisms)

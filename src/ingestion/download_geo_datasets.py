@@ -1,13 +1,14 @@
 import GEOparse
 from typing import List
 import requests
+from os import path
 from src.model.geo_dataset import GEODataset
 from src.ingestion.fetch_geo_ids import fetch_geo_ids
 from src.ingestion.rate_limit import check_limit
 from src.ingestion.soft_metadata_line_iterator import metadata_line_iterator
 from src.ingestion.fetch_geo_accessions import fetch_geo_accessions
 from src.ingestion.fetch_scientifc_names import fetch_scientific_names
-from GEOparse.utils import smart_open
+from GEOparse.utils import smart_open, download_from_url
 
 
 def download_geo_datasets(pubmed_ids: List[int]) -> List[GEODataset]:
@@ -31,15 +32,19 @@ def download_geo_dataset(accession: str) -> GEODataset:
     :param accession: GEO accession for the dataset (ex. GSE12345)
     :return: GEO
     """
-    print("Downloading {}", accession)
-    download_path, _ = GEOparse.get_GEO_file(geo=accession, destdir="./Downloads")
-    with smart_open(download_path) as soft_file:
-        metadata_lines = metadata_line_iterator(soft_file)
-        metadata = GEOparse.GEOparse.parse_metadata(metadata_lines)
+    print(f"Downloading {accession}")
+    dataset_metadata_url = f"https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={accession}&targ=self&form=text&view=quick"
+    download_path = f"./Downloads/{accession}.txt"
+    if not path.isfile(download_path):
+        check_limit()
+        download_from_url(dataset_metadata_url, download_path)
+    else:
+        print("Using local version")
+
+    with open(download_path) as soft_file:
+        metadata = GEOparse.GEOparse.parse_metadata(soft_file)
         metadata["organisms"] = fetch_scientific_names(metadata.get("sample_taxid", []))
         return GEODataset(metadata)
-
-    return GEODataset(dataset)
 
 
 if __name__ == "__main__":

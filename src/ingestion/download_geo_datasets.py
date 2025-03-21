@@ -5,7 +5,6 @@ from os import path
 from src.model.geo_dataset import GEODataset
 from src.ingestion.fetch_geo_ids import fetch_geo_ids
 from src.ingestion.rate_limit import check_limit
-from src.ingestion.soft_metadata_line_iterator import metadata_line_iterator
 from src.ingestion.fetch_geo_accessions import fetch_geo_accessions
 from src.ingestion.fetch_scientifc_names import fetch_scientific_names
 from GEOparse.utils import smart_open, download_from_url

@@ -17,7 +17,7 @@ def vectorize_datasets(datasets: List[GEODataset]) -> spmatrix:
     vectorizer = TfidfVectorizer(stop_words="english", max_df=0.5)
     corpus = map(str, datasets)
     dataset_embeddings = vectorizer.fit_transform(corpus)
-    return dataset_vectors
+    return dataset_embeddings
 
 
 if __name__ == "__main__":

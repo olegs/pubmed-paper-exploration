@@ -20,7 +20,6 @@ def download_geo_datasets(pubmed_ids: List[int]) -> List[GEODataset]:
     # Title, Experiment type, Summary, Organism, Overall design
     geo_ids = fetch_geo_ids(pubmed_ids)
     accessions = fetch_geo_accessions(geo_ids)
-    print(accessions)
     return [download_geo_dataset(accession) for accession in accessions]
 
 
@@ -29,16 +28,13 @@ def download_geo_dataset(accession: str) -> GEODataset:
     Donwloads the GEO dataset with the given accession.
 
     :param accession: GEO accession for the dataset (ex. GSE12345)
-    :return: GEO
+    :return: GEO dataset
     """
-    print(f"Downloading {accession}")
     dataset_metadata_url = f"https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={accession}&targ=self&form=text&view=quick"
     download_path = f"./Downloads/{accession}.txt"
     if not path.isfile(download_path):
         check_limit()
         download_from_url(dataset_metadata_url, download_path)
-    else:
-        print("Using local version")
 
     with open(download_path) as soft_file:
         metadata = GEOparse.GEOparse.parse_metadata(soft_file)

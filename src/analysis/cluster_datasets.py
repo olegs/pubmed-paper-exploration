@@ -14,7 +14,7 @@ SVD_COMPONENTS = 15
 
 
 def get_clusters_top_terms(
-    embeddings: spmatrix, clusters: List[int], vocabulary: List[str]
+    embeddings: spmatrix, cluster_assignments: List[int], vocabulary: List[str]
 ) -> List[List[str]]:
     """
     Identifies key descriptive words for each cluster by analyzing the
@@ -27,15 +27,15 @@ def get_clusters_top_terms(
     Based on _get_topics_description_cosine from PubTrends.
 
     :param embeddings: Vector representations of the datasets.
-    :param clusters: Cluster assignments for each dataset.
+    :param cluster_assignements: Cluster assignments for each dataset.
     :param vocabulary: Vocabulary of the datasets.
     :return: List of lists of most influential terms for every cluster.
     """
 
-    n_clusters = np.max(clusters) + 1
+    n_clusters = np.max(cluster_assignments) + 1
     word_tf_idf_per_cluster = np.zeros((n_clusters, embeddings.shape[1]))
     for i in range(n_clusters):
-        word_tf_idf_per_cluster[i] = np.sum(embeddings[clusters == i], axis=0)
+        word_tf_idf_per_cluster[i] = np.sum(embeddings[cluster_assignments == i], axis=0)
 
     tf_idf_norm = np.sqrt(np.diag(word_tf_idf_per_cluster.T @ word_tf_idf_per_cluster))
     word_tf_idf_per_cluster = word_tf_idf_per_cluster / tf_idf_norm
@@ -67,7 +67,7 @@ def cluster_datasets(
 
     :param embeddings: Vector representations of the datasets.
     :param n_cluster: Number of clusters to create.
-    :return: Tuple (Cluster assignments for each dataset, Cluster centroids)
+    :return: Cluster assignements for each dataset.
     """
 
     clusterer = AgglomerativeClustering(n_clusters=n_clusters)
@@ -76,7 +76,7 @@ def cluster_datasets(
     silhouette_avg = silhouette_score(embeddings, cluster_assignments)
     print(f"Silhouette score: {silhouette_avg}")
 
-    return cluster_assignments, clusterer
+    return cluster_assignments
 
 
 if __name__ == "__main__":
@@ -85,8 +85,6 @@ if __name__ == "__main__":
     with open("ids.txt") as file:
         pubmed_ids = map(int, file)
         datasets = download_geo_datasets(pubmed_ids)
-        # We filter out the 
-        #datasets = list(filter(lambda dataset: dataset.is_not_superseries(), datasets))
 
         embeddings, vocabulary = vectorize_datasets(datasets)
         lsa = make_pipeline(
@@ -98,7 +96,7 @@ if __name__ == "__main__":
         print(f"Explained variance of the SVD step: {explained_variance * 100:.1f}%")
 
         begin = time.time()
-        labels, centroids = cluster_datasets(embeddings_svd, 10)
+        labels = cluster_datasets(embeddings_svd, 10)
         end = time.time()
         print("Clustering time:", end-begin)
         topics = get_clusters_top_terms(embeddings, labels, vocabulary)

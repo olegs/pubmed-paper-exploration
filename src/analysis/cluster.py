@@ -59,7 +59,7 @@ def get_clusters_top_terms(
     return top_terms
 
 
-def cluster_datasets(
+def cluster(
     embeddings: spmatrix, n_clusters: int
 ) -> Tuple[List[int], np.ndarray]:
     """
@@ -96,7 +96,7 @@ if __name__ == "__main__":
         print(f"Explained variance of the SVD step: {explained_variance * 100:.1f}%")
 
         begin = time.time()
-        labels = cluster_datasets(embeddings_svd, 10)
+        labels = cluster(embeddings_svd, 10)
         end = time.time()
         print("Clustering time:", end-begin)
         topics = get_clusters_top_terms(embeddings, labels, vocabulary)

@@ -1,24 +1,24 @@
 import sys
 
-from typing import List
+from typing import List, Tuple
 from src.model.geo_dataset import GEODataset
 from sklearn.feature_extraction.text import TfidfVectorizer
 from scipy.sparse import spmatrix
 
-def vectorize_datasets(datasets: List[GEODataset]) -> spmatrix:
+
+def vectorize_datasets(datasets: List[GEODataset]) -> Tuple[spmatrix, List[str]]:
     """
     Constructs vector representations of datasets using tf-idf.
     The concatenation of the Title, Experiment type, Summary, Organism,
     and Overall design fields is used as the basis for the vectorization.
 
     :param datasets: Datasets to vectorize.
-    :return: Sparse matrix containing the tf-idf vectors of the datasets.
+    :return: Tuple (Sparse matrix containing the tf-idf vectors of the datasets, Vocabulary of the datasets).
     """
     vectorizer = TfidfVectorizer(stop_words="english", max_df=0.5)
     corpus = map(str, datasets)
     dataset_embeddings = vectorizer.fit_transform(corpus)
-    return dataset_embeddings
-
+    return dataset_embeddings, vectorizer.get_feature_names_out()
 
 if __name__ == "__main__":
     from src.ingestion.download_geo_datasets import download_geo_datasets

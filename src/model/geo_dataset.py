@@ -23,3 +23,6 @@ class GEODataset:
             and self.overall_design == other.overall_design
             and set(self.pubmed_ids) == set(other.pubmed_ids)
         )
+
+    def is_not_superseries(self):
+        return self.summary != "This SuperSeries is composed of the SubSeries listed below."

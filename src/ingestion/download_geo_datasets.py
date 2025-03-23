@@ -7,7 +7,7 @@ from src.ingestion.fetch_geo_ids import fetch_geo_ids
 from src.ingestion.rate_limit import check_limit
 from src.ingestion.fetch_geo_accessions import fetch_geo_accessions
 from src.ingestion.fetch_scientifc_names import fetch_scientific_names
-from GEOparse.utils import smart_open, download_from_url
+from GEOparse.utils import download_from_url
 
 
 def download_geo_datasets(pubmed_ids: List[int]) -> List[GEODataset]:
@@ -37,7 +37,8 @@ def download_geo_dataset(accession: str) -> GEODataset:
         download_from_url(dataset_metadata_url, download_path)
 
     with open(download_path) as soft_file:
-        metadata = GEOparse.GEOparse.parse_metadata(soft_file)
+        relevant_lines = filter(lambda line: not line.startswith("!Series_sample"), soft_file)
+        metadata = GEOparse.GEOparse.parse_metadata(relevant_lines)
         metadata["organisms"] = fetch_scientific_names(metadata.get("sample_taxid", []))
         return GEODataset(metadata)
 

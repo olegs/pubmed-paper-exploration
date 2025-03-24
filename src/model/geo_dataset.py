@@ -7,7 +7,7 @@ class GEODataset:
         self.title: str = metadata.get("title")[0]
         self.experiment_type: str = metadata["type"][0]
         self.summary: str = metadata.get("summary", [""])[0]
-        self.organisms: List[str] = metadata["organisms"]
+        self.organisms: List[str] = metadata.get("sample_organism", []) 
         self.overall_design: str = metadata.get("overall_design", [""])[0]
         self.pubmed_ids: List[str] = metadata.get("pubmed_id", [])
 

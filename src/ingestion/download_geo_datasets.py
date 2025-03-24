@@ -37,9 +37,8 @@ def download_geo_dataset(accession: str) -> GEODataset:
         download_from_url(dataset_metadata_url, download_path)
 
     with open(download_path) as soft_file:
-        relevant_lines = filter(lambda line: not line.startswith("!Series_sample"), soft_file)
+        relevant_lines = filter(lambda line: not line.startswith("!Series_sample_id"), soft_file)
         metadata = GEOparse.GEOparse.parse_metadata(relevant_lines)
-        metadata["organisms"] = fetch_scientific_names(metadata.get("sample_taxid", []))
         return GEODataset(metadata)
 
 

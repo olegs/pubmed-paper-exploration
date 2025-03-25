@@ -1,14 +1,12 @@
 from typing import List, Tuple
 from sklearn.cluster import AgglomerativeClustering
 from src.model.geo_dataset import GEODataset
-from src.analysis.vectorize_datasets import vectorize_datasets
 from sklearn.metrics import silhouette_score
 from sklearn.decomposition import TruncatedSVD
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import Normalizer
 from scipy.sparse import spmatrix
 import numpy as np
-import time
 
 SVD_COMPONENTS = 15
 
@@ -35,7 +33,9 @@ def get_clusters_top_terms(
     n_clusters = np.max(cluster_assignments) + 1
     word_tf_idf_per_cluster = np.zeros((n_clusters, embeddings.shape[1]))
     for i in range(n_clusters):
-        word_tf_idf_per_cluster[i] = np.sum(embeddings[cluster_assignments == i], axis=0)
+        word_tf_idf_per_cluster[i] = np.sum(
+            embeddings[cluster_assignments == i], axis=0
+        )
 
     tf_idf_norm = np.sqrt(np.diag(word_tf_idf_per_cluster.T @ word_tf_idf_per_cluster))
     word_tf_idf_per_cluster = word_tf_idf_per_cluster / tf_idf_norm
@@ -59,9 +59,7 @@ def get_clusters_top_terms(
     return top_terms
 
 
-def cluster(
-    embeddings: spmatrix, n_clusters: int
-) -> Tuple[List[int], np.ndarray]:
+def cluster(embeddings: spmatrix, n_clusters: int) -> Tuple[List[int], np.ndarray]:
     """
     Clusters the vector representations of GEO datasets.
 
@@ -81,6 +79,8 @@ def cluster(
 
 if __name__ == "__main__":
     from src.ingestion.download_geo_datasets import download_geo_datasets
+    from src.analysis.vectorize_datasets import vectorize_datasets
+    import time
 
     with open("ids.txt") as file:
         pubmed_ids = map(int, file)
@@ -98,7 +98,7 @@ if __name__ == "__main__":
         begin = time.time()
         labels = cluster(embeddings_svd, 10)
         end = time.time()
-        print("Clustering time:", end-begin)
+        print("Clustering time:", end - begin)
         topics = get_clusters_top_terms(embeddings, labels, vocabulary)
         for i in range(len(topics)):
             print(f"Cluster {i} topics: {' '.join(topics[i])}")

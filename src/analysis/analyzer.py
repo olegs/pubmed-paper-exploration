@@ -58,7 +58,7 @@ class DatasetAnalyzer:
         cluster_assignments = cluster(embeddings_svd, self.n_clusters)
         end = time.time()
         print("Clustering time:", end - begin)
-        topics = get_clusters_top_terms(embeddings, cluster_assignments, vocabulary)
+        cluster_topics = get_clusters_top_terms(embeddings, cluster_assignments, vocabulary)
         tsne_embeddings_2d = self.tsne.fit_transform(embeddings_svd)
 
         return AnalysisReusult(

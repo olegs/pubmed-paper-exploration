@@ -6,7 +6,6 @@ from src.model.geo_dataset import GEODataset
 from src.ingestion.fetch_geo_ids import fetch_geo_ids
 from src.ingestion.rate_limit import check_limit
 from src.ingestion.fetch_geo_accessions import fetch_geo_accessions
-from src.ingestion.fetch_scientifc_names import fetch_scientific_names
 from GEOparse.utils import download_from_url
 
 

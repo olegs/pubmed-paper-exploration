@@ -50,8 +50,6 @@ def visualize_clusters(df: pd.DataFrame, cluster_topics: List[List[str]]):
     :param cluster_topics: A list of topics that describe each of the clusters.
     :return: A string containing the HTML that renders the plot.
     """
-    print(df.head())
-    print(df["cluster"])
     source = ColumnDataSource(df)
     source.data["cluster"] = list(map(str, source.data["cluster"]))
     source.add(list(map(lambda x: ", ".join(cluster_topics[x][:5]), df["cluster"])), "topics")

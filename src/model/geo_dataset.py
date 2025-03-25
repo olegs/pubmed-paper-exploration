@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 
 class GEODataset:
@@ -7,7 +7,7 @@ class GEODataset:
         self.title: str = metadata.get("title")[0]
         self.experiment_type: str = metadata["type"][0]
         self.summary: str = metadata.get("summary", [""])[0]
-        self.organisms: List[str] = metadata.get("sample_organism", []) 
+        self.organisms: List[str] = metadata.get("sample_organism", [])
         self.overall_design: str = metadata.get("overall_design", [""])[0]
         self.pubmed_ids: List[str] = metadata.get("pubmed_id", [])
 
@@ -31,4 +31,21 @@ class GEODataset:
         )
 
     def is_not_superseries(self):
-        return self.summary != "This SuperSeries is composed of the SubSeries listed below."
+        return (
+            self.summary
+            != "This SuperSeries is composed of the SubSeries listed below."
+        )
+
+    def to_dict(self) -> Dict:
+        """
+        Dumps the dataset into a JSON-serializible dict.
+        """
+        return {
+            "id": self.id,
+            "title": self.title,
+            "experiment_type": self.experiment_type,
+            "summary": self.summary,
+            "organisms": self.organisms,
+            "overall_design": self.overall_design,
+            "pubmed_ids": self.pubmed_ids,
+        }

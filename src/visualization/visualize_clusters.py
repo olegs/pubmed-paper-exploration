@@ -94,5 +94,5 @@ if __name__ == "__main__":
     with open("ids.txt") as file:
         pubmed_ids = map(int, file)
         analyzer = DatasetAnalyzer(15, 10)
-        result = analyzer.analze_datasets(pubmed_ids)
+        result = analyzer.analyze_datasets(pubmed_ids)
         print(visualize_clusters(result.df, result.cluster_topics))

@@ -38,7 +38,7 @@ class DatasetAnalyzer:
         self.tsne = TSNE(n_components=2, random_state=42)
         self.n_clusters = n_clusters
 
-    def analze_datasets(self, pubmed_ids: List[str]) -> AnalysisReusult:
+    def analyze_datasets(self, pubmed_ids: List[str]) -> AnalysisReusult:
         """
         Analyzes the datasets that are associated with the given PubMed IDs and
         clusters them.
@@ -70,6 +70,6 @@ if __name__ == "__main__":
     with open("ids.txt") as file:
         pubmed_ids = map(int, file)
         analyzer = DatasetAnalyzer(SVD_COMPONENTS, 10)
-        result = analyzer.analze_datasets(pubmed_ids)
+        result = analyzer.analyze_datasets(pubmed_ids)
         print(result.df.head())
         print(result.cluster_topics)

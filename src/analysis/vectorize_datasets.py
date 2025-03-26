@@ -1,9 +1,9 @@
 import sys
-
-from typing import List, Tuple
-from src.model.geo_dataset import GEODataset
 from sklearn.feature_extraction.text import TfidfVectorizer
 from scipy.sparse import spmatrix
+from typing import List, Tuple
+from src.exception.not_enough_datasets_error import NotEnoughDatasetsError
+from src.model.geo_dataset import GEODataset
 
 
 def vectorize_datasets(datasets: List[GEODataset]) -> Tuple[spmatrix, List[str]]:
@@ -17,7 +17,10 @@ def vectorize_datasets(datasets: List[GEODataset]) -> Tuple[spmatrix, List[str]]
     """
     vectorizer = TfidfVectorizer(stop_words="english", max_df=0.5)
     corpus = map(str, datasets)
-    dataset_embeddings = vectorizer.fit_transform(corpus)
+    try:
+        dataset_embeddings = vectorizer.fit_transform(corpus)
+    except ValueError:
+        raise NotEnoughDatasetsError("Too few datasets to perform tf-idf vectorization")
     return dataset_embeddings, vectorizer.get_feature_names_out()
 
 if __name__ == "__main__":

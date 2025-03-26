@@ -1,12 +1,13 @@
 from typing import List, Tuple
 from sklearn.cluster import AgglomerativeClustering
-from src.model.geo_dataset import GEODataset
 from sklearn.metrics import silhouette_score
 from sklearn.decomposition import TruncatedSVD
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import Normalizer
 from scipy.sparse import spmatrix
 import numpy as np
+from src.model.geo_dataset import GEODataset
+from src.exception.not_enough_datasets_error import NotEnoughDatasetsError
 
 
 def get_clusters_top_terms(
@@ -68,7 +69,11 @@ def cluster(embeddings: spmatrix, n_clusters: int) -> Tuple[List[int], np.ndarra
 
     clusterer = AgglomerativeClustering(n_clusters=n_clusters)
 
-    cluster_assignments = clusterer.fit_predict(embeddings)
+    try:
+        cluster_assignments = clusterer.fit_predict(embeddings)
+    except ValueError:
+        raise NotEnoughDatasetsError(f"Cannot extract {n_clusters} clusters for {embeddings.shape[0]} datasets")
+
     silhouette_avg = silhouette_score(embeddings, cluster_assignments)
     print(f"Silhouette score: {silhouette_avg}")
 

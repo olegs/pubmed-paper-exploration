@@ -1,8 +1,31 @@
 import pytest
 import GEOparse
+import requests
+import xml.etree.ElementTree as ET
 from typing import List
 from src.ingestion.download_geo_datasets import download_geo_dataset
-from src.ingestion.fetch_scientifc_names import fetch_scientific_names
+
+
+def fetch_scientific_names(taxon_ids: List[str]) -> List[str]:
+    """
+    Fetches scientific names of taxa from the NCBI taxonomy database.
+
+    :param taxon_ids: List of NCBI taxonomy IDs.
+    :returns: List of corresponding scientific names, in the same order.
+    """
+    efetch_response = requests.get(
+        "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
+        params={
+            "db": "taxonomy",
+            "id": ",".join(map(str, taxon_ids)),
+        },
+    )
+
+    taxa_tree = ET.fromstring(efetch_response.content)
+
+    scientific_name_elements = taxa_tree.findall("./Taxon/ScientificName")
+
+    return [element.text for element in scientific_name_elements]
 
 
 class SlowGEODataset:

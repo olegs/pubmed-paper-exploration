@@ -8,8 +8,6 @@ from sklearn.preprocessing import Normalizer
 from scipy.sparse import spmatrix
 import numpy as np
 
-SVD_COMPONENTS = 15
-
 
 def get_clusters_top_terms(
     embeddings: spmatrix, cluster_assignments: List[int], vocabulary: List[str]
@@ -81,6 +79,8 @@ if __name__ == "__main__":
     from src.ingestion.download_geo_datasets import download_geo_datasets
     from src.analysis.vectorize_datasets import vectorize_datasets
     import time
+
+    SVD_COMPONENTS = 15
 
     with open("ids.txt") as file:
         pubmed_ids = map(int, file)

@@ -1,0 +1,74 @@
+{% extends "base.html" %} {% block title %}PubMed Dataset Explorer{% endblock
+title %} {% block body %}
+<body>
+  <div class="container mt-3">
+    <div class="p-5 bg-body-tertiary rounded-3 mb-3" id="home-card">
+      <h1 class="text-body-emphasis">PubMed Dataset Visualizer</h1>
+      <p class="card-text">
+        This app visualizes the GEO datasets associated with a set of papers
+        in the PubMed database.
+      </p>
+      <p class="card-text">
+        Enter the IDs of papers you are interested in to get started.
+      </p>
+    </div>
+    <main>
+      <div class="card">
+        <div class="card-header">Enter PubMed IDs</div>
+        <div class="card-body">
+          <form class="row g-3" target="visualize" method="post">
+            <div class="col-md-10 mb-1">
+              <div class="input-group">
+                <span class="input-group-text" id="basic-addon-1"
+                  >PubMed IDs</span
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Enter a comma-separated list of PubMed IDs"
+                  aria-label="PubMed IDs"
+                  aria-describedby="basic-addon-1"
+                  id="id-form-input"
+                />
+                <div class="invalid-feedback" id="id-form-input-error">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-2 mb-1">
+              <button
+                type="button"
+                class="w-100 btn btn-success"
+                id="id-form-add-btn"
+              >
+                Add
+              </button>
+            </div>
+            <div class="col-md-12 mb-1">
+              <label for="formFile" class="form-label"
+                >Import PubMed IDs from file (each ID should be on a separate
+                line)</label
+              >
+              <input class="form-control" type="file" id="id-form-file" />
+              <div class="invalid-feedback" id="id-form-file-error">
+              </div>
+            </div>
+            <div class="col-md-12 mb-1 overflow-scroll" id="id-table-div">
+              <table class="table">
+                <thead>
+                  <th scope="col">ID</th>
+                  <th scope="col"></th>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+            <div class="col-md-12">
+              <button class="btn btn-primary" type="submit">Visualize</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+{% endblock body %}

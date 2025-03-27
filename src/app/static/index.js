@@ -10,7 +10,7 @@ function parsePubmedIds(idsString, delimiter, errorElementId) {
     const errorElement = document.getElementById(errorElementId);
     errorElement.style.display = "none";
 
-    idsString = idsString.trim()
+    idsString = idsString.trim();
     if (idsString.length === 0) {
         displayError(errorElement, emptyInputErrorMessage);
         return null;
@@ -18,24 +18,28 @@ function parsePubmedIds(idsString, delimiter, errorElementId) {
 
     let split_ids = idsString.split(delimiter);
     let parsed_ids = split_ids.map((x) => Number(x));
-    parsed_ids = parsed_ids.filter((x) => !pubmedIds.includes(x));
 
     const invalid_id_index = parsed_ids.findIndex(Number.isNaN);
     if (invalid_id_index != -1) {
-        displayError(errorElement, `${split_ids[invalid_id_index]} is not a valid PubMedId.`);
+        displayError(errorElement, `${split_ids[invalid_id_index].trim()} is not a valid PubMed id.`);
         return null;
     }
     return parsed_ids;
 }
 
-function onAddPumbedIds() {
-    const input = document.getElementById("id-form-input");
+function addPubmedIds(ids) {
+    ids = ids.filter((x) => !pubmedIds.includes(x));
+    pubmedIds = pubmedIds.concat(ids);
+    ids.map(addIdToTable);
+}
+
+function onClickAddPumbedIds() {
+    const input = document.getElementById("add-ids-input");
     const ids = parsePubmedIds(input.value, ",", "id-form-input-error");
     if (ids != null) {
         input.value = "";
     }
-    pubmedIds = pubmedIds.concat(ids);
-    ids.map(addIdToTable);
+    addPubmedIds(ids);
 }
 
 function removeItemOnce(arr, value) {
@@ -75,11 +79,62 @@ function addIdToTable(pubmedId) {
     tbody.appendChild(newRow);
 }
 
+function onFileUpload(event) {
+    let files = event.target.files;
+    let file = files[0];
+    console.log(file.name);
+
+    let fileReader = new FileReader();
+
+    fileReader.onload = function(){
+        console.log("Content:");
+        console.log(fileReader.result);
+        ids = parsePubmedIds(fileReader.result, "\n", "id-form-file-error");
+        addPubmedIds(ids);
+    }
+
+   fileReader.readAsText(file);
+}
+
+function submitPubmedIds(event) {
+    event.preventDefault();
+
+    if (pubmedIds.length === 0) {
+        errorElement = document.getElementById("id-form-input-error");
+        const errorElement = document.getElementById(errorElementId);
+        displayError(errorElement, emptyInputErrorMessage);
+        return;
+    }
+
+    const pubmedIdsInput = document.querySelector('input[name="pubmed_ids"]');
+    pubmedIdsInput.value = JSON.stringify(pubmedIds);
+
+    const form = document.getElementById("id-form");
+    form.submit();
+}
+
 window.onload = () => {
     const addButton = document.getElementById("id-form-add-btn");
+    const addIdInput = document.getElementById("add-ids-input");
+    const form = document.getElementById("id-form");
     addButton.addEventListener("click",
         (event) => {
-            onAddPumbedIds();
+            onClickAddPumbedIds();
         }
-    )
+    );
+
+    form.addEventListener("submit",
+        (event) => {
+            submitPubmedIds(event);
+        }
+    );
+
+    addIdInput.addEventListener("keypress", 
+        (event) => {
+            if (event.keyCode == 13) {
+                event.preventDefault();
+                onClickAddPumbedIds();
+            }
+        }
+    );
 }

@@ -1,3 +1,10 @@
+class ParsingError extends Error {
+    constructor (message, badData) {
+        super(message);
+        this.badData = badData;
+    }
+}
+
 var pubmedIds = [];
 var emptyInputErrorMessage = "Please enter a PubMedId.";
 
@@ -6,10 +13,8 @@ function displayError(errorElement, message) {
     errorElement.style.display = "block";
 }
 
-function parsePubmedIds(idsString, delimiter, errorElementId) {
-    const errorElement = document.getElementById(errorElementId);
-    errorElement.style.display = "none";
-
+function parsePubmedIds(idsString, delimiter) {
+    // Returns list of integers or throws exception if one of the PubMed IDs is not valid.
     idsString = idsString.trim();
     if (idsString.length === 0) {
         displayError(errorElement, emptyInputErrorMessage);
@@ -21,8 +26,7 @@ function parsePubmedIds(idsString, delimiter, errorElementId) {
 
     const invalid_id_index = parsed_ids.findIndex(Number.isNaN);
     if (invalid_id_index != -1) {
-        displayError(errorElement, `${split_ids[invalid_id_index].trim()} is not a valid PubMed id.`);
-        return null;
+        throw new ParsingError("Invalid PubMed ID", split_ids[invalid_id_index].trim());
     }
     return parsed_ids;
 }
@@ -35,11 +39,16 @@ function addPubmedIds(ids) {
 
 function onClickAddPumbedIds() {
     const input = document.getElementById("add-ids-input");
-    const ids = parsePubmedIds(input.value, ",", "id-form-input-error");
-    if (ids != null) {
+    const errorElement = document.getElementById("id-form-input-error");
+    errorElement.style.display = "none";
+    try {
+        const ids = parsePubmedIds(input.value, ",", "id-form-input-error");
         input.value = "";
+        addPubmedIds(ids);
+    } catch (e) {
+        displayError(errorElement, `${e.badData} is not a valid PubMed id.`);
+        return;
     }
-    addPubmedIds(ids);
 }
 
 function removeItemOnce(arr, value) {
@@ -80,17 +89,21 @@ function addIdToTable(pubmedId) {
 }
 
 function onFileUpload(event) {
+    const errorElement = document.getElementById("id-form-file-error");
+    errorElement.style.display = "none";
+
     let files = event.target.files;
     let file = files[0];
-    console.log(file.name);
 
     let fileReader = new FileReader();
 
     fileReader.onload = function(){
-        console.log("Content:");
-        console.log(fileReader.result);
-        ids = parsePubmedIds(fileReader.result, "\n", "id-form-file-error");
-        addPubmedIds(ids);
+        try {
+            ids = parsePubmedIds(fileReader.result, "\n", "id-form-file-error");
+            addPubmedIds(ids);
+        } catch (e) {
+            displayError(errorElement, `${e.badData} is not a valid PubMed id.`);
+        }
     }
 
    fileReader.readAsText(file);

@@ -5,3 +5,12 @@
 #id-table-div {
     max-height: 250px;
 }
+
+.navbar .breadcrumb {
+    margin: 0 7px;
+}
+
+.graph {
+    max-height: 75vh;
+    display: flex;
+}

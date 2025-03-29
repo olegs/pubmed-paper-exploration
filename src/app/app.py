@@ -4,8 +4,10 @@ import pandas as pd
 from flask import Flask, render_template, request
 from src.analysis.analyzer import DatasetAnalyzer
 from src.visualization.visualize_clusters import visualize_clusters, get_topic_colors
+from src.config import config
 
 app = Flask(__name__)
+svd_dimensions = config.svd_dimensions
 
 
 @app.route("/")
@@ -18,7 +20,7 @@ def visualize_pubmed_ids():
     pubmed_ids = json.loads(request.form["pubmed_ids"])
     n_ids = len(pubmed_ids)
 
-    analyzer = DatasetAnalyzer(15, 10)
+    analyzer = DatasetAnalyzer(svd_dimensions, 10)
     result = analyzer.analyze_datasets(pubmed_ids)
     n_datasets = len(result.df)
 

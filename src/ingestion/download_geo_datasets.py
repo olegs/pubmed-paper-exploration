@@ -1,13 +1,14 @@
-import GEOparse
 from typing import List
-import requests
 from os import path
+import GEOparse
+from GEOparse.utils import download_from_url
 from src.model.geo_dataset import GEODataset
 from src.ingestion.fetch_geo_ids import fetch_geo_ids
 from src.ingestion.rate_limit import check_limit
 from src.ingestion.fetch_geo_accessions import fetch_geo_accessions
-from GEOparse.utils import download_from_url
+from src.config import config
 
+download_folder = config.download_folder
 
 def download_geo_datasets(pubmed_ids: List[int]) -> List[GEODataset]:
     """
@@ -30,7 +31,7 @@ def download_geo_dataset(accession: str) -> GEODataset:
     :return: GEO dataset
     """
     dataset_metadata_url = f"https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={accession}&targ=self&form=text&view=quick"
-    download_path = f"./Downloads/{accession}.txt"
+    download_path = path.join(download_folder, f"{accession}.txt")
     if not path.isfile(download_path):
         check_limit()
         download_from_url(dataset_metadata_url, download_path)

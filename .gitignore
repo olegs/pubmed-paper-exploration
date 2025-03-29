@@ -172,3 +172,9 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Downloaded GEO Datasets
+GEO_Datasets/
+
+# List PubMed IDs
+ids.txt

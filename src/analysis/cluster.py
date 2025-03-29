@@ -6,8 +6,11 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import Normalizer
 from scipy.sparse import spmatrix
 import numpy as np
-from src.model.geo_dataset import GEODataset
 from src.exception.not_enough_datasets_error import NotEnoughDatasetsError
+from src.config import config
+
+
+n_topic_words = config.topic_words
 
 
 def get_clusters_top_terms(
@@ -52,7 +55,7 @@ def get_clusters_top_terms(
     top_terms = []
     for i in range(n_clusters):
         top_terms.append([])
-        for ind in top_term_indices_per_cluster[i, :10]:
+        for ind in top_term_indices_per_cluster[i, :n_topic_words]:
             top_terms[-1].append(vocabulary[ind])
 
     return top_terms
@@ -72,7 +75,9 @@ def cluster(embeddings: spmatrix, n_clusters: int) -> Tuple[List[int], np.ndarra
     try:
         cluster_assignments = clusterer.fit_predict(embeddings)
     except ValueError:
-        raise NotEnoughDatasetsError(f"Cannot extract {n_clusters} clusters for {embeddings.shape[0]} datasets")
+        raise NotEnoughDatasetsError(
+            f"Cannot extract {n_clusters} clusters for {embeddings.shape[0]} datasets"
+        )
 
     silhouette_avg = silhouette_score(embeddings, cluster_assignments)
     print(f"Silhouette score: {silhouette_avg}")
@@ -86,7 +91,9 @@ if __name__ == "__main__":
     import time
 
     SVD_COMPONENTS = 15
+    N_CLUSTERS = 10
 
+    # ids.txt is a copy of the provided PMIDs_list.txt
     with open("ids.txt") as file:
         pubmed_ids = map(int, file)
         datasets = download_geo_datasets(pubmed_ids)
@@ -101,7 +108,7 @@ if __name__ == "__main__":
         print(f"Explained variance of the SVD step: {explained_variance * 100:.1f}%")
 
         begin = time.time()
-        labels = cluster(embeddings_svd, 10)
+        labels = cluster(embeddings_svd, N_CLUSTERS)
         end = time.time()
         print("Clustering time:", end - begin)
         topics = get_clusters_top_terms(embeddings, labels, vocabulary)

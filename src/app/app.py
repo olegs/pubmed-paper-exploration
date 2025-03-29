@@ -1,10 +1,9 @@
 import json
-from flask import Flask, render_template, request
-from markupsafe import escape
-from src.analysis.analyzer import DatasetAnalyzer
-from src.visualization.visualize_clusters import visualize_clusters, get_topic_colors
 from typing import List, Tuple
 import pandas as pd
+from flask import Flask, render_template, request
+from src.analysis.analyzer import DatasetAnalyzer
+from src.visualization.visualize_clusters import visualize_clusters, get_topic_colors
 
 app = Flask(__name__)
 
@@ -35,7 +34,9 @@ def visualize_pubmed_ids():
     )
 
 
-def get_topic_table(cluster_topics: List[List[str]], datasets_df: pd.DataFrame) -> List[Tuple[int, int, str, str]]:
+def get_topic_table(
+    cluster_topics: List[List[str]], datasets_df: pd.DataFrame
+) -> List[Tuple[int, int, str, str]]:
     """
     Returns a list of tuples where the elements are the index of the topic, the
     number of datasets that belong to that topic, the color assigned to the
@@ -48,7 +49,7 @@ def get_topic_table(cluster_topics: List[List[str]], datasets_df: pd.DataFrame) 
     n_topics = len(cluster_topics)
     topic_colors = get_topic_colors(n_topics)
     topic_counts = datasets_df.groupby("cluster")["id"].count()
-    print(topic_counts)
     return [
-        (index,  topic_counts[index], topic_colors[index], ", ".join(topics)) for index, topics in enumerate(cluster_topics)
+        (index, topic_counts[index], topic_colors[index], ", ".join(topics))
+        for index, topics in enumerate(cluster_topics)
     ]

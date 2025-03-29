@@ -7,6 +7,7 @@ class ParsingError extends Error {
 
 var pubmedIds = [];
 var emptyInputErrorMessage = "Please enter a PubMedId.";
+var toastBootstrap = null;
 
 function displayError(errorElement, message) {
     errorElement.innerText = message;
@@ -101,12 +102,20 @@ function onFileUpload(event) {
         try {
             ids = parsePubmedIds(fileReader.result, "\n", "id-form-file-error");
             addPubmedIds(ids);
+            triggerImportSuccessToast(ids.length, file.name);
         } catch (e) {
+            console.log(e);
             displayError(errorElement, `${e.badData} is not a valid PubMed id.`);
         }
     }
 
    fileReader.readAsText(file);
+}
+
+function triggerImportSuccessToast(n_pmids, filename) {
+    const toastMessage = document.getElementById("toast-full-message");
+    toastMessage.innerText = `Successfully imported ${n_pmids} PubMed IDs from ${filename}.`
+    toastBootstrap.show();
 }
 
 function submitPubmedIds(event) {
@@ -150,4 +159,7 @@ window.onload = () => {
             }
         }
     );
+
+    const toast = document.getElementById("import-success-toast");
+    toastBootstrap = bootstrap.Toast.getOrCreateInstance(toast);
 }

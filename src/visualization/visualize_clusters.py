@@ -10,7 +10,13 @@ from bokeh.embed import components
 import pandas as pd
 
 
-def get_topic_colors(n_topics):
+def get_topic_colors(n_topics) -> List[str]:
+    """
+    Returns the list of colors used for color-coding the topics.
+
+    :param n_topics: Number of topics.
+    :return: List of strings containing the hex codes for the colors.
+    """
     if n_topics <= 10:
         return Category10[n_topics]
 
@@ -93,7 +99,9 @@ def visualize_clusters(datasets_df: pd.DataFrame, cluster_topics: List[List[str]
         y="y",
         size=12,
         color=factor_cmap(
-            "cluster", get_topic_colors(n_topics), list(map(str, list(range(1, n_topics + 1))))
+            "cluster",
+            get_topic_colors(n_topics),
+            list(map(str, list(range(1, n_topics + 1)))),
         ),
         alpha=0.8,
         marker="circle",

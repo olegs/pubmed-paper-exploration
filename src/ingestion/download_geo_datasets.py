@@ -2,10 +2,9 @@ from typing import List
 from os import path
 import os
 import GEOparse
-from GEOparse.utils import download_from_url
+import requests
 from src.model.geo_dataset import GEODataset
 from src.ingestion.fetch_geo_ids import fetch_geo_ids
-from src.ingestion.rate_limit import check_limit
 from src.ingestion.fetch_geo_accessions import fetch_geo_accessions
 from src.config import config
 
@@ -18,21 +17,30 @@ def download_geo_datasets(pubmed_ids: List[int]) -> List[GEODataset]:
     :param dataset_ids: PubMed IDs for which to download GEO datasets.
     :returns: A list containing the dowloaded datasets.
     """
-    # Title, Experiment type, Summary, Organism, Overall design
-    geo_ids = fetch_geo_ids(pubmed_ids)
-    accessions = fetch_geo_accessions(geo_ids)
-    return [download_geo_dataset(accession) for accession in accessions]
+    session = requests.Session()
+    geo_ids = fetch_geo_ids(pubmed_ids, session)
+    accessions = fetch_geo_accessions(geo_ids, session)
+
+    return [download_geo_dataset(accession, session) for accession in accessions]
 
 
 def _make_directory_if_not_exist(dir_path: str):
     if not path.isdir(dir_path):
         os.mkdir(dir_path)
 
-def download_geo_dataset(accession: str) -> GEODataset:
+def _download_from_url(url: str, destination_path: str, session: requests.Session):
+    response = session.get(url)
+    response.raise_for_status()
+    with open(destination_path, "wb") as f:
+        f.write(response.content)
+
+
+def download_geo_dataset(accession: str, session: requests.Session) -> GEODataset:
     """
     Donwloads the GEO dataset with the given accession.
 
     :param accession: GEO accession for the dataset (ex. GSE12345)
+    :param session: Requests session.
     :return: GEO dataset
     """
     dataset_metadata_url = f"https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={accession}&targ=self&form=text&view=quick"
@@ -40,8 +48,7 @@ def download_geo_dataset(accession: str) -> GEODataset:
 
     _make_directory_if_not_exist(download_folder)
     if not path.isfile(download_path):
-        check_limit()
-        download_from_url(dataset_metadata_url, download_path)
+        _download_from_url(dataset_metadata_url, download_path, session)
 
     with open(download_path) as soft_file:
         relevant_lines = filter(lambda line: not line.startswith("!Series_sample_id"), soft_file)

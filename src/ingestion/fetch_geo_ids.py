@@ -6,15 +6,16 @@ from src.exception.entrez_error import EntrezError
 elink_request_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi"
 
 
-def fetch_geo_ids(pubmed_ids: List[int]) -> List[int]:
+def fetch_geo_ids(pubmed_ids: List[int], session: requests.Session) -> List[int]:
     """
     Fetches GEO dataset ids for papers with the specified PubMed IDs.
 
     :param pubmed_ids: List of PubMed IDs to fetch GEO dataset ids for.
+    :param sesssion: requests session through which to download the data.
     :returns: A list that contains the IDs of the GEO datasets associated with the PubMed IDs.
     """
     check_limit() 
-    response = requests.get(
+    response = session.get(
         elink_request_url,
         params={
             "dbfrom": "pubmed",

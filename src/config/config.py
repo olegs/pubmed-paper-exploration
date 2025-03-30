@@ -8,5 +8,6 @@ class Config:
         self.svd_dimensions = self._config.getint("clustering", "svd_dimensions")
         self.topic_words = self._config.getint("clustering", "topic_words")
         self.download_folder = self._config["ingestion"]["download_folder"]
+        self.loglevel = self._config["logging"]["log_level"]
 
 config = Config("config.ini")

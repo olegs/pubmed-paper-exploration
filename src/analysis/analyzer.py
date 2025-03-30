@@ -1,16 +1,14 @@
-from src.ingestion.download_geo_datasets import download_geo_datasets
-from src.analysis.vectorize_datasets import vectorize_datasets
-from src.analysis.cluster import cluster, get_clusters_top_terms
-from src.model.geo_dataset import GEODataset
-from src.analysis.analysis_result import AnalysisReusult
 from typing import List
-import numpy as np
+import time
 from sklearn.decomposition import TruncatedSVD
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import Normalizer
 from sklearn.manifold import TSNE
-import pandas as pd
-import time
+from src.ingestion.download_geo_datasets import download_geo_datasets
+from src.analysis.vectorize_datasets import vectorize_datasets
+from src.analysis.cluster import cluster, get_clusters_top_terms
+from src.analysis.analysis_result import AnalysisReusult
+from src.config import logger
 
 
 class DatasetAnalyzer:
@@ -36,12 +34,12 @@ class DatasetAnalyzer:
         embeddings_svd = self.svd.fit_transform(embeddings)
 
         explained_variance = self.svd[0].explained_variance_ratio_.sum()
-        print(f"Explained variance of the SVD step: {explained_variance * 100:.1f}%")
+        logger.info("Explained variance of the SVD step: %.1f %%", explained_variance * 100)
 
         begin = time.time()
         cluster_assignments = cluster(embeddings_svd, self.n_clusters)
         end = time.time()
-        print("Clustering time:", end - begin)
+        logger.info("Clustering time: %.2fs", end - begin)
         cluster_topics = get_clusters_top_terms(
             embeddings, cluster_assignments, vocabulary
         )

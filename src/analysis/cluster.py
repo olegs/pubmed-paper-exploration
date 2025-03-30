@@ -7,7 +7,7 @@ from sklearn.preprocessing import Normalizer
 from scipy.sparse import spmatrix
 import numpy as np
 from src.exception.not_enough_datasets_error import NotEnoughDatasetsError
-from src.config import config
+from src.config import config, logger
 
 
 n_topic_words = config.topic_words
@@ -80,7 +80,7 @@ def cluster(embeddings: spmatrix, n_clusters: int) -> Tuple[List[int], np.ndarra
         )
 
     silhouette_avg = silhouette_score(embeddings, cluster_assignments)
-    print(f"Silhouette score: {silhouette_avg}")
+    logger.info(f"Silhouette score: {silhouette_avg}")
 
     return cluster_assignments
 

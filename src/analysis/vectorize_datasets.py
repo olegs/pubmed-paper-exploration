@@ -31,7 +31,7 @@ if __name__ == "__main__":
     datasets = download_geo_datasets(
         [30530648, 31820734, 31018141, 38539015, 33763704, 32572264]
     )
-    embeddings = vectorize_datasets(datasets)
+    embeddings, _ = vectorize_datasets(datasets)
     print(f"n_datasets: {embeddings.shape[0]} n_features: {embeddings.shape[1]}")
     pairwise_similarities = cosine_similarity(embeddings)
     similarties_between_different_datasets = pairwise_similarities[~np.eye(similarities.shape[0],dtype=bool)].flatten()

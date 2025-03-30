@@ -18,3 +18,7 @@
 .loading-indicator {
     display: none;
 }
+
+#id-table-div table {
+    table-layout: fixed;
+}

@@ -57,10 +57,19 @@ def visualize_clusters(datasets_df: pd.DataFrame, cluster_topics: List[List[str]
     :param cluster_topics: List of lists of keywords for each topic.
     :return: A string containing the HTML that renders the plot.
     """
+    number_of_topic_words_to_display = 5
     source = ColumnDataSource(datasets_df)
     source.data["cluster"] = list(map(str, source.data["cluster"]))
     source.add(
-        list(map(lambda x: ", ".join(cluster_topics[x][:5]), datasets_df["cluster"])), "topics"
+        list(
+            map(
+                lambda x: ", ".join(
+                    cluster_topics[x][:number_of_topic_words_to_display]
+                ),
+                datasets_df["cluster"],
+            )
+        ),
+        "topics",
     )
 
     cluster_scatterplot = figure(
@@ -83,7 +92,9 @@ def visualize_clusters(datasets_df: pd.DataFrame, cluster_topics: List[List[str]
         x="x",
         y="y",
         size=12,
-        color=factor_cmap("cluster", get_topic_colors(n_topics), list(map(str, list(range(10))))),
+        color=factor_cmap(
+            "cluster", get_topic_colors(n_topics), list(map(str, list(range(10))))
+        ),
         alpha=0.8,
         marker="circle",
     )

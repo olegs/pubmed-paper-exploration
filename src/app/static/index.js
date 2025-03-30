@@ -7,7 +7,8 @@ class ParsingError extends Error {
 
 var pubmedIds = [];
 var emptyInputErrorMessage = "Please enter a PubMedId.";
-var toastBootstrap = null;
+var successToastBootstrap = null;
+var errorToastBootstrap = null;
 
 function displayError(errorElement, message) {
     errorElement.innerText = message;
@@ -22,14 +23,14 @@ function parsePubmedIds(idsString, delimiter) {
         return null;
     }
 
-    let split_ids = idsString.split(delimiter);
-    let parsed_ids = split_ids.map((x) => Number(x));
+    let splitIds = idsString.split(delimiter);
+    let parsedIds = splitIds.map((x) => Number(x));
 
-    const invalid_id_index = parsed_ids.findIndex(Number.isNaN);
-    if (invalid_id_index != -1) {
-        throw new ParsingError("Invalid PubMed ID", split_ids[invalid_id_index].trim());
+    const invalidIdIndex = parsedIds.findIndex(Number.isNaN);
+    if (invalidIdIndex != -1) {
+        throw new ParsingError("Invalid PubMed ID", splitIds[invalidIdIndex].trim());
     }
-    return parsed_ids;
+    return parsedIds;
 }
 
 function addPubmedIds(ids) {
@@ -112,10 +113,10 @@ function onFileUpload(event) {
    fileReader.readAsText(file);
 }
 
-function triggerImportSuccessToast(n_pmids, filename) {
+function triggerImportSuccessToast(nPmids, filename) {
     const toastMessage = document.getElementById("toast-full-message");
-    toastMessage.innerText = `Successfully imported ${n_pmids} PubMed IDs from ${filename}.`
-    toastBootstrap.show();
+    toastMessage.innerText = `Successfully imported ${nPmids} PubMed IDs from ${filename}.`
+    successToastBootstrap.show();
 }
 
 function submitPubmedIds(event) {
@@ -134,8 +135,15 @@ function submitPubmedIds(event) {
     const form = document.getElementById("id-form");
     form.submit();
 }
+function triggerErrorToast(shortMessage, fullMessage) {
+    const shortMessageElement = document.getElementById("error-short-message");
+    shortMessageElement.innerText = shortMessage;
+    const fullMessageElement = document.getElementById("error-full-message");
+    fullMessageElement.innerText = fullMessage;
+    errorToastBootstrap.show();
+}
 
-window.onload = () => {
+function setUpEventsAndToasts() {
     const addButton = document.getElementById("id-form-add-btn");
     const addIdInput = document.getElementById("add-ids-input");
     const form = document.getElementById("id-form");
@@ -160,6 +168,11 @@ window.onload = () => {
         }
     );
 
-    const toast = document.getElementById("import-success-toast");
-    toastBootstrap = bootstrap.Toast.getOrCreateInstance(toast);
+    const sucessToast = document.getElementById("import-success-toast");
+    successToastBootstrap = bootstrap.Toast.getOrCreateInstance(sucessToast);
+
+    const errorToast = document.getElementById("error-toast");
+    errorToastBootstrap = bootstrap.Toast.getOrCreateInstance(errorToast);
 }
+
+setUpEventsAndToasts();

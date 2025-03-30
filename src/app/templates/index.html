@@ -1,6 +1,6 @@
 {% extends "base.html" %} 
 {% block title %}PubMed Dataset Explorer{% endblock title %}
-{% block head_css_js %}<script src="{{ url_for('static',filename='index.js') }}"></script>{% endblock head_css_js %}
+{% block head_css_js %}{% endblock head_css_js %}
 {% block body %}
 <body>
   <div class="container mt-3">
@@ -55,6 +55,17 @@
               <div class="invalid-feedback" id="id-form-file-error">
               </div>
             </div>
+            <div class="col-md-12 mb-1">
+              <label for="n_clusters" class="form-label"
+                >Number of clusters</label
+              >
+              <select name="n_clusters" class="form-select" aria-label="Select the number of clusters">
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="15">15</option>
+                <option value="20">20</option>
+              </select>
+            </div>
             <div class="col-md-12 mb-1 overflow-scroll" id="id-table-div">
               <table class="table">
                 <thead>
@@ -88,5 +99,29 @@
       </div>
     </div>
   </div>
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="error-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <svg class="bd-placeholder-img rounded me-2" width="20" height="20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false">
+          <rect width="100%" height="100%" fill="#dc3545"></rect>
+        </svg>
+        <strong class="me-auto" id="error-short-message">PubMed IDs Imported Sucessfully</strong>
+        <small>now</small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body" id="error-full-message">
+        Successfully imported # PubMed IDs from <file>.
+      </div>
+    </div>
+  </div>
+  <script src="{{ url_for('static',filename='index.js') }}"></script>
+  <script>
+    {% if pubmed_ids %}
+      addPubmedIds({{pubmed_ids}});
+    {% endif %}
+    {% if short_error_message and full_error_message %}
+      triggerErrorToast("{{short_error_message}}", "{{full_error_message}}")
+    {% endif %}
+  </script>
 </body>
 {% endblock body %}

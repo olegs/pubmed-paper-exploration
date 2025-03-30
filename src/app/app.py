@@ -1,10 +1,11 @@
 import json
 from typing import List, Tuple
 import pandas as pd
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, abort
 from src.analysis.analyzer import DatasetAnalyzer
 from src.visualization.visualize_clusters import visualize_clusters, get_topic_colors
 from src.config import config
+from src.exception.not_enough_datasets_error import NotEnoughDatasetsError
 
 app = Flask(__name__)
 svd_dimensions = config.svd_dimensions
@@ -17,24 +18,44 @@ def index():
 
 @app.route("/visualize", methods=["POST"])
 def visualize_pubmed_ids():
-    pubmed_ids = json.loads(request.form["pubmed_ids"])
-    n_ids = len(pubmed_ids)
+    try:
+        pubmed_ids = json.loads(request.form["pubmed_ids"])
+        n_ids = len(pubmed_ids)
+        n_clusters = int(request.form["n_clusters"])
+    except ValueError as e:
+        app.logger.error(e)
+        abort(400)
 
-    analyzer = DatasetAnalyzer(svd_dimensions, 10)
-    result = analyzer.analyze_datasets(pubmed_ids)
-    n_datasets = len(result.df)
+    try:
+        analyzer = DatasetAnalyzer(svd_dimensions, n_clusters)
+        result = analyzer.analyze_datasets(pubmed_ids)
+        n_datasets = len(result.df)
 
-    clustering_html = visualize_clusters(result.df, result.cluster_topics)
-    topic_table = get_topic_table(result.cluster_topics, result.df)
+        clustering_html = visualize_clusters(result.df, result.cluster_topics)
+        topic_table = get_topic_table(result.cluster_topics, result.df)
 
-    return render_template(
-        "visualization.html",
-        clustering_html=clustering_html,
-        n_ids=n_ids,
-        n_datasets=n_datasets,
-        topic_table=topic_table,
-    )
-
+        return render_template(
+            "visualization.html",
+            clustering_html=clustering_html,
+            n_ids=n_ids,
+            n_datasets=n_datasets,
+            topic_table=topic_table,
+        )
+    except NotEnoughDatasetsError as _:
+        return render_template(
+            "index.html",
+            pubmed_ids=pubmed_ids,
+            short_error_message="Too few PubMed IDs",
+            full_error_message="Not enough datasests are associated with the PubMed IDs. Please add more PubMed IDs.",
+        ), 400
+    except Exception as e:
+        app.logger.error(e)
+        return render_template(
+            "index.html",
+            pubmed_ids=pubmed_ids,
+            short_error_message="An error occured",
+            full_error_message="An error occured on our end. Please try again.",
+        ), 500
 
 def get_topic_table(
     cluster_topics: List[List[str]], datasets_df: pd.DataFrame

@@ -13,8 +13,8 @@ import pandas as pd
 def get_topic_colors(n_topics):
     if n_topics <= 10:
         return Category10[n_topics]
-    else:
-        return Category20[n_topics]
+
+    return Category20[n_topics]
 
 
 def get_html_tooltips(tooltips: List[Tuple[str, str]]):
@@ -93,7 +93,7 @@ def visualize_clusters(datasets_df: pd.DataFrame, cluster_topics: List[List[str]
         y="y",
         size=12,
         color=factor_cmap(
-            "cluster", get_topic_colors(n_topics), list(map(str, list(range(10))))
+            "cluster", get_topic_colors(n_topics), list(map(str, list(range(n_topics))))
         ),
         alpha=0.8,
         marker="circle",

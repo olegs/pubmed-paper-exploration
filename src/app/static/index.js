@@ -154,10 +154,17 @@ function triggerErrorToast(shortMessage, fullMessage) {
     errorToastBootstrap.show();
 }
 
+function deleteAllIds() {
+    const tbody = document.querySelector("table.table > tbody");
+    tbody.innerHTML = "";
+    pubmedIds = [];
+}
+
 function setUpEventsAndToasts() {
     const addButton = document.getElementById("id-form-add-btn");
     const addIdInput = document.getElementById("add-ids-input");
     const form = document.getElementById("id-form");
+    const deleteAllButton = document.getElementById("delete-all-btn")
     addButton.addEventListener("click",
         (event) => {
             onClickAddPumbedIds();
@@ -176,6 +183,12 @@ function setUpEventsAndToasts() {
                 event.preventDefault();
                 onClickAddPumbedIds();
             }
+        }
+    );
+
+    deleteAllButton.addEventListener("click",
+        (event) => {
+            deleteAllIds();
         }
     );
 

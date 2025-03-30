@@ -43,6 +43,10 @@ function onClickAddPumbedIds() {
     const input = document.getElementById("add-ids-input");
     const errorElement = document.getElementById("id-form-input-error");
     errorElement.style.display = "none";
+    if (input.value.trim().length === 0) {
+        displayError(errorElement, emptyInputErrorMessage);
+        return;
+    }
     try {
         const ids = parsePubmedIds(input.value, ",", "id-form-input-error");
         input.value = "";

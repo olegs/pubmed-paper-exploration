@@ -45,6 +45,7 @@ def visualize_pubmed_ids():
         return render_template(
             "index.html",
             pubmed_ids=pubmed_ids,
+            n_clusters=n_clusters,
             short_error_message="Too few PubMed IDs",
             full_error_message="Not enough datasests are associated with the PubMed IDs. Please add more PubMed IDs.",
         ), 400
@@ -53,6 +54,7 @@ def visualize_pubmed_ids():
         return render_template(
             "index.html",
             pubmed_ids=pubmed_ids,
+            n_clusters=n_clusters,
             short_error_message="An error occured",
             full_error_message="An error occured on our end. Please try again.",
         ), 500

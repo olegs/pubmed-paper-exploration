@@ -59,7 +59,7 @@
               <label for="n_clusters" class="form-label"
                 >Number of clusters</label
               >
-              <select name="n_clusters" class="form-select" aria-label="Select the number of clusters">
+              <select id="n-clusters-select" name="n_clusters" class="form-select" aria-label="Select the number of clusters">
                 <option value="5">5</option>
                 <option value="10" selected>10</option>
                 <option value="15">15</option>
@@ -121,6 +121,10 @@
     {% endif %}
     {% if short_error_message and full_error_message %}
       triggerErrorToast("{{short_error_message}}", "{{full_error_message}}")
+    {% endif %}
+    {% if n_clusters %}
+      const nClustersSelect = document.getElementById("n-clusters-select")
+      nClustersSelect.value = "{{n_clusters}}"
     {% endif %}
   </script>
 </body>

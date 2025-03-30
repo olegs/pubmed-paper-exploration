@@ -132,8 +132,7 @@ function submitPubmedIds(event) {
     event.preventDefault();
 
     if (pubmedIds.length === 0) {
-        errorElement = document.getElementById("id-form-input-error");
-        const errorElement = document.getElementById(errorElementId);
+        const errorElement = document.getElementById("id-form-input-error");
         displayError(errorElement, emptyInputErrorMessage);
         return;
     }

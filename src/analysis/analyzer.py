@@ -45,6 +45,8 @@ class DatasetAnalyzer:
         cluster_topics = get_clusters_top_terms(
             embeddings, cluster_assignments, vocabulary
         )
+
+        self.tsne.perplexity = min(30, len(datasets) - 1)
         tsne_embeddings_2d = self.tsne.fit_transform(embeddings_svd)
 
         return AnalysisReusult(

@@ -7,7 +7,7 @@ from sklearn.manifold import TSNE
 from src.ingestion.download_geo_datasets import download_geo_datasets
 from src.analysis.vectorize_datasets import vectorize_datasets
 from src.analysis.cluster import cluster, get_clusters_top_terms
-from src.analysis.analysis_result import AnalysisReusult
+from src.analysis.analysis_result import AnalysisResult
 from src.config import logger
 
 
@@ -20,7 +20,7 @@ class DatasetAnalyzer:
         self.tsne = TSNE(n_components=2, random_state=42)
         self.n_clusters = n_clusters
 
-    def analyze_datasets(self, pubmed_ids: List[int]) -> AnalysisReusult:
+    def analyze_datasets(self, pubmed_ids: List[int]) -> AnalysisResult:
         """
         Analyzes the datasets that are associated with the given PubMed IDs and
         clusters them.
@@ -47,7 +47,7 @@ class DatasetAnalyzer:
         self.tsne.perplexity = min(30, len(datasets) - 1)
         tsne_embeddings_2d = self.tsne.fit_transform(embeddings_svd)
 
-        return AnalysisReusult(
+        return AnalysisResult(
             datasets, cluster_assignments, cluster_topics, tsne_embeddings_2d
         )
 

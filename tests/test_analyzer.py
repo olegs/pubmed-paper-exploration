@@ -1,4 +1,4 @@
-from src.analysis.analysis_result import AnalysisReusult
+from src.analysis.analysis_result import AnalysisResult
 from src.analysis.analyzer import DatasetAnalyzer
 from src.exception.not_enough_datasets_error import NotEnoughDatasetsError
 import pytest
@@ -7,7 +7,7 @@ SVD_COMPONENTS = 15
 NUMBER_OF_CLUSTERS = 10
 
 
-def assert_valid_result(analysis_result: AnalysisReusult, number_of_clusters: int):
+def assert_valid_result(analysis_result: AnalysisResult, number_of_clusters: int):
     required_columns = [
         "x",
         "y",

@@ -1,3 +1,4 @@
+import traceback
 import json
 from typing import List, Tuple
 import pandas as pd
@@ -50,8 +51,8 @@ def visualize_pubmed_ids():
             short_error_message="Too few PubMed IDs",
             full_error_message="Not enough datasests are associated with the PubMed IDs. Please add more PubMed IDs.",
         ), 400
-    except Exception as e:
-        app.logger.error(e)
+    except Exception:
+        app.logger.error(traceback.format_exc())
         return render_template(
             "index.html",
             pubmed_ids=pubmed_ids,

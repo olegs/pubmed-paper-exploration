@@ -1,5 +1,6 @@
 from typing import List
 from os import path
+import os
 import GEOparse
 from GEOparse.utils import download_from_url
 from src.model.geo_dataset import GEODataset
@@ -23,6 +24,10 @@ def download_geo_datasets(pubmed_ids: List[int]) -> List[GEODataset]:
     return [download_geo_dataset(accession) for accession in accessions]
 
 
+def _make_directory_if_not_exist(dir_path: str):
+    if not path.isdir(dir_path):
+        os.mkdir(dir_path)
+
 def download_geo_dataset(accession: str) -> GEODataset:
     """
     Donwloads the GEO dataset with the given accession.
@@ -32,6 +37,8 @@ def download_geo_dataset(accession: str) -> GEODataset:
     """
     dataset_metadata_url = f"https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={accession}&targ=self&form=text&view=quick"
     download_path = path.join(download_folder, f"{accession}.txt")
+
+    _make_directory_if_not_exist(download_folder)
     if not path.isfile(download_path):
         check_limit()
         download_from_url(dataset_metadata_url, download_path)

@@ -6,7 +6,7 @@ class ParsingError extends Error {
 }
 
 var pubmedIds = [];
-var emptyInputErrorMessage = "Please enter a PubMedId.";
+var emptyInputErrorMessage = "Please enter a PubMed ID.";
 var successToastBootstrap = null;
 var errorToastBootstrap = null;
 

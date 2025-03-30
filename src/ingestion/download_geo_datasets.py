@@ -1,14 +1,16 @@
 from typing import List
 from os import path
 import os
+import asyncio
 import GEOparse
-import requests
+import aiohttp
 from src.model.geo_dataset import GEODataset
 from src.ingestion.fetch_geo_ids import fetch_geo_ids
 from src.ingestion.fetch_geo_accessions import fetch_geo_accessions
 from src.config import config
 
 download_folder = config.download_folder
+
 
 def download_geo_datasets(pubmed_ids: List[int]) -> List[GEODataset]:
     """
@@ -17,30 +19,44 @@ def download_geo_datasets(pubmed_ids: List[int]) -> List[GEODataset]:
     :param dataset_ids: PubMed IDs for which to download GEO datasets.
     :returns: A list containing the dowloaded datasets.
     """
-    session = requests.Session()
-    geo_ids = fetch_geo_ids(pubmed_ids, session)
-    accessions = fetch_geo_accessions(geo_ids, session)
 
-    return [download_geo_dataset(accession, session) for accession in accessions]
+    return asyncio.run(_download_geo_datasets(pubmed_ids))
+
+
+async def _download_geo_datasets(pubmed_ids: List[int]) -> List[GEODataset]:
+    """
+    Downloads the GEO datasets for papers with the given PubMed IDs.
+
+    :param dataset_ids: PubMed IDs for which to download GEO datasets.
+    :returns: A list containing the dowloaded datasets.
+    """
+    async with aiohttp.ClientSession() as session:
+        geo_ids = await fetch_geo_ids(pubmed_ids, session)
+        accessions = await fetch_geo_accessions(geo_ids, session)
+
+        return await asyncio.gather(
+            *(download_geo_dataset(accession, session) for accession in accessions)
+        )
 
 
 def _make_directory_if_not_exist(dir_path: str):
     if not path.isdir(dir_path):
         os.mkdir(dir_path)
 
-def _download_from_url(url: str, destination_path: str, session: requests.Session):
-    response = session.get(url)
-    response.raise_for_status()
-    with open(destination_path, "wb") as f:
-        f.write(response.content)
+
+async def _download_from_url(url: str, destination_path: str, session: aiohttp.ClientSession):
+    async with session.get(url) as response:
+        assert response.status == 200
+        with open(destination_path, "w") as f:
+            f.write(await response.text())
 
 
-def download_geo_dataset(accession: str, session: requests.Session) -> GEODataset:
+async def download_geo_dataset(accession: str, session: aiohttp.ClientSession) -> GEODataset:
     """
     Donwloads the GEO dataset with the given accession.
 
     :param accession: GEO accession for the dataset (ex. GSE12345)
-    :param session: Requests session.
+    :param session: aiohttp session.
     :return: GEO dataset
     """
     dataset_metadata_url = f"https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={accession}&targ=self&form=text&view=quick"
@@ -48,10 +64,12 @@ def download_geo_dataset(accession: str, session: requests.Session) -> GEODatase
 
     _make_directory_if_not_exist(download_folder)
     if not path.isfile(download_path):
-        _download_from_url(dataset_metadata_url, download_path, session)
+        await _download_from_url(dataset_metadata_url, download_path, session)
 
     with open(download_path) as soft_file:
-        relevant_lines = filter(lambda line: not line.startswith("!Series_sample_id"), soft_file)
+        relevant_lines = filter(
+            lambda line: not line.startswith("!Series_sample_id"), soft_file
+        )
         metadata = GEOparse.GEOparse.parse_metadata(relevant_lines)
         return GEODataset(metadata)
 

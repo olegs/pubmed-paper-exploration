@@ -1,6 +1,7 @@
 import pytest
 import GEOparse
 import requests
+import aiohttp
 import xml.etree.ElementTree as ET
 from typing import List
 from src.ingestion.download_geo_datasets import download_geo_dataset
@@ -53,5 +54,7 @@ def slow_download_geo_dataset(accession: str) -> SlowGEODataset:
 
 
 @pytest.mark.parametrize("accession", [("GSE127893"), ("GSE216999")])
-def test_imporved_download_geo_dataset(accession):
-    assert download_geo_dataset(accession) == slow_download_geo_dataset(accession)
+@pytest.mark.asyncio
+async def test_imporved_download_geo_dataset(accession):
+    async with aiohttp.ClientSession() as session:
+        assert await download_geo_dataset(accession, session) == slow_download_geo_dataset(accession)

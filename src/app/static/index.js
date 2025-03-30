@@ -37,6 +37,9 @@ function addPubmedIds(ids) {
     ids = ids.filter((x) => !pubmedIds.includes(x));
     pubmedIds = pubmedIds.concat(ids);
     ids.map(addIdToTable);
+
+    const deleteAllButton = document.getElementById("delete-all-btn");
+    deleteAllButton.disabled = false;
 }
 
 function onClickAddPumbedIds() {
@@ -159,6 +162,8 @@ function triggerErrorToast(shortMessage, fullMessage) {
 }
 
 function deleteAllIds() {
+    const deleteAllButton = document.getElementById("delete-all-btn");
+    deleteAllButton.disabled = true;
     const tbody = document.querySelector("table.table > tbody");
     tbody.innerHTML = "";
     pubmedIds = [];

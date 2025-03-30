@@ -1,9 +1,7 @@
 from string import Template
 from typing import List, Tuple
-from bokeh.io import show
-from bokeh.layouts import row
-from bokeh.plotting import figure, show
-from bokeh.models import ColumnDataSource
+from bokeh.plotting import figure
+from bokeh.models import ColumnDataSource, Text, HoverTool
 from bokeh.palettes import Category10, Category20
 from bokeh.transform import factor_cmap
 from bokeh.embed import components
@@ -52,6 +50,30 @@ def get_html_tooltips(tooltips: List[Tuple[str, str]]):
     """
 
 
+def _plot_cluster_centers(plot, datasets_df: pd.DataFrame):
+    """
+    Plots cluster centers.
+
+    :param plot: Bokeh figure where the datasets are visualized.
+    :param datasets_df: A pandas dataframe which contains the infromation about the
+    datasets, the cluster they are assigned to in the "cluster" column, and
+    their coordianates in a 2D space ("x" and "y" columns).
+    """
+    cluster_centers = datasets_df.groupby(["cluster"])[["x", "y"]].mean()
+    source = ColumnDataSource(cluster_centers)
+    source.data["cluster"] = list(map(lambda x: f"#{x}", source.data["cluster"] + 1))
+    glyph = Text(
+        x="x",
+        y="y",
+        text="cluster",
+        text_font_size="14px",
+        background_fill_color="#eeeeee",
+        background_fill_alpha=0.6,
+        padding=1
+    )
+    plot.add_glyph(source, glyph)
+
+
 def visualize_clusters(datasets_df: pd.DataFrame, cluster_topics: List[List[str]]):
     """
     Visualizes the result of the dataset clustering and outputs the
@@ -78,10 +100,20 @@ def visualize_clusters(datasets_df: pd.DataFrame, cluster_topics: List[List[str]
         "topics",
     )
 
-    cluster_scatterplot = figure(
+    cluster_visualization = figure(
         width=1000,
         height=1000,
         sizing_mode="scale_width",
+        tools=[
+            "pan",
+            "box_zoom",
+            "wheel_zoom",
+            "save",
+            "reset",
+            "help"
+        ],
+    )
+    hover_tool = HoverTool(
         tooltips=get_html_tooltips(
             [
                 ("ID", "@id"),
@@ -90,10 +122,11 @@ def visualize_clusters(datasets_df: pd.DataFrame, cluster_topics: List[List[str]
                 ("Topic tags", "@topics"),
                 ("Pubmed IDs", "@pubmed_ids"),
             ]
-        ),
+        )
     )
+    cluster_visualization.add_tools(hover_tool)
     n_topics = len(cluster_topics)
-    cluster_scatterplot.scatter(
+    scatter = cluster_visualization.scatter(
         source=source,
         x="x",
         y="y",
@@ -106,23 +139,27 @@ def visualize_clusters(datasets_df: pd.DataFrame, cluster_topics: List[List[str]
         alpha=0.8,
         marker="circle",
     )
-    cluster_scatterplot.xaxis.major_tick_line_color = None
-    cluster_scatterplot.xaxis.minor_tick_line_color = None
-    cluster_scatterplot.xaxis.major_label_text_font_size = "0pt"
-    cluster_scatterplot.xgrid.visible = False
+    _plot_cluster_centers(cluster_visualization, datasets_df)
 
-    cluster_scatterplot.yaxis.major_tick_line_color = (
+    cluster_visualization.xaxis.major_tick_line_color = None
+    cluster_visualization.xaxis.minor_tick_line_color = None
+    cluster_visualization.xaxis.major_label_text_font_size = "0pt"
+    cluster_visualization.xgrid.visible = False
+
+    cluster_visualization.yaxis.major_tick_line_color = (
         None  # turn off y-axis major ticks
     )
-    cluster_scatterplot.yaxis.minor_tick_line_color = (
+    cluster_visualization.yaxis.minor_tick_line_color = (
         None  # turn off y-axis minor ticks
     )
-    cluster_scatterplot.yaxis.major_label_text_font_size = (
+    cluster_visualization.yaxis.major_label_text_font_size = (
         "0pt"  # turn off x-axis tick labels
     )
-    cluster_scatterplot.ygrid.visible = False
+    cluster_visualization.ygrid.visible = False
 
-    script, div = components(cluster_scatterplot)
+    hover_tool.renderers = [scatter]
+
+    script, div = components(cluster_visualization)
     return f"{script}\n{div}"
 
 

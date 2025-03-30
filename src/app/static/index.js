@@ -119,6 +119,15 @@ function triggerImportSuccessToast(nPmids, filename) {
     successToastBootstrap.show();
 }
 
+function changeSubmitButtonToLoadingIndicator() {
+    const submitButton = document.getElementById("submit-button");
+    submitButton.disabled = true;
+    const submitButtonLabel = document.getElementById("submit-button-label");
+    submitButtonLabel.style.display = "none";
+    const submitButtonLoadingIndicator = document.getElementById("submit-button-loading-indicator");
+    submitButtonLoadingIndicator.style.display = "inline";
+}
+
 function submitPubmedIds(event) {
     event.preventDefault();
 
@@ -128,6 +137,8 @@ function submitPubmedIds(event) {
         displayError(errorElement, emptyInputErrorMessage);
         return;
     }
+
+    changeSubmitButtonToLoadingIndicator();
 
     const pubmedIdsInput = document.querySelector('input[name="pubmed_ids"]');
     pubmedIdsInput.value = JSON.stringify(pubmedIds);

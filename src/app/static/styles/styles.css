@@ -14,3 +14,7 @@
     max-height: 75vh;
     display: flex;
 }
+
+.loading-indicator {
+    display: none;
+}

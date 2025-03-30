@@ -138,6 +138,7 @@ function submitPubmedIds(event) {
     if (pubmedIds.length === 0) {
         const errorElement = document.getElementById("id-form-input-error");
         displayError(errorElement, emptyInputErrorMessage);
+        triggerErrorToast("PubMed IDs have not been entered", "No PubMed IDs have been entered. Please enter or import PubMed IDs.")
         return;
     }
 

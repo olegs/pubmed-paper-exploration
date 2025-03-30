@@ -59,7 +59,7 @@ def visualize_clusters(datasets_df: pd.DataFrame, cluster_topics: List[List[str]
     """
     number_of_topic_words_to_display = 5
     source = ColumnDataSource(datasets_df)
-    source.data["cluster"] = list(map(str, source.data["cluster"]))
+    source.data["cluster"] = list(map(str, source.data["cluster"] + 1))
     source.add(
         list(
             map(
@@ -93,7 +93,7 @@ def visualize_clusters(datasets_df: pd.DataFrame, cluster_topics: List[List[str]
         y="y",
         size=12,
         color=factor_cmap(
-            "cluster", get_topic_colors(n_topics), list(map(str, list(range(n_topics))))
+            "cluster", get_topic_colors(n_topics), list(map(str, list(range(1, n_topics + 1))))
         ),
         alpha=0.8,
         marker="circle",

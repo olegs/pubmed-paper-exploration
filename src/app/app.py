@@ -75,6 +75,6 @@ def get_topic_table(
     topic_colors = get_topic_colors(n_topics)
     topic_counts = datasets_df.groupby("cluster")["id"].count()
     return [
-        (index, topic_counts[index], topic_colors[index], ", ".join(topics))
+        (index + 1, topic_counts[index], topic_colors[index], ", ".join(topics))
         for index, topics in enumerate(cluster_topics)
     ]

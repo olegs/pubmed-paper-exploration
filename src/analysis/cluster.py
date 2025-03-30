@@ -1,4 +1,5 @@
 from typing import List, Tuple
+from operator import itemgetter
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import silhouette_score
 from sklearn.decomposition import TruncatedSVD
@@ -61,6 +62,18 @@ def get_clusters_top_terms(
     return top_terms
 
 
+def sort_cluster_labels(cluster_assignments: np.array) -> np.array:
+    """
+    Relabels the clusters based on their size.
+    :param cluster_assignments: Unordered cluster assignements.
+    :return: Cluster assignements where the cluster labels are ordered by the size of the clusters.
+    """
+    cluster_labels, counts = np.unique(cluster_assignments, return_counts=True)
+    cluster_labels_sorted = cluster_labels[np.argsort(-counts)]
+    cluster_ranks = {cluster_label: rank for rank, cluster_label in enumerate(cluster_labels_sorted)}
+    return np.array([cluster_ranks[cluster_assignment] for cluster_assignment in cluster_assignments])
+
+
 def cluster(embeddings: spmatrix, n_clusters: int) -> Tuple[List[int], np.ndarray]:
     """
     Clusters the vector representations of GEO datasets.
@@ -78,6 +91,7 @@ def cluster(embeddings: spmatrix, n_clusters: int) -> Tuple[List[int], np.ndarra
         raise NotEnoughDatasetsError(
             f"Cannot extract {n_clusters} clusters for {embeddings.shape[0]} datasets"
         )
+    cluster_assignments = sort_cluster_labels(cluster_assignments)
 
     silhouette_avg = silhouette_score(embeddings, cluster_assignments)
     logger.info(f"Silhouette score: {silhouette_avg}")

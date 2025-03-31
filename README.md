@@ -1,4 +1,4 @@
-# jetbrains-internship-task
+# geo-dataset-clustering
 This repository contains a web app which takes a set of PubMed IDs and clusters datasets in the [GEO database](https://www.ncbi.nlm.nih.gov/gds/) that are associated with those PubMed IDs based on text similarity.
 
 The app was built using [flask](https://flask.palletsprojects.com/en/stable/) and [bokeh](https://bokeh.org/).

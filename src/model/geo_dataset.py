@@ -10,6 +10,7 @@ class GEODataset:
         self.organisms: List[str] = metadata.get("sample_organism", [])
         self.overall_design: str = metadata.get("overall_design", [""])[0]
         self.pubmed_ids: List[str] = metadata.get("pubmed_id", [])
+        self.platform_ids: str = metadata.get("platform_id", [])
 
     def __str__(self):
         if self.is_not_superseries():

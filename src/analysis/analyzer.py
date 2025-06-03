@@ -9,6 +9,7 @@ from src.analysis.vectorize_datasets import vectorize_datasets
 from src.analysis.cluster import cluster, get_clusters_top_terms
 from src.analysis.analysis_result import AnalysisResult
 from src.config import logger
+from src.model.geo_dataset import GEODataset
 
 
 class DatasetAnalyzer:
@@ -20,7 +21,7 @@ class DatasetAnalyzer:
         self.tsne = TSNE(n_components=2, random_state=42)
         self.n_clusters = n_clusters
 
-    def analyze_datasets(self, pubmed_ids: List[int]) -> AnalysisResult:
+    def analyze_paper_datasets(self, pubmed_ids: List[int]) -> AnalysisResult:
         """
         Analyzes the datasets that are associated with the given PubMed IDs and
         clusters them.
@@ -30,6 +31,15 @@ class DatasetAnalyzer:
         """
 
         datasets = download_geo_datasets(pubmed_ids)
+        return self.analyze_datasets(datasets)
+    
+    def analyze_datasets(self, datasets: List[GEODataset]):
+        """
+        Analyzes the datasets and clusters them.
+
+        :param datasets: List of GEODataset objects.
+        :return: An instance of AnalysisResult containg the results.
+        """
         embeddings, vocabulary = vectorize_datasets(datasets)
         embeddings_svd = self.svd.fit_transform(embeddings)
 
@@ -48,7 +58,7 @@ class DatasetAnalyzer:
         tsne_embeddings_2d = self.tsne.fit_transform(embeddings_svd)
 
         return AnalysisResult(
-            datasets, cluster_assignments, cluster_topics, tsne_embeddings_2d
+            datasets, cluster_assignments, cluster_topics, tsne_embeddings_2d 
         )
 
 
@@ -57,6 +67,6 @@ if __name__ == "__main__":
     with open("ids.txt") as file:
         pubmed_ids = map(int, file)
         analyzer = DatasetAnalyzer(SVD_COMPONENTS, 10)
-        result = analyzer.analyze_datasets(pubmed_ids)
+        result = analyzer.analyze_paper_datasets(pubmed_ids)
         print(result.df.head())
         print(result.cluster_topics)

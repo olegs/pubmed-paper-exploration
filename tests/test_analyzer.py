@@ -36,7 +36,7 @@ def test_analyzer_produces_valid_result(pubmed_ids):
     with open("ids.txt") as file:
         pubmed_ids = map(int, file)
         analyzer = DatasetAnalyzer(SVD_COMPONENTS, NUMBER_OF_CLUSTERS)
-        result = analyzer.analyze_datasets(pubmed_ids)
+        result = analyzer.analyze_paper_datasets(pubmed_ids)
         assert_valid_result(result, NUMBER_OF_CLUSTERS)
 
 
@@ -46,4 +46,4 @@ def test_analyzer_produces_valid_result(pubmed_ids):
 def test_analyzer_raises_error_when_there_are_not_enough_datasets(pubmed_ids):
     analyzer = DatasetAnalyzer(SVD_COMPONENTS, NUMBER_OF_CLUSTERS)
     with pytest.raises(NotEnoughDatasetsError):
-        result = analyzer.analyze_datasets(pubmed_ids)
+        result = analyzer.analyze_paper_datasets(pubmed_ids)

@@ -30,7 +30,7 @@ def visualize_pubmed_ids():
 
     try:
         analyzer = DatasetAnalyzer(svd_dimensions, n_clusters)
-        result = analyzer.analyze_datasets(pubmed_ids)
+        result = analyzer.analyze_paper_datasets(pubmed_ids)
         n_datasets = len(result.df)
 
         clustering_html = visualize_clusters(result.df, result.cluster_topics)

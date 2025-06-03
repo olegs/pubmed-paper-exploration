@@ -1,6 +1,7 @@
 from string import Template
 from typing import List, Tuple
-from bokeh.plotting import figure
+from bokeh.io import output_notebook
+from bokeh.plotting import figure, show
 from bokeh.models import ColumnDataSource, Text, HoverTool
 from bokeh.palettes import Category10, Category20
 from bokeh.transform import factor_cmap
@@ -74,7 +75,7 @@ def _plot_cluster_centers(plot, datasets_df: pd.DataFrame):
     plot.add_glyph(source, glyph)
 
 
-def visualize_clusters(datasets_df: pd.DataFrame, cluster_topics: List[List[str]]):
+def visualize_clusters_html(datasets_df: pd.DataFrame, cluster_topics: List[List[str]]):
     """
     Visualizes the result of the dataset clustering and outputs the
     visualization as HTML and Javascript.
@@ -84,6 +85,23 @@ def visualize_clusters(datasets_df: pd.DataFrame, cluster_topics: List[List[str]
     their coordianates in a 2D space ("x" and "y" columns).
     :param cluster_topics: List of lists of keywords for each topic.
     :return: A string containing the HTML that renders the plot.
+    """
+
+    cluster_visualization = _visualize_clusters(datasets_df, cluster_topics)
+    script, div = components(cluster_visualization)
+    return f"{script}\n{div}"
+
+
+def _visualize_clusters(datasets_df: pd.DataFrame, cluster_topics: List[List[str]]) -> figure:
+    """
+    Visualizes the result of the dataset clustering and outputs the
+    visualization as a bokeh figure.
+
+    :param datasets_df: A pandas dataframe which contains the infromation about the
+    datasets, the cluster they are assigned to in the "cluster" column, and
+    their coordianates in a 2D space ("x" and "y" columns).
+    :param cluster_topics: List of lists of keywords for each topic.
+    :return: A bokeh figure containing the plot.
     """
     number_of_topic_words_to_display = 5
     source = ColumnDataSource(datasets_df)
@@ -158,9 +176,8 @@ def visualize_clusters(datasets_df: pd.DataFrame, cluster_topics: List[List[str]
     cluster_visualization.ygrid.visible = False
 
     hover_tool.renderers = [scatter]
+    return cluster_visualization
 
-    script, div = components(cluster_visualization)
-    return f"{script}\n{div}"
 
 
 if __name__ == "__main__":
@@ -170,4 +187,4 @@ if __name__ == "__main__":
         pubmed_ids = map(int, file)
         analyzer = DatasetAnalyzer(15, 10)
         result = analyzer.analyze_paper_datasets(pubmed_ids)
-        print(visualize_clusters(result.df, result.cluster_topics))
+        print(visualize_clusters_html(result.df, result.cluster_topics))

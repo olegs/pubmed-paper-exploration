@@ -4,7 +4,7 @@ from typing import List, Tuple
 import pandas as pd
 from flask import Flask, render_template, request, abort
 from src.analysis.analyzer import DatasetAnalyzer
-from src.visualization.visualize_clusters import visualize_clusters
+from src.visualization.visualize_clusters import visualize_clusters_html
 from src.visualization.get_topic_table import get_topic_table
 from src.config import config
 from src.exception.not_enough_datasets_error import NotEnoughDatasetsError
@@ -33,7 +33,7 @@ def visualize_pubmed_ids():
         result = analyzer.analyze_paper_datasets(pubmed_ids)
         n_datasets = len(result.df)
 
-        clustering_html = visualize_clusters(result.df, result.cluster_topics)
+        clustering_html = visualize_clusters_html(result.df, result.cluster_topics)
         topic_table = get_topic_table(result.cluster_topics, result.df)
 
         return render_template(

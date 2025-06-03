@@ -92,6 +92,22 @@ def visualize_clusters_html(datasets_df: pd.DataFrame, cluster_topics: List[List
     return f"{script}\n{div}"
 
 
+def visualize_clusters_jupyter(datasets_df: pd.DataFrame, cluster_topics: List[List[str]]):
+    """
+    Visualizes the result of the dataset clustering and outputs the
+    visualization in a Jupyter Notebook cell.
+
+    :param datasets_df: A pandas dataframe which contains the infromation about the
+    datasets, the cluster they are assigned to in the "cluster" column, and
+    their coordianates in a 2D space ("x" and "y" columns).
+    :param cluster_topics: List of lists of keywords for each topic.
+    """
+
+    cluster_visualization = _visualize_clusters(datasets_df, cluster_topics)
+    output_notebook()
+    show(cluster_visualization)
+
+
 def _visualize_clusters(datasets_df: pd.DataFrame, cluster_topics: List[List[str]]) -> figure:
     """
     Visualizes the result of the dataset clustering and outputs the

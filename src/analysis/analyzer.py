@@ -47,7 +47,7 @@ class DatasetAnalyzer:
         logger.info("Explained variance of the SVD step: %.1f %%", explained_variance * 100)
 
         begin = time.time()
-        cluster_assignments = cluster(embeddings_svd, self.n_clusters)
+        cluster_assignments, silhouette_score = cluster(embeddings_svd, self.n_clusters)
         end = time.time()
         logger.info("Clustering time: %.2fs", end - begin)
         cluster_topics = get_clusters_top_terms(
@@ -58,7 +58,7 @@ class DatasetAnalyzer:
         tsne_embeddings_2d = self.tsne.fit_transform(embeddings_svd)
 
         return AnalysisResult(
-            datasets, cluster_assignments, cluster_topics, tsne_embeddings_2d 
+            datasets, cluster_assignments, cluster_topics, tsne_embeddings_2d, silhouette_score
         )
 
 

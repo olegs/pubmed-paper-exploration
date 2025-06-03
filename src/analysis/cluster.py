@@ -96,7 +96,7 @@ def cluster(embeddings: spmatrix, n_clusters: int) -> Tuple[List[int], np.ndarra
     silhouette_avg = silhouette_score(embeddings, cluster_assignments)
     logger.info(f"Silhouette score: {silhouette_avg}")
 
-    return cluster_assignments
+    return cluster_assignments, silhouette_avg
 
 
 if __name__ == "__main__":

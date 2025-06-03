@@ -2,6 +2,7 @@ from typing import List
 from os import path
 import os
 import asyncio
+import concurrent.futures
 import GEOparse
 import aiohttp
 from src.model.geo_dataset import GEODataset
@@ -11,16 +12,33 @@ from src.config import config
 
 download_folder = config.download_folder
 
+def is_running_in_jupyter():
+    """
+    Checks if code is being run inside a Jupyter notebook.
 
-def download_geo_datasets(pubmed_ids: List[int]) -> List[GEODataset]:
+    :returns: True if code is being run inside a Jupyter notebook, otherwise
+    False.
+    """
+    try:
+        __IPYTHON__
+        return True
+    except NameError:
+        return False
+
+def download_geo_datasets(pubmed_ids: List[int], runningInJupyter: bool=False) -> List[GEODataset]:
     """
     Downloads the GEO datasets for papers with the given PubMed IDs.
 
     :param dataset_ids: PubMed IDs for which to download GEO datasets.
+    :param runningInJupyter: Set to True if the function is being run in a
     :returns: A list containing the dowloaded datasets.
     """
 
-    return asyncio.run(_download_geo_datasets(pubmed_ids))
+    if not is_running_in_jupyter():
+        return asyncio.run(_download_geo_datasets(pubmed_ids))
+    else:
+        pool = concurrent.futures.ThreadPoolExecutor()
+        return pool.submit(asyncio.run, _download_geo_datasets(pubmed_ids)).result()
 
 
 async def _download_geo_datasets(pubmed_ids: List[int]) -> List[GEODataset]:

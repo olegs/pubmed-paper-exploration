@@ -1,4 +1,5 @@
 from typing import List, Dict
+from src.model.geo_sample import GEOSample
 
 
 class GEODataset:
@@ -11,6 +12,8 @@ class GEODataset:
         self.overall_design: str = metadata.get("overall_design", [""])[0]
         self.pubmed_ids: List[str] = metadata.get("pubmed_id", [])
         self.platform_ids: str = metadata.get("platform_id", [])
+        self.sample_accessions: List[str] = metadata.get("sample_id", [])
+        self.samples: List[GEOSample] | None = None
 
     def __str__(self):
         if self.is_not_superseries():

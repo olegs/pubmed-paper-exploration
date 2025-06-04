@@ -6,6 +6,7 @@ import concurrent.futures
 import GEOparse
 import aiohttp
 from src.model.geo_dataset import GEODataset
+from src.model.geo_sample import GEOSample
 from src.ingestion.fetch_geo_ids import fetch_geo_ids
 from src.ingestion.fetch_geo_accessions import fetch_geo_accessions
 from src.config import config
@@ -85,11 +86,8 @@ async def download_geo_dataset(accession: str, session: aiohttp.ClientSession) -
         await _download_from_url(dataset_metadata_url, download_path, session)
 
     with open(download_path) as soft_file:
-        relevant_lines = filter(
-            lambda line: not line.startswith("!Series_sample_id"), soft_file
-        )
-        metadata = GEOparse.GEOparse.parse_metadata(relevant_lines)
-        return GEODataset(metadata)
+        metadata = GEOparse.GEOparse.parse_metadata(soft_file)
+        return GEODataset(metadata) if accession.startswith("GSE") else GEOSample(metadata)
 
 
 if __name__ == "__main__":

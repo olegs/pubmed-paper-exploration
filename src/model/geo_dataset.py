@@ -1,5 +1,6 @@
 from typing import List, Dict
 from src.model.geo_sample import GEOSample
+from dateutil.parser import parse as parse_date
 
 
 class GEODataset:
@@ -14,6 +15,8 @@ class GEODataset:
         self.platform_ids: str = metadata.get("platform_id", [])
         self.sample_accessions: List[str] = metadata.get("sample_id", [])
         self.samples: List[GEOSample] | None = None
+        self.publication_date = parse_date(metadata["submission_date"][0]) if "submission_date" in metadata else None
+        self.metadata = metadata
 
     def __str__(self):
         if self.is_not_superseries():

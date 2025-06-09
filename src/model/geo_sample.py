@@ -1,21 +1,22 @@
 from typing import Dict, List
+from src.config import logger
 
 
 class GEOSample:
     def __init__(self, metadata: Dict):
         self.metadata = metadata
-        self.characteristics = GEOSample._parse_characteristics(
-            metadata.get("characteristics_ch1"))
-        self.title = metadata.get("title")[0]
-        self.accession = metadata.get("geo_accession")[0]
-        self.organism = metadata.get("organism_ch1")[0]
+        self.title = metadata.get("title", ["N/A"])[0]
+        self.accession = metadata.get("geo_accession", ["N/A"])[0]
+        self.organism = metadata.get("organism_ch1", ["N/A"])[0]
         self.description = " ".join(metadata.get("description", []))
         self.data_processing = metadata.get("data_processing", [])
         self.treatment_protocol = " ".join(
             metadata.get("treatment_protocol_ch1", []))
-        self.sample_type = metadata.get("type")[0]
+        self.sample_type = metadata.get("type", ["N/A"])[0]
+        self.characteristics = self._parse_characteristics(
+            metadata.get("characteristics_ch1"))
 
-    def _parse_characteristics(characteristics: List[str]) -> Dict[str, str]:
+    def _parse_characteristics(self, characteristics: List[str]) -> Dict[str, str]:
         """
         Parses the characterstics key value pairs and stores them in a 
         dictionary.
@@ -23,13 +24,17 @@ class GEOSample:
         metadata from a sample.
         :return: Dictionary where the keys are the names of the characteristics.
         """
+        if characteristics is None:
+            return {}
         characteristics_dict = {}
         for characteristic in characteristics:
             try:
                 key, value = characteristic.split(":", 1)
                 characteristics_dict[key] = value.strip()
             except ValueError:
-                print("Bad characteristic: ", characteristic)
+                unparsed_key = "unparsed_characteristics"
+                current_unparsed = characteristics_dict.get(unparsed_key, "")
+                characteristics_dict[unparsed_key] = current_unparsed + "|" + characteristic
         return characteristics_dict
 
     def __eq__(self, other):

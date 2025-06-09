@@ -8,10 +8,11 @@ import aiohttp
 from src.model.geo_dataset import GEODataset
 from src.model.geo_sample import GEOSample
 from src.ingestion.fetch_geo_ids import fetch_geo_ids
-from src.ingestion.fetch_geo_accessions import fetch_geo_accessions
+from src.ingestion.fetch_geo_accessions import fetch_geo_accessions, fetch_geo_accessions_europepmc
 from src.config import config
 
 download_folder = config.download_folder
+
 
 def is_running_in_jupyter():
     """
@@ -26,7 +27,8 @@ def is_running_in_jupyter():
     except NameError:
         return False
 
-def download_geo_datasets(pubmed_ids: List[int], runningInJupyter: bool=False) -> List[GEODataset]:
+
+def download_geo_datasets(pubmed_ids: List[int], runningInJupyter: bool = False) -> List[GEODataset]:
     """
     Downloads the GEO datasets for papers with the given PubMed IDs.
 
@@ -51,7 +53,10 @@ async def _download_geo_datasets(pubmed_ids: List[int]) -> List[GEODataset]:
     """
     async with aiohttp.ClientSession() as session:
         geo_ids = await fetch_geo_ids(pubmed_ids, session)
-        accessions = await fetch_geo_accessions(geo_ids, session)
+        accessions_geo = fetch_geo_accessions(geo_ids, session)
+        accessions_pmc = fetch_geo_accessions_europepmc(pubmed_ids, session)
+
+        accessions = set(await accessions_geo) | set(await accessions_pmc)
 
         return await asyncio.gather(
             *(download_geo_dataset(accession, session) for accession in accessions)

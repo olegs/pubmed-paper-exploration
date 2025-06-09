@@ -25,8 +25,11 @@ class GEOSample:
         """
         characteristics_dict = {}
         for characteristic in characteristics:
-            key, value = characteristic.split(": ", 1)
-            characteristics_dict[key] = value
+            try:
+                key, value = characteristic.split(":", 1)
+                characteristics_dict[key] = value.strip()
+            except ValueError:
+                print("Bad characteristic: ", characteristic)
         return characteristics_dict
 
     def __eq__(self, other):

@@ -30,7 +30,7 @@ class GEOSample:
         for characteristic in characteristics:
             try:
                 key, value = characteristic.split(":", 1)
-                characteristics_dict[key] = value.strip()
+                characteristics_dict[key.lower()] = value.strip().lower()
             except ValueError:
                 unparsed_key = "unparsed_characteristics"
                 current_unparsed = characteristics_dict.get(unparsed_key, "")

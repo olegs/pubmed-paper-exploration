@@ -7,6 +7,11 @@ The app was built using [flask](https://flask.palletsprojects.com/en/stable/) an
 - Python 3.10 or higher
 - pip
 - venv
+- A copy of the MeSH vocabulary. You can download it by running this command:
+```bash 
+wget -O desc2025.xml https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/xmlmesh/desc2025.xml
+```
+
 
 ## Launch instructions
 1. Create a virtual environment:

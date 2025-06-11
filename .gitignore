@@ -178,3 +178,6 @@ GEO_Datasets/
 
 # List PubMed IDs
 ids.txt
+
+# MeSH vocabulary
+desc2025.xml

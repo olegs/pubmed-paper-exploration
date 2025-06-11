@@ -1,5 +1,23 @@
 import xml.etree.ElementTree as ET
-from typing import Dict, List, Set
+from typing import Dict, Set
+
+def get_all_synonyms_for_mesh_entry(record: ET.Element) -> Set[str]:
+    """
+    Gets all the synonyms for a term in MeSH.
+    
+    :param descriptor_record: <DescritporRecord> XML element for the term.
+    :return: A set containing all the synonyms for the MeSH entry.
+    """
+    descriptor_name_element = record.find('DescriptorName/String')
+    if descriptor_name_element is None:
+        return {}
+    all_terms_for_entry = {descriptor_name_element.text.strip().lower()}
+
+    for term in record.findall('.//TermList/Term'):
+        term_name_element = term.find('String')
+        if term_name_element is not None:
+            all_terms_for_entry.add(term_name_element.text.strip().lower())
+    return all_terms_for_entry
 
 def build_mesh_lookup(xml_file_path: str) -> Dict[str, Set[str]]:
     """
@@ -22,7 +40,6 @@ def build_mesh_lookup(xml_file_path: str) -> Dict[str, Set[str]]:
         tree = ET.parse(xml_file_path)
         root = tree.getroot()
 
-        # Iterate over each <DescriptorRecord> in the XML file
         for record in root.findall('DescriptorRecord'):
             tree_numbers = {
                 tn.text.strip() for tn in record.findall('.//TreeNumber') if tn.text
@@ -30,20 +47,8 @@ def build_mesh_lookup(xml_file_path: str) -> Dict[str, Set[str]]:
             if not tree_numbers:
                 continue
 
-            descriptor_name_element = record.find('DescriptorName/String')
-            if descriptor_name_element is None:
-                continue
+            all_terms_for_record = get_all_synonyms_for_mesh_entry(record) 
             
-            all_terms_for_record = {descriptor_name_element.text.strip().lower()}
-
-            # --- Extract All Synonyms (Entry Terms) ---
-            # Entry terms are found within Concept -> TermList
-            for term in record.findall('.//TermList/Term'):
-                term_name_element = term.find('String')
-                if term_name_element is not None:
-                    all_terms_for_record.add(term_name_element.text.strip().lower())
-            
-            # Map all found terms to the set of tree numbers
             for term_str in all_terms_for_record:
                 if term_str not in mesh_lookup:
                     mesh_lookup[term_str] = set()
@@ -64,12 +69,10 @@ def is_mesh_term_in_anatomy_or_disease(term: str, mesh_lookup: Dict[str, Set[str
     """
     Checks if a MeSH term is in the Anatomy or Disease category using a lookup table.
 
-    Args:
-        term: The MeSH term to check (e.g., "Heart", "Lung").
-        mesh_lookup: A pre-built dictionary mapping terms to tree numbers.
+    :param term: The MeSH term to check (e.g., "Heart", "Lung").
+    :param mesh_lookup: A pre-built dictionary mapping terms to tree numbers.
 
-    Returns:
-        True if the term is in the Anatomy category, False otherwise.
+    :return: True if the term is in the Anatomy or Disease categories, False otherwise.
     """
     if not term:
         return False
@@ -92,9 +95,7 @@ def is_mesh_term_in_anatomy_or_disease(term: str, mesh_lookup: Dict[str, Set[str
     return False
 
 
-# --- Example Usage ---
 if __name__ == "__main__":
-    # IMPORTANT: Replace with the actual path to your downloaded MeSH file
     mesh_xml_file = "desc2025.xml"
 
     # This might take a few seconds.

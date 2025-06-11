@@ -5,22 +5,25 @@ from src.tissue_parsing.parse_tissue import get_standard_name_spacy
 def preprocess_tissue_name(name: str) -> str:
     return name.replace("_", " ")
 
-def get_standard_tissue_name(name: str, mesh_lookup: Dict[str, List[str]], nlp):
+def get_standard_tissue_name(name: str, mesh_lookup: Dict[str, Set[str]], nlp) -> str | None:
     """
-    Returns a standardized name for a tissue or cell type.
+    Standardizes the name for a tissue or cell type.
 
     :param name: Tissue or cell type name to standardize
     :param mesh_lookup: A pre-built dictionary mapping MeSH terms to tree 
         numbers (see build_mesh_lookup).
     :param nlp: Scispacy NER and entity linking pipeline created by
     create_entity_linking_pipline_with_ner.
+
+    :return: Standardized name of the tissue or the input name if the
+    standardized name cannot be determined.
     """
     name = preprocess_tissue_name(name)
     gilda_name = get_standard_name_gilda(name, mesh_lookup)
     if gilda_name:
         return gilda_name
     
-    return get_standard_name_spacy(nlp, name)
+    return get_standard_name_spacy(name, nlp)
 
 if __name__ == "__main__":
     from src.tissue_parsing.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup

@@ -1,7 +1,19 @@
+from typing import Dict, Set
 import gilda
 from src.tissue_parsing.is_mesh_term_in_anatomy_or_disease import is_mesh_term_in_anatomy_or_disease
 
-def get_standard_name_gilda(name, mesh_lookup):
+def get_standard_name_gilda(name: str, mesh_lookup: Dict[str, Set[str]]) -> str | None:
+    """
+    Gets the standard name for a tissue or cell type using the Gilda NER 
+    package.
+
+    :param name: Tissue or cell type name to standardize.
+    :param mesh_lookup: A pre-built dictionary mapping MeSH terms to tree 
+        numbers (see build_mesh_lookup).
+
+    :return: Standardized name of the tissue or cell type or None if a
+    standardized name cannot be determined.
+    """
     annotations = gilda.annotate(name)
     matches = [match for annotation in annotations for match in annotation.matches]
     sorted_matches = sorted(matches, key=lambda m: m.score)

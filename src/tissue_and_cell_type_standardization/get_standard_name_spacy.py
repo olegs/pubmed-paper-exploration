@@ -49,7 +49,7 @@ def link_entities(nlp, document: str) -> List[NEREntity]:
     all_links = []
     for ent in processed_doc.ents:
         if not ent._.kb_ents:
-            all_links.append((ent, ent, -1, ent.label_))
+            all_links.append(NEREntity(ent, ent, -1, ent.label_))
             continue
 
         concept_id, score = ent._.kb_ents[0]
@@ -77,7 +77,7 @@ def get_standard_name_spacy(name: str, nlp) -> str:
     """
     linked_entities = link_entities(nlp, name)
     if not linked_entities:
-        return None
+        return name
 
     # Prefer entity types that are more likely to be valid tissue or cell type names
     relevant_entity_types = ["CELL", "TISSUE", "ORGAN",

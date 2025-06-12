@@ -34,7 +34,7 @@ def assert_valid_result(analysis_result: AnalysisResult, number_of_clusters: int
 )
 def test_analyzer_produces_valid_result(pubmed_ids):
     with open("ids.txt") as file:
-        pubmed_ids = map(int, file)
+        pubmed_ids = list(map(int, file))
         analyzer = DatasetAnalyzer(SVD_COMPONENTS, NUMBER_OF_CLUSTERS)
         result = analyzer.analyze_paper_datasets(pubmed_ids)
         assert_valid_result(result, NUMBER_OF_CLUSTERS)

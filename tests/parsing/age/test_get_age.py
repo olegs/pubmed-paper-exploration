@@ -34,6 +34,10 @@ from src.model.geo_sample import GEOSample
          "donor_age_weeks: 13"]}), 13 * (7 / 365)),
         (GEOSample({"characteristics_ch1": [
          "donor_age_days: 13-25 d"]}), (13 / 365, 25 / 365)),
+        (GEOSample({"characteristics_ch1": [
+         "age: Old"]}), None),
+        (GEOSample({"characteristics_ch1": [
+         "age_years: NA"]}), None),
     ]
 )
 def test_get_age(sample: GEOSample, expected_age: float):

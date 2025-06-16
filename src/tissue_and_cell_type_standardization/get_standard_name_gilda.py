@@ -1,6 +1,6 @@
 from typing import Dict, Set
 import gilda
-from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import is_mesh_term_in_anatomy_or_disease
+from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import is_mesh_term_in_anatomy_or_cancer
 
 
 def get_standard_name_gilda(name: str, mesh_lookup: Dict[str, Set[str]]) -> str | None:
@@ -20,7 +20,7 @@ def get_standard_name_gilda(name: str, mesh_lookup: Dict[str, Set[str]]) -> str 
     sorted_matches = sorted(matches, key=lambda m: m.score)
     for match in sorted_matches:
         standard_name = match.term.entry_name
-        if match.term.db == "MESH" and is_mesh_term_in_anatomy_or_disease(standard_name, mesh_lookup):
+        if match.term.db == "MESH" and is_mesh_term_in_anatomy_or_cancer(standard_name, mesh_lookup):
             return standard_name
 
     return None

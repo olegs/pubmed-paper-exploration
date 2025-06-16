@@ -1,6 +1,8 @@
 from typing import Dict, Set
+from functools import lru_cache
 from src.tissue_and_cell_type_standardization.get_standard_name_gilda import get_standard_name_gilda
 from src.tissue_and_cell_type_standardization.get_standard_name_spacy import get_standard_name_spacy
+from src.tissue_and_cell_type_standardization.standardization_resources import StandardizationResources
 
 
 def preprocess_tissue_name(name: str) -> str:
@@ -8,24 +10,23 @@ def preprocess_tissue_name(name: str) -> str:
     return name.replace("_", " ")
 
 
-def get_standard_name(name: str, mesh_lookup: Dict[str, Set[str]], nlp) -> str | None:
+@lru_cache(10000)
+def get_standard_name(name: str, resources: StandardizationResources) -> str | None:
     """
     Standardizes the name for a tissue or cell type.
 
     :param name: Tissue or cell type name to standardize
-    :param mesh_lookup: A pre-built dictionary mapping MeSH terms to tree 
-        numbers (see build_mesh_lookup).
-    :param nlp: Scispacy NER and entity linking pipeline created by
-    create_entity_linking_pipline_with_ner.
+    :param resources: An instance of StandardizationResources containing
+                      the MeSH dictionary and the spacy pipeline.
 
     :return: Standardized name of the tissue or the input name if the
     standardized name cannot be determined.
     """
     name = preprocess_tissue_name(name)
-    gilda_name = get_standard_name_gilda(name, mesh_lookup)
+    gilda_name = get_standard_name_gilda(name, resources.mesh_lookup)
     if gilda_name:
         return gilda_name
-    spacy_name = get_standard_name_spacy(name, nlp)
+    spacy_name = get_standard_name_spacy(name, resources.nlp)
     return spacy_name if isinstance(spacy_name, str) else spacy_name.text
 
 

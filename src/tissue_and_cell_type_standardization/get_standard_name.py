@@ -25,8 +25,8 @@ def get_standard_name(name: str, mesh_lookup: Dict[str, Set[str]], nlp) -> str |
     gilda_name = get_standard_name_gilda(name, mesh_lookup)
     if gilda_name:
         return gilda_name
-
-    return get_standard_name_spacy(name, nlp)
+    spacy_name = get_standard_name_spacy(name, nlp)
+    return spacy_name if isinstance(spacy_name, str) else spacy_name.text
 
 
 if __name__ == "__main__":

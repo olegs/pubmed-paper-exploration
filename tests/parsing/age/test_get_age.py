@@ -40,6 +40,8 @@ from src.model.geo_sample import GEOSample
          "age_years: NA"]}), None),
         (GEOSample({"characteristics_ch1": [
          "stage: 3"]}), None),
+        (GEOSample({"characteristics_ch1": [
+         "stage: day 1 of adulthood"]}), None),
     ]
 )
 def test_get_age(sample: GEOSample, expected_age: float):

@@ -4,9 +4,9 @@ import scispacy.linking_utils
 from scispacy.linking import EntityLinker
 
 
-def create_entity_linking_pipeline_with_ner(knowledge_base: str = "umls") -> spacy.language.Language:
+def create_entity_linking_pipeline_with_ner(knowledge_base: str = "mesh") -> spacy.language.Language:
     """
-    Returns a scispacy NLP pipeline for entity linking with the UMLS database
+    Returns a scispacy NLP pipeline for entity linking with the MeSH database
     that also performs named entity recognition.
     """
     nlp = spacy.load("en_ner_bionlp13cg_md")
@@ -32,7 +32,7 @@ class NEREntity():
         self.ner_type = ner_type
 
 
-def link_entities(nlp, document: str) -> List[NEREntity]:
+def link_entities(nlp, document: str, debug=False) -> List[NEREntity]:
     """
     Links entities in the document to the knowledge base of the scicpacy pipeline 
     and returns the canonical names and match scores.
@@ -49,8 +49,15 @@ def link_entities(nlp, document: str) -> List[NEREntity]:
     all_links = []
     for ent in processed_doc.ents:
         if not ent._.kb_ents:
+            print("Unlinked entity:", ent , ent.label_)
             all_links.append(NEREntity(ent, ent, -1, ent.label_))
             continue
+
+        for c_id, score in ent._.kb_ents:
+            kb_ent = knowledge_base.cui_to_entity[c_id]
+            name = kb_ent.canonical_name
+            print(kb_ent)
+            print(f"{kb_ent.canonical_name} {name} {ent.label_} {score}")
 
         concept_id, score = ent._.kb_ents[0]
         umls_entity = knowledge_base.cui_to_entity[concept_id]
@@ -61,12 +68,10 @@ def link_entities(nlp, document: str) -> List[NEREntity]:
     return all_links
 
 
-def get_standard_name_spacy(name: str, nlp) -> str:
+def get_standard_name_spacy(name: str, nlp, debug=False) -> str:
     """
     Gets the standard name for a tissue or cell type using the scipacy's 
     NER and entity linking features.
-
-    Uses the UMLS database to perform entity linking.
 
     :param name: Tissue or cell type name to standardize.
     :param nlp: Scispacy NER and entity linking pipeline created by
@@ -75,7 +80,7 @@ def get_standard_name_spacy(name: str, nlp) -> str:
     :return: Standardized name of the tissue or cell type or the input name if
     the standardized name cannot be determined.
     """
-    linked_entities = link_entities(nlp, name)
+    linked_entities = link_entities(nlp, name, debug)
     if not linked_entities:
         return name
 
@@ -86,8 +91,9 @@ def get_standard_name_spacy(name: str, nlp) -> str:
         filter(lambda linked_entity: linked_entity.ner_type in relevant_entity_types, linked_entities))
     if relevant_entities:
         # Return link with the highest score
-        return max(relevant_entities, key=lambda linked_entity: linked_entity.score).cannonical_name
-    return max(linked_entities, key=lambda linked_entity: linked_entity.score).cannonical_name
+        standardized_entity = max(relevant_entities, key=lambda linked_entity: linked_entity.score).cannonical_name
+    standardized_entity = max(linked_entities, key=lambda linked_entity: linked_entity.score).cannonical_name
+    return standardized_entity if isinstance(standardized_entity, str) else standardized_entity.text
 
 
 if __name__ == "__main__":

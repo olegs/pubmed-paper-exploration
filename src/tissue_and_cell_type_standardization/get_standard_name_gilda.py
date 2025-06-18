@@ -17,7 +17,8 @@ def get_standard_name_gilda(name: str, mesh_lookup: Dict[str, Set[str]]) -> str 
     """
     annotations = gilda.annotate(name)
     matches = [match for annotation in annotations for match in annotation.matches]
-    sorted_matches = sorted(matches, key=lambda m: m.score)
+    sorted_matches = sorted(matches, key=lambda m: m.score, reverse=True)
+
     for match in sorted_matches:
         standard_name = match.term.entry_name
         if match.term.db == "MESH" and is_mesh_term_in_anatomy_or_cancer(standard_name, mesh_lookup):

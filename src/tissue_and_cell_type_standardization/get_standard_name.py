@@ -26,7 +26,8 @@ def get_standard_name(name: str, resources: StandardizationResources) -> str | N
     gilda_name = get_standard_name_gilda(name, resources.mesh_lookup)
     if gilda_name:
         return gilda_name
-    spacy_name = get_standard_name_spacy(name, resources.nlp)
+    spacy_name = get_standard_name_spacy(
+        name, resources.nlp, resources.mesh_lookup)
     return spacy_name if isinstance(spacy_name, str) else spacy_name.text
 
 

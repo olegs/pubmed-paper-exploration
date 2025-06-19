@@ -1,7 +1,8 @@
-from typing import List, Tuple
+from typing import List, Dict, Set
 import spacy
 import scispacy.linking_utils
 from scispacy.linking import EntityLinker
+from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import is_mesh_term_in_anatomy_or_cancer
 
 
 def create_entity_linking_pipeline_with_ner(knowledge_base: str = "mesh") -> spacy.language.Language:
@@ -32,7 +33,7 @@ class NEREntity():
         self.ner_type = ner_type
 
 
-def link_entities(nlp, document: str, debug=False) -> List[NEREntity]:
+def link_entities(nlp, document: str, mesh_lookup: Dict[str, Set[str]]) -> List[NEREntity]:
     """
     Links entities in the document to the knowledge base of the scicpacy pipeline 
     and returns the canonical names and match scores.
@@ -40,6 +41,8 @@ def link_entities(nlp, document: str, debug=False) -> List[NEREntity]:
     :param nlp: Scispacy NLP pipeline for entity linking and named entity
     recognition (see create_entity_linking_pipeline).
     :param document: The document in which to link entities to UMLS.
+    :param mesh_lookup: A pre-built dictionary mapping MeSH terms to tree 
+        numbers (see build_mesh_lookup).
     :returns: A list of NEREntity objects representing entities that were found
     in the document.
     """
@@ -49,26 +52,20 @@ def link_entities(nlp, document: str, debug=False) -> List[NEREntity]:
     all_links = []
     for ent in processed_doc.ents:
         if not ent._.kb_ents:
-            print("Unlinked entity:", ent , ent.label_)
             all_links.append(NEREntity(ent, ent, -1, ent.label_))
             continue
-
-        for c_id, score in ent._.kb_ents:
-            kb_ent = knowledge_base.cui_to_entity[c_id]
-            name = kb_ent.canonical_name
-            print(kb_ent)
-            print(f"{kb_ent.canonical_name} {name} {ent.label_} {score}")
 
         concept_id, score = ent._.kb_ents[0]
         umls_entity = knowledge_base.cui_to_entity[concept_id]
         canonical_name = umls_entity.canonical_name
         entity_link = NEREntity(ent, canonical_name, score, ent.label_)
-        all_links.append(entity_link)
+        if is_mesh_term_in_anatomy_or_cancer(canonical_name, mesh_lookup):
+            all_links.append(entity_link)
 
     return all_links
 
 
-def get_standard_name_spacy(name: str, nlp, debug=False) -> str:
+def get_standard_name_spacy(name: str, nlp, mesh_lookup: Dict[str, Set[str]]) -> str:
     """
     Gets the standard name for a tissue or cell type using the scipacy's 
     NER and entity linking features.
@@ -76,23 +73,18 @@ def get_standard_name_spacy(name: str, nlp, debug=False) -> str:
     :param name: Tissue or cell type name to standardize.
     :param nlp: Scispacy NER and entity linking pipeline created by
     create_entity_linking_pipline_with_ner.
+    :param mesh_lookup: A pre-built dictionary mapping MeSH terms to tree 
+        numbers (see build_mesh_lookup).
 
     :return: Standardized name of the tissue or cell type or the input name if
     the standardized name cannot be determined.
     """
-    linked_entities = link_entities(nlp, name, debug)
+    linked_entities = link_entities(nlp, name, mesh_lookup)
     if not linked_entities:
         return name
 
-    # Prefer entity types that are more likely to be valid tissue or cell type names
-    relevant_entity_types = ["CELL", "TISSUE", "ORGAN",
-                             "ORGANISM_SUBSTANCE", "PATHOLOGICAL_FORMATION"]
-    relevant_entities = list(
-        filter(lambda linked_entity: linked_entity.ner_type in relevant_entity_types, linked_entities))
-    if relevant_entities:
-        # Return link with the highest score
-        standardized_entity = max(relevant_entities, key=lambda linked_entity: linked_entity.score).cannonical_name
-    standardized_entity = max(linked_entities, key=lambda linked_entity: linked_entity.score).cannonical_name
+    standardized_entity = max(
+        linked_entities, key=lambda linked_entity: linked_entity.score).cannonical_name
     return standardized_entity if isinstance(standardized_entity, str) else standardized_entity.text
 
 

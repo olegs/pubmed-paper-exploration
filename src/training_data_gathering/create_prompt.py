@@ -12,6 +12,7 @@ from src.ingestion.download_related_paper_datasets import \
 from src.ingestion.download_samples import download_samples
 from src.model.geo_dataset import GEODataset
 from src.model.geo_sample import GEOSample
+from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import is_mesh_term_in_anatomy_or_cancer, build_mesh_lookup
 
 
 async def download_samples_for_datasets(datasets: List[GEODataset]) -> List[GEOSample]:
@@ -70,8 +71,10 @@ if __name__ == "__main__":
     tissues_or_cell_types = list(set(tissues + cell_types))
     print("Number of unique tissues and cell types", len(tissues_or_cell_types))
 
-    mesh_terms = pd.read_csv("mesh_terms.csv")
-    mesh_terms = zip(mesh_terms["mesh_id"], mesh_terms["term"])
+    mesh_lookup = build_mesh_lookup("desc2025.xml")
+    filtered_mesh_lookup = {key: value for key, value in mesh_lookup.items(
+    ) if is_mesh_term_in_anatomy_or_cancer(key, mesh_lookup)}
+    mesh_terms = [(entry.id, term) for term, entry in filtered_mesh_lookup.items()]
 
     prompt_template: Template = None
     with open(os.path.join("src", "training_data_gathering","prompt_template.txt"), "r") as f:

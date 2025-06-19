@@ -19,7 +19,17 @@ def get_all_synonyms_for_mesh_entry(record: ET.Element) -> Set[str]:
             all_terms_for_entry.add(term_name_element.text.strip().lower())
     return all_terms_for_entry
 
-def build_mesh_lookup(xml_file_path: str) -> Dict[str, Set[str]]:
+class MeshEntry:
+    def __init__(self, term, id):
+        self.term = term
+        self.tree_numbers = set()
+        self.id = id
+    
+    def __iter__(self):
+        # For backwards compatibility
+        return iter(self.tree_numbers)
+
+def build_mesh_lookup(xml_file_path: str) -> Dict[str, MeshEntry]:
     """
     Parses a MeSH XML descriptor file to build a lookup table.
 
@@ -44,15 +54,18 @@ def build_mesh_lookup(xml_file_path: str) -> Dict[str, Set[str]]:
             tree_numbers = {
                 tn.text.strip() for tn in record.findall('.//TreeNumber') if tn.text
             }
-            if not tree_numbers:
+            id_numbers = [
+                id.text for id in record.findall('.//DescriptorUI') if id.text
+            ]
+            if not tree_numbers or not id_numbers:
                 continue
 
             all_terms_for_record = get_all_synonyms_for_mesh_entry(record) 
             
             for term_str in all_terms_for_record:
                 if term_str not in mesh_lookup:
-                    mesh_lookup[term_str] = set()
-                mesh_lookup[term_str].update(tree_numbers)
+                    mesh_lookup[term_str] = MeshEntry(term_str, id_numbers[0])
+                mesh_lookup[term_str].tree_numbers.update(tree_numbers)
 
         print(f"Lookup built successfully. Found {len(mesh_lookup)} unique terms.")
         return mesh_lookup
@@ -89,7 +102,7 @@ def is_mesh_term_in_anatomy_or_cancer(term: str, mesh_lookup: Dict[str, Set[str]
     # We check whether a term is a cancer because cancer samples end up being
     # classified as diseases in MeSH
     for tn in tree_numbers:
-        if tn.startswith("A") or tn.startswith("C04.588"):
+        if tn.startswith("A") or tn.startswith("C04.588") or tn.startswith("C04.557"):
             return True
             
     return False
@@ -100,6 +113,9 @@ if __name__ == "__main__":
 
     # This might take a few seconds.
     local_mesh_db = build_mesh_lookup(mesh_xml_file)
+
+    print(local_mesh_db["motor area"].tree_numbers)
+    print(local_mesh_db["motor area"].id)
 
     if local_mesh_db:
         print("-" * 30)

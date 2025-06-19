@@ -30,12 +30,16 @@ async def fetch_geo_ids(
             "id": ",".join(map(str, pubmed_ids)),
         }
     ) as response:
+        assert response.status == 200
         response = await response.json()
         if "ERROR" in response:
             raise EntrezError("Error when fetching GEO IDs")
 
-        geo_ids_str = response["linksets"][0]["linksetdbs"][0]["links"]
-        return [int(geo_id) for geo_id in geo_ids_str]
+        try:
+            geo_ids_str = response["linksets"][0]["linksetdbs"][0]["links"]
+            return [int(geo_id) for geo_id in geo_ids_str]
+        except KeyError:
+            return []
 
 
 async def main():

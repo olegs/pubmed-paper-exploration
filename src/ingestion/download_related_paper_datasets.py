@@ -1,4 +1,5 @@
 from typing import Dict, List
+from io import StringIO
 from src.ingestion.download_geo_datasets import download_geo_datasets
 from src.model.geo_dataset import GEODataset
 import pandas as pd
@@ -12,7 +13,7 @@ def download_related_paper_datasets(paper_export: Dict[str, object]) -> List[GEO
     :returns: A list of GEODatasets containing the datasets of the paper and
     all related papers.
     """
-    df = pd.read_json(paper_export["df"])
+    df = pd.read_json(StringIO(paper_export["df"]))
     return download_geo_datasets(df["id"].to_list())
 
 

@@ -10,6 +10,7 @@ from src.model.geo_sample import GEOSample
 from src.ingestion.fetch_geo_ids import fetch_geo_ids
 from src.ingestion.fetch_geo_accessions import fetch_geo_accessions, fetch_geo_accessions_europepmc
 from src.config import config
+from src.exception.http_error import HttpError
 
 download_folder = config.download_folder
 
@@ -70,7 +71,10 @@ def _make_directory_if_not_exist(dir_path: str):
 
 async def _download_from_url(url: str, destination_path: str, session: aiohttp.ClientSession):
     async with session.get(url) as response:
-        assert response.status == 200
+        if response.status != 200:
+            print("Download error, HTTP status:", response.status)
+            print("Body:", await response.text())
+            raise HttpError(f"Status: {response.status}")
         with open(destination_path, "w") as f:
             f.write(await response.text())
 
@@ -88,7 +92,11 @@ async def download_geo_dataset(accession: str, session: aiohttp.ClientSession) -
 
     _make_directory_if_not_exist(download_folder)
     if not path.isfile(download_path):
-        await _download_from_url(dataset_metadata_url, download_path, session)
+        try:
+            await _download_from_url(dataset_metadata_url, download_path, session)
+        except Exception:
+            print("Retrying download", accession)
+            await _download_from_url(dataset_metadata_url, download_path, session)
 
     with open(download_path) as soft_file:
         metadata = GEOparse.GEOparse.parse_metadata(soft_file)

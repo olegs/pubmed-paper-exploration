@@ -141,13 +141,20 @@ if __name__ == "__main__":
     pred_val = []
 
     for term in tqdm(x_train):
-        pred_train.append(fasttext_parser.get_standard_name(
-            term)[0])
+        try:
+            pred_train.append(fasttext_parser.get_standard_name(
+                term)[0])
+        except ValueError:
+            pred_train.append("UNPARSED")
     print("Training accuracy:", synonym_f1_score(
         pred_train, y_train, mesh_id_map))
+
     for term in tqdm(x_val):
-        pred_val.append(fasttext_parser.get_standard_name(
-            term)[0])
+        try:
+            pred_val.append(fasttext_parser.get_standard_name(
+                term)[0])
+        except ValueError:
+            pred_val.append("UNPARSED")
 
     print("Validation accuracy:", synonym_f1_score(pred_val, y_val, mesh_id_map))
     print("Total accuracy", synonym_f1_score(list(pred_train) +

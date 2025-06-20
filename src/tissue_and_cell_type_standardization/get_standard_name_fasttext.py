@@ -1,34 +1,94 @@
+import numpy as np
 from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import is_mesh_term_in_anatomy_or_cancer
 from gensim.models import KeyedVectors
 from gensim.models.fasttext import load_facebook_model
 from nltk import download, word_tokenize
 # Import and download stopwords from NLTK.
 from nltk.corpus import stopwords
+from scipy.spatial.distance import cosine
+import numpy as np
 
 download('stopwords')  # Download stopwords list.
 download('punkt_tab')
 stop_words = stopwords.words('english')
-import numpy as np
 
 
 def preprocess(sentence):
     return word_tokenize(sentence.strip().lower())
 
 
-def get_standard_name_fasttext(term, fasttext_model, mesh_lookup):
-    term = preprocess(term)
-    similiarties = [
-        (
-        mesh_term,
-        fasttext_model.wmdistance(term, preprocess(mesh_term)) 
-        ) for mesh_term in mesh_lookup
-    ]
-    top_5_synonym_scores = list(sorted(similiarties, key=lambda x: x[1]))[0:5]
-    return [synonym_score[0] for synonym_score in top_5_synonym_scores]
+class FastTextParser:
+    def __init__(self, fasttext_model_path, mesh_lookup, binary_model=True):
+        self.model = KeyedVectors.load_word2vec_format(
+            fasttext_model_path, binary=binary_model)
+        self.model.fill_norms()
+        self.mesh_embeddings = []
+        for term, entry in mesh_lookup.items():
+            self.mesh_embeddings.append(
+                (entry.id, term, self.model.get_mean_vector(preprocess(term))))
+
+    def get_standard_name(self, name):
+        tokenized_name = preprocess(name)
+        name_embedding = self.model.get_mean_vector(tokenized_name)
+        term_similarities = []
+
+        for id, mesh_term, mesh_embedding in self.mesh_embeddings:
+            score = cosine(name_embedding, mesh_embedding)
+            term_similarities.append((id, mesh_term, score))
+
+        term_similarities = list(filter(lambda x: not np.isnan(x[2]), term_similarities))
+        top_similarities = list(sorted(term_similarities, key = lambda x: x[2]))[:5]
+        if len(top_similarities) == 0:
+            raise ValueError("Could not embed term " + name)
+        return [sim[1] for sim in top_similarities]
+
+        #top_synonyms = []
+        #seen_ids = set()
+    
+        #top_k = 50
+        #for similarity in sorted(term_similarities, key=lambda x: x[2]):
+        #    if top_k == 0:
+        #        break
+        #    if similarity[0] in seen_ids:
+        #        continue
+        #    seen_ids.add(similarity[0])
+        #    top_synonyms.append((
+        #        similarity[0],
+        #        similarity[1],
+        #        self.model.wmdistance(name, preprocess(similarity[1]))
+        #    ))
+        #    top_k -= 1
+
+        # rerank
+        #top_synonyms = list(sorted(top_synonyms, key=lambda x: x[2]))
+        #return [synonym_score[1] for synonym_score in top_synonyms[0:5]]
+
 
 if __name__ == "__main__":
     from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
-    model = KeyedVectors.load_word2vec_format("BioWordVec_PubMed_MIMICIII_d200.vec.bin", binary=True)
-    model.fill_norms() 
-    mesh_lookup =  build_mesh_lookup("desc2025.xml")
-    print(get_standard_name_fasttext("cd 8 positive t lymphocytes", model, mesh_lookup))
+    import time
+    mesh_lookup = build_mesh_lookup("desc2025.xml")
+    filtered_mesh_lookup = {key: value for key, value in mesh_lookup.items(
+    ) if is_mesh_term_in_anatomy_or_cancer(key, mesh_lookup)}
+    begin = time.time()
+    parser = FastTextParser(
+        "BioWordVec_PubMed_MIMICIII_d200.vec.bin", filtered_mesh_lookup)
+    end = time.time()
+    print("Parser ready in ", end-begin, "seconds")
+
+    begin = time.time()
+    result = parser.get_standard_name("lymph node")
+    print(result[0:100])
+    end = time.time()
+    print("Parsing done in ", end-begin, "seconds")
+
+
+
+
+    while True:
+        name = input("Enter name to standardize: ")
+        print("standardizing:", name)
+        begin = time.time()
+        print(parser.get_standard_name(name))
+        end = time.time()
+        print("Parsing done in ", end-begin, "seconds")

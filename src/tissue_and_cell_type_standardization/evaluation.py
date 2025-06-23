@@ -143,3 +143,16 @@ if __name__ == "__main__":
 
     model = lambda term: fasttext_parser.get_standard_name_reranked(term)[0]
     evaluate(model, "reranked_fasttext", x_train, y_train, x_val, y_val, mesh_id_map)
+
+    def new_model(term):
+        global mesh_lookup
+        term = term.replace("_", " ")
+        gilda_name = get_standard_name_gilda(term, mesh_lookup)
+        if gilda_name:
+             return gilda_name
+        try:
+            return fasttext_parser.get_standard_name_reranked(term)[0]
+        except ValueError:
+            return "UNPARSED"
+
+    evaluate(new_model, "gilda_plus_fasttext", x_train, y_train, x_val, y_val, mesh_id_map)

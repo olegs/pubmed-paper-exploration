@@ -24,7 +24,7 @@ def synonym_f1_score(predicted_synonyms, true_synonyms, mesh_id_map):
     return f1_score(predicted_ids, true_ids, average="macro")
 
 
-def export_errors(x_val, y_val, pred_val, output_path):
+def export_errors(x_val, y_val, pred_val, output_path, mesh_id_map):
     errors_data = []
     for i in range(len(x_val)):
         original_term = x_val.values[i]
@@ -32,14 +32,16 @@ def export_errors(x_val, y_val, pred_val, output_path):
         predicted_synonym = pred_val[i]
 
         # Use are_terms_same for comparison, which handles Mesh ID mapping
-        if not are_terms_same(original_term, predicted_synonym, mesh_id_map):
-            errors_data.append({
+        if not are_terms_same(true_synonym, predicted_synonym, mesh_id_map):
+            error = {
                 "Original_Term": original_term,
                 "True_Synonym": true_synonym,
                 "True_Synonym_Mesh_ID": mesh_id_map.get(true_synonym.strip().lower(), true_synonym.strip().lower()),
                 "Predicted_Synonym": predicted_synonym,
                 "Predicted_Synonym_Mesh_ID": mesh_id_map.get(predicted_synonym.strip().lower(), predicted_synonym.strip().lower())
-            })
+            }
+            assert error["True_Synonym_Mesh_ID"] != error["Predicted_Synonym_Mesh_ID"]
+            errors_data.append(error)
 
     if errors_data:
         errors_df = pd.DataFrame(errors_data)
@@ -105,7 +107,7 @@ if __name__ == "__main__":
     print("Validation accuracy:", synonym_f1_score(pred_val, y_val, mesh_id_map))
     print("Total accuracy", synonym_f1_score(list(pred_train) +
           list(pred_val), list(y_train) + list(y_val), mesh_id_map))
-    export_errors(x_val, y_val, pred_val, "gilda_spacy_errors.csv")
+    export_errors(x_val, y_val, pred_val, "gilda_spacy_errors.csv", mesh_id_map)
 
     print("spacy")
     pred_train = [get_standard_name_spacy(
@@ -117,7 +119,7 @@ if __name__ == "__main__":
     print("Validation accuracy:", synonym_f1_score(pred_val, y_val, mesh_id_map))
     print("Total accuracy", synonym_f1_score(list(pred_train) +
           list(pred_val), list(y_train) + list(y_val), mesh_id_map))
-    export_errors(x_val, y_val, pred_val, "gilda_errors.csv")
+    export_errors(x_val, y_val, pred_val, "gilda_errors.csv", mesh_id_map)
 
     print("gilda")
     pred_train = [get_standard_name_gilda(
@@ -129,7 +131,7 @@ if __name__ == "__main__":
     print("Validation accuracy:", synonym_f1_score(pred_val, y_val, mesh_id_map))
     print("Total accuracy", synonym_f1_score(list(pred_train) +
           list(pred_val), list(y_train) + list(y_val), mesh_id_map))
-    export_errors(x_val, y_val, pred_val, "spacy_errors.csv")
+    export_errors(x_val, y_val, pred_val, "spacy_errors.csv", mesh_id_map)
 
     print("fasttext")
     from src.tissue_and_cell_type_standardization.get_standard_name_fasttext import preprocess
@@ -159,4 +161,4 @@ if __name__ == "__main__":
     print("Validation accuracy:", synonym_f1_score(pred_val, y_val, mesh_id_map))
     print("Total accuracy", synonym_f1_score(list(pred_train) +
           list(pred_val), list(y_train) + list(y_val), mesh_id_map))
-    export_errors(x_val, y_val, pred_val, "fasttext_model_errors.csv")
+    export_errors(x_val, y_val, pred_val, "fasttext_model_errors.csv", mesh_id_map)

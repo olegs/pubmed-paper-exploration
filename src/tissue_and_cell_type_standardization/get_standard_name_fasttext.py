@@ -27,7 +27,7 @@ class FastTextParser:
             self.mesh_embeddings.append(
                 (entry.id, term, self.model.get_mean_vector(preprocess(term))))
 
-    def get_standard_name(self, name):
+    def _get_standard_name_cosine(self, name, top_k: int = 5):
         tokenized_name = preprocess(name)
         name_embedding = self.model.get_mean_vector(tokenized_name)
         term_similarities = []
@@ -37,31 +37,37 @@ class FastTextParser:
             term_similarities.append((id, mesh_term, score))
 
         term_similarities = list(filter(lambda x: not np.isnan(x[2]), term_similarities))
-        top_similarities = list(sorted(term_similarities, key = lambda x: x[2]))[:5]
+        top_similarities = list(sorted(term_similarities, key = lambda x: x[2]))[:top_k]
         if len(top_similarities) == 0:
             raise ValueError("Could not embed term " + name)
-        return [sim[1] for sim in top_similarities]
+        return top_similarities
 
-        #top_synonyms = []
-        #seen_ids = set()
+    def get_standard_name(self, name, top_k: int = 5):
+        return [sim[1] for sim in self._get_standard_name_cosine(name, top_k)]
     
-        #top_k = 50
-        #for similarity in sorted(term_similarities, key=lambda x: x[2]):
-        #    if top_k == 0:
-        #        break
-        #    if similarity[0] in seen_ids:
-        #        continue
-        #    seen_ids.add(similarity[0])
-        #    top_synonyms.append((
-        #        similarity[0],
-        #        similarity[1],
-        #        self.model.wmdistance(name, preprocess(similarity[1]))
-        #    ))
-        #    top_k -= 1
+    def get_standard_name_reranked(self, name, top_k: int=50, n_output_terms=5):
+        term_similarities = self._get_standard_name_cosine(name, top_k * 3)
+        name = preprocess(name)
+        top_synonyms = []
+        seen_ids = set()
+    
+        for similarity in term_similarities:
+            if top_k == 0:
+                break
+            if similarity[0] in seen_ids:
+                continue
+            seen_ids.add(similarity[0])
+            top_synonyms.append((
+                similarity[0],
+                similarity[1],
+                self.model.wmdistance(name, preprocess(similarity[1]))
+            ))
+            top_k -= 1
 
         # rerank
-        #top_synonyms = list(sorted(top_synonyms, key=lambda x: x[2]))
-        #return [synonym_score[1] for synonym_score in top_synonyms[0:5]]
+        top_synonyms = [synonym for synonym in top_synonyms if not np.isnan(synonym[2])]
+        top_synonyms = list(sorted(top_synonyms, key=lambda x: x[2]))
+        return [synonym_score[1] for synonym_score in top_synonyms[:n_output_terms]]
 
 
 if __name__ == "__main__":
@@ -89,6 +95,7 @@ if __name__ == "__main__":
         name = input("Enter name to standardize: ")
         print("standardizing:", name)
         begin = time.time()
-        print(parser.get_standard_name(name))
+        print(parser.get_standard_name(name)[0:5])
+        print(parser.get_standard_name_reranked(name)[0:5])
         end = time.time()
         print("Parsing done in ", end-begin, "seconds")

@@ -105,8 +105,10 @@ if __name__ == "__main__":
 
     mesh_id_map = {key.strip().lower(): entry.id
                    for key, entry in mesh_lookup.items()}
-    assert synonym_f1_score(["yellow marrow", "heart", "brain"], [
-                            "bone marrow", "heart", "bone"], mesh_id_map) - 2/3 <= 0.01
+    assert abs(synonym_f1_score(["yellow marrow", "heart", "brain"], [
+                            "bone marrow", "heart", "bone"], mesh_id_map) - 1/2) <= 0.01
+    assert abs(synonym_f1_score(["yellow marrow", "heart", "brain"], [
+                            "bone marrow", "heart", "UNPARSED"], mesh_id_map) - 1/2) <= 0.01
 
     test_tissues_and_cell_types_df = pd.read_csv("test_synonyms.csv")
     test_tissues_and_cell_types_df = test_tissues_and_cell_types_df[

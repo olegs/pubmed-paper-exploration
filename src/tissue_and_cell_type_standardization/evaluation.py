@@ -38,7 +38,8 @@ def export_errors(x_val, y_val, pred_val, output_path, mesh_id_map):
                 "True_Synonym": true_synonym,
                 "True_Synonym_Mesh_ID": mesh_id_map.get(true_synonym.strip().lower(), true_synonym.strip().lower()),
                 "Predicted_Synonym": predicted_synonym,
-                "Predicted_Synonym_Mesh_ID": mesh_id_map.get(predicted_synonym.strip().lower(), predicted_synonym.strip().lower())
+                "Predicted_Synonym_Mesh_ID": mesh_id_map.get(predicted_synonym.strip().lower(), predicted_synonym.strip().lower()),
+                "Ontology": "MeSH"
             }
             assert error["True_Synonym_Mesh_ID"] != error["Predicted_Synonym_Mesh_ID"]
             errors_data.append(error)
@@ -63,6 +64,7 @@ def export_dataset(x, y, output_path):
        data.append({
             "Tissue/Cell type": x.values[i],
             "True synonym": y.values[i],
+            "Ontology": "MeSH"
     })
     validtion_df = pd.DataFrame(data)
     validtion_df.to_csv(output_path)

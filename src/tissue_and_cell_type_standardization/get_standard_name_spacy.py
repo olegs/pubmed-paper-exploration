@@ -51,8 +51,10 @@ def link_entities(nlp, document: str, mesh_lookup: Dict[str, Set[str]]) -> List[
     knowledge_base = linker.kb
     all_links = []
     for ent in processed_doc.ents:
-        if not ent._.kb_ents:
+        if (not ent._.kb_ents) and is_mesh_term_in_anatomy_or_cancer(ent.text, mesh_lookup):
             all_links.append(NEREntity(ent, ent, -1, ent.label_))
+            continue
+        elif not ent._.kb_ents:
             continue
 
         concept_id, score = ent._.kb_ents[0]
@@ -76,12 +78,12 @@ def get_standard_name_spacy(name: str, nlp, mesh_lookup: Dict[str, Set[str]]) ->
     :param mesh_lookup: A pre-built dictionary mapping MeSH terms to tree 
         numbers (see build_mesh_lookup).
 
-    :return: Standardized name of the tissue or cell type or the input name if
+    :return: Standardized name of the tissue or cell type or None if
     the standardized name cannot be determined.
     """
     linked_entities = link_entities(nlp, name, mesh_lookup)
     if not linked_entities:
-        return name
+        return None
 
     standardized_entity = max(
         linked_entities, key=lambda linked_entity: linked_entity.score).cannonical_name
@@ -89,12 +91,14 @@ def get_standard_name_spacy(name: str, nlp, mesh_lookup: Dict[str, Set[str]]) ->
 
 
 if __name__ == "__main__":
+    from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
     nlp = create_entity_linking_pipeline_with_ner("mesh")
-    print(get_standard_name_spacy(nlp, "mouse fat"))
+    mesh_lookup = build_mesh_lookup("desc2025.xml")
+    print(get_standard_name_spacy("mouse fat", nlp, mesh_lookup))
     print(get_standard_name_spacy(
-        nlp, "whole body of single-housed females at 9 dph"))
-    print(get_standard_name_spacy(nlp, "normal lung tissue"))
-    print(get_standard_name_spacy(nlp, "penumbras tissue of brains"))
-    print(get_standard_name_spacy(nlp, "left rectus abdominus"))
-    print(get_standard_name_spacy(nlp, "gut"))
-    print(get_standard_name_spacy(nlp, "trachea"))
+        "whole body of single-housed females at 9 dph", nlp, mesh_lookup))
+    print(get_standard_name_spacy("normal lung tissue", nlp, mesh_lookup))
+    print(get_standard_name_spacy("penumbras tissue of brains", nlp, mesh_lookup))
+    print(get_standard_name_spacy("left rectus abdominus", nlp, mesh_lookup))
+    print(get_standard_name_spacy("gut", nlp, mesh_lookup))
+    print(get_standard_name_spacy("trachea", nlp, mesh_lookup))

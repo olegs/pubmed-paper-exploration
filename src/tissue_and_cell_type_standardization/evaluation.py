@@ -21,7 +21,7 @@ def synonym_f1_score(predicted_synonyms, true_synonyms, mesh_id_map):
                      if predicted_synonym in mesh_id_map else predicted_synonym for predicted_synonym in predicted_synonyms]
     true_ids = [mesh_id_map[true_synonym]
                 if true_synonym in mesh_id_map else true_synonym for true_synonym in true_synonyms]
-    return f1_score(predicted_ids, true_ids, average="macro")
+    return f1_score(predicted_ids, true_ids, average="macro", labels=list(set(true_ids)))
 
 
 def export_errors(x_val, y_val, pred_val, output_path, mesh_id_map):
@@ -105,10 +105,10 @@ if __name__ == "__main__":
 
     mesh_id_map = {key.strip().lower(): entry.id
                    for key, entry in mesh_lookup.items()}
-    assert abs(synonym_f1_score(["yellow marrow", "heart", "brain"], [
-                            "bone marrow", "heart", "bone"], mesh_id_map) - 1/2) <= 0.01
-    assert abs(synonym_f1_score(["yellow marrow", "heart", "brain"], [
-                            "bone marrow", "heart", "UNPARSED"], mesh_id_map) - 1/2) <= 0.01
+    assert abs(synonym_f1_score(["yellow marrow", "heart", "brain", "heart"], [
+                            "bone marrow", "heart", "bone", "heart"], mesh_id_map) - 2/3) <= 0.01
+    assert abs(synonym_f1_score(["yellow marrow", "heart", "brain", "heart"], [
+                            "bone marrow", "heart", "UNPARSED", "heart"], mesh_id_map) - 2/3) <= 0.01
 
     test_tissues_and_cell_types_df = pd.read_csv("test_synonyms.csv")
     test_tissues_and_cell_types_df = test_tissues_and_cell_types_df[

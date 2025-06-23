@@ -120,75 +120,26 @@ if __name__ == "__main__":
         test_tissues_and_cell_types_df["tissue_or_cell_type"], test_tissues_and_cell_types_df["synonym"], test_size=0.2, random_state=42)
     x_train, x_val, y_train, y_val = train_test_split(
         x_train, y_train, test_size=0.25, random_state=42)
-    pred_train = [get_standard_name(term, resources) for term in x_train]
-    pred_val = [get_standard_name(term, resources) for term in x_val]
 
     export_dataset(x_train, y_train, "train.csv")
     export_dataset(x_val, y_val, "validation.csv")
     export_dataset(x_test, y_test, "test.csv")
 
-    print("Gilda + spacy")
-    print("Training accuracy:", synonym_f1_score(
-        pred_train, y_train, mesh_id_map))
-    print("Validation accuracy:", synonym_f1_score(pred_val, y_val, mesh_id_map))
-    print("Total accuracy", synonym_f1_score(list(pred_train) +
-          list(pred_val), list(y_train) + list(y_val), mesh_id_map))
-    export_errors(x_val, y_val, pred_val,
-                  "gilda_spacy_errors.csv", mesh_id_map)
+    model = lambda term: get_standard_name(term, resources)
+    evaluate(model, "gilda_plus_spacy", x_train, y_train, x_val, y_val, mesh_id_map)
 
-    print("spacy")
-    pred_train = [get_standard_name_spacy(
-        term, resources.nlp, resources.mesh_lookup) for term in x_train]
-    pred_val = [get_standard_name_spacy(
-        term, resources.nlp, resources.mesh_lookup) for term in x_val]
-    print("Training accuracy:", synonym_f1_score(
-        pred_train, y_train, mesh_id_map))
-    print("Validation accuracy:", synonym_f1_score(pred_val, y_val, mesh_id_map))
-    print("Total accuracy", synonym_f1_score(list(pred_train) +
-          list(pred_val), list(y_train) + list(y_val), mesh_id_map))
-    export_errors(x_val, y_val, pred_val, "gilda_errors.csv", mesh_id_map)
+    model = lambda term: get_standard_name_spacy(term, resources.nlp, resources.mesh_lookup)
+    evaluate(model, "spacy", x_train, y_train, x_val, y_val, mesh_id_map)
 
-    print("gilda")
-    pred_train = [get_standard_name_gilda(
-        term, resources.mesh_lookup) or term for term in x_train]
-    pred_val = [get_standard_name_gilda(
-        term, resources.mesh_lookup) or term for term in x_val]
-    print("Training accuracy:", synonym_f1_score(
-        pred_train, y_train, mesh_id_map))
-    print("Validation accuracy:", synonym_f1_score(pred_val, y_val, mesh_id_map))
-    print("Total accuracy", synonym_f1_score(list(pred_train) +
-          list(pred_val), list(y_train) + list(y_val), mesh_id_map))
-    export_errors(x_val, y_val, pred_val, "spacy_errors.csv", mesh_id_map)
+    model = lambda term: get_standard_name_gilda(term, resources.mesh_lookup)
+    evaluate(model, "gilda", x_train, y_train, x_val, y_val, mesh_id_map)
 
-    print("fasttext")
     filtered_mesh_lookup = {key: value for key, value in mesh_lookup.items(
     ) if is_mesh_term_in_anatomy_or_cancer(key, mesh_lookup)}
     fasttext_parser = FastTextParser(
         "BioWordVec_PubMed_MIMICIII_d200.vec.bin", filtered_mesh_lookup)
-    pred_train = []
-    pred_val = []
-
-    for term in tqdm(x_train):
-        try:
-            pred_train.append(fasttext_parser.get_standard_name(
-                term)[0])
-        except ValueError:
-            pred_train.append("UNPARSED")
-    print("Training accuracy:", synonym_f1_score(
-        pred_train, y_train, mesh_id_map))
-
-    for term in tqdm(x_val):
-        try:
-            pred_val.append(fasttext_parser.get_standard_name(
-                term)[0])
-        except ValueError:
-            pred_val.append("UNPARSED")
-
-    print("Validation accuracy:", synonym_f1_score(pred_val, y_val, mesh_id_map))
-    print("Total accuracy", synonym_f1_score(list(pred_train) +
-          list(pred_val), list(y_train) + list(y_val), mesh_id_map))
-    export_errors(x_val, y_val, pred_val,
-                  "fasttext_model_errors.csv", mesh_id_map)
+    model = lambda term: fasttext_parser.get_standard_name(term)[0]
+    evaluate(model, "fasttext", x_train, y_train, x_val, y_val, mesh_id_map)
 
     model = lambda term: fasttext_parser.get_standard_name_reranked(term)[0]
     evaluate(model, "reranked_fasttext", x_train, y_train, x_val, y_val, mesh_id_map)

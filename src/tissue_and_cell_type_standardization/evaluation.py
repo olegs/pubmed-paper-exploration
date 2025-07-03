@@ -9,9 +9,10 @@ from src.tissue_and_cell_type_standardization.get_standard_name_spacy import cre
 from src.tissue_and_cell_type_standardization.standardization_resources import StandardizationResources
 from src.tissue_and_cell_type_standardization.get_standard_name_gilda import get_standard_name_gilda
 from src.tissue_and_cell_type_standardization.get_standard_name_spacy import get_standard_name_spacy
-from src.tissue_and_cell_type_standardization.get_standard_name_fasttext import FastTextParser
+from src.tissue_and_cell_type_standardization.get_standard_name_fasttext import FastTextParser, FasttextNormalizer
 from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import is_mesh_term_in_anatomy_or_cancer
-from src.tissue_and_cell_type_standardization.get_standard_name_bern2 import get_standard_name_bern2
+from src.tissue_and_cell_type_standardization.get_standard_name_bern2 import get_standard_name_bern2, BERN2Recognizer
+from src.tissue_and_cell_type_standardization.ner_nen_pipeline import NER_NEN_Pipeline
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
@@ -162,3 +163,9 @@ if __name__ == "__main__":
                    for key, entry in mesh_lookup.items()}
     model = lambda term: get_standard_name_bern2(term, mesh_term_to_id_map, mesh_lookup,)
     evaluate(model, "bern2", x_train, y_train, x_val, y_val, mesh_id_map)
+
+    bern2_ner = BERN2Recognizer()
+    fasttext_normalizer = FasttextNormalizer("BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_lookup)
+    pipeline = NER_NEN_Pipeline(bern2_ner, fasttext_normalizer)
+    model = lambda term: pipeline(term)[0].standard_name if pipeline(term) else "UNPARSED"
+    evaluate(model, "bern2+fasttext", x_train, y_train, x_val, y_val, mesh_id_map)

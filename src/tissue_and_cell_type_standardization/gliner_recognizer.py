@@ -15,8 +15,6 @@ class GlinerRecognizer(NamedEntityRecognizer):
         results = []
 
         for entity in entities:
-            print(entity)
-            print(entity["text"], "=>", entity["label"])
             results.append(NamedEntity(entity["text"], entity["label"], entity["score"]))
 
         return results

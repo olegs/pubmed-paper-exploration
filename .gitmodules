@@ -1,0 +1,3 @@
+[submodule "src/ANGEL"]
+	path = src/ANGEL
+	url = https://github.com/dmis-lab/ANGEL/tree/main

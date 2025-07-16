@@ -13,6 +13,7 @@ from src.tissue_and_cell_type_standardization.get_standard_name_fasttext import 
 from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import is_mesh_term_in_anatomy_or_cancer
 from src.tissue_and_cell_type_standardization.get_standard_name_bern2 import get_standard_name_bern2, BERN2Recognizer
 from src.tissue_and_cell_type_standardization.ner_nen_pipeline import NER_NEN_Pipeline
+from src.tissue_and_cell_type_standardization.angel_normalizer import ANGELMeshNormalizer
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
@@ -112,7 +113,7 @@ if __name__ == "__main__":
     assert abs(synonym_f1_score(["yellow marrow", "heart", "brain", "heart"], [
                             "bone marrow", "heart", "UNPARSED", "heart"], mesh_id_map) - 2/3) <= 0.01
 
-    test_tissues_and_cell_types_df = pd.read_csv("test_synonyms.csv")
+    test_tissues_and_cell_types_df = pd.read_csv("labelled_cell_types.csv")
     test_tissues_and_cell_types_df = test_tissues_and_cell_types_df[
         test_tissues_and_cell_types_df["synonym"] != "UNKNOWN"]
     test_tissues_and_cell_types_df = test_tissues_and_cell_types_df[
@@ -138,6 +139,7 @@ if __name__ == "__main__":
 
     filtered_mesh_lookup = {key: value for key, value in mesh_lookup.items(
     ) if is_mesh_term_in_anatomy_or_cancer(key, mesh_lookup)}
+
     fasttext_parser = FastTextParser(
         "BioWordVec_PubMed_MIMICIII_d200.vec.bin", filtered_mesh_lookup)
     model = lambda term: fasttext_parser.get_standard_name(term)[0]
@@ -146,7 +148,7 @@ if __name__ == "__main__":
     model = lambda term: fasttext_parser.get_standard_name_reranked(term)[0]
     evaluate(model, "reranked_fasttext", x_train, y_train, x_val, y_val, mesh_id_map)
 
-    def new_model(term):
+    def gilda_plus_fasttext(term):
         global mesh_lookup
         term = term.replace("_", " ")
         gilda_name = get_standard_name_gilda(term, mesh_lookup)
@@ -157,15 +159,22 @@ if __name__ == "__main__":
         except ValueError:
             return "UNPARSED"
 
-    evaluate(new_model, "gilda_plus_fasttext", x_train, y_train, x_val, y_val, mesh_id_map)
+    evaluate(gilda_plus_fasttext, "gilda_plus_fasttext", x_train, y_train, x_val, y_val, mesh_id_map)
+
+
+    bern2_ner = BERN2Recognizer()
+    angel_normalizer = ANGELMeshNormalizer(filtered_mesh_lookup)
+    pipeline = NER_NEN_Pipeline(bern2_ner, angel_normalizer)
+    model = lambda term: pipeline(term)[0].standard_name if pipeline(term) else "UNPARSED"
+    evaluate(model, "bern2+ANGEL", x_train, y_train, x_val, y_val, mesh_id_map)
 
     mesh_term_to_id_map = {entry.id: key.strip().lower()
                    for key, entry in mesh_lookup.items()}
-    model = lambda term: get_standard_name_bern2(term, mesh_term_to_id_map, mesh_lookup,)
+    model = lambda term: get_standard_name_bern2(f"cell type: {term}", mesh_term_to_id_map, mesh_lookup,)
     evaluate(model, "bern2", x_train, y_train, x_val, y_val, mesh_id_map)
 
     bern2_ner = BERN2Recognizer()
-    fasttext_normalizer = FasttextNormalizer("BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_lookup)
+    fasttext_normalizer = FasttextNormalizer("BioWordVec_PubMed_MIMICIII_d200.vec.bin", filtered_mesh_lookup)
     pipeline = NER_NEN_Pipeline(bern2_ner, fasttext_normalizer)
     model = lambda term: pipeline(term)[0].standard_name if pipeline(term) else "UNPARSED"
     evaluate(model, "bern2+fasttext", x_train, y_train, x_val, y_val, mesh_id_map)

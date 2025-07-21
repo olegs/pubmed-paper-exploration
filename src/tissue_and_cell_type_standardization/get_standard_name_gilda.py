@@ -1,6 +1,5 @@
 from typing import Dict, Set
 import gilda
-from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import is_mesh_term_in_anatomy_or_cancer
 
 
 def get_standard_name_gilda(name: str, mesh_lookup: Dict[str, Set[str]]) -> str | None:
@@ -9,11 +8,11 @@ def get_standard_name_gilda(name: str, mesh_lookup: Dict[str, Set[str]]) -> str 
     package.
 
     :param name: Tissue or cell type name to standardize.
-    :param mesh_lookup: A pre-built dictionary mapping MeSH terms to tree 
+    :param mesh_lookup: A pre-built dictionary mapping valid MeSH terms to tree 
         numbers (see build_mesh_lookup).
 
     :return: Standardized name of the tissue or cell type or None if a
-    standardized name cannot be determined.
+    standardized name cannot be determined. All returned entities will be contained in mesh_lookup.
     """
     annotations = gilda.annotate(name)
     matches = [match for annotation in annotations for match in annotation.matches]
@@ -21,7 +20,7 @@ def get_standard_name_gilda(name: str, mesh_lookup: Dict[str, Set[str]]) -> str 
 
     for match in sorted_matches:
         standard_name = match.term.entry_name
-        if match.term.db == "MESH" and is_mesh_term_in_anatomy_or_cancer(standard_name, mesh_lookup):
+        if match.term.db == "MESH" and (standard_name.strip().lower() in mesh_lookup):
             return standard_name
 
     return None

@@ -11,7 +11,6 @@ from src.tissue_and_cell_type_standardization.standardization_resources import S
 from src.tissue_and_cell_type_standardization.get_standard_name_gilda import get_standard_name_gilda
 from src.tissue_and_cell_type_standardization.get_standard_name_spacy import get_standard_name_spacy
 from src.tissue_and_cell_type_standardization.get_standard_name_fasttext import FastTextParser, FasttextNormalizer
-from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import is_mesh_term_in_anatomy_or_cancer
 from src.tissue_and_cell_type_standardization.get_standard_name_bern2 import get_standard_name_bern2, BERN2Recognizer
 from src.tissue_and_cell_type_standardization.ner_nen_pipeline import NER_NEN_Pipeline
 from src.tissue_and_cell_type_standardization.angel_normalizer import ANGELMeshNormalizer
@@ -132,6 +131,8 @@ def parse_args():
     argument_parser.add_argument(
         "--true_column", default="synonym", help="Column from which to true synonyms")
     argument_parser.add_argument(
+        "--export-invalid-synonyms", action="store_true", default=False, help="Write terms from input file that are not in the specified MeSH categories to a csv file")
+    argument_parser.add_argument(
         "file", help="Path to file with terms and synonyms")
     argument_parser.add_argument(
         "pipelines", nargs="+", help="Names of pipelines to evaluate")
@@ -180,8 +181,6 @@ if __name__ == "__main__":
         terms_synoyms_df[synonym_column].apply(lambda synonym: not is_synonym_valid(synonym, mesh_lookup))]
     terms_synoyms_df = terms_synoyms_df[
         terms_synoyms_df[synonym_column].apply(lambda synonym: is_synonym_valid(synonym, mesh_lookup))]
-    invalid_synonyms.to_csv("invalid_diseases.csv")
-    print(invalid_synonyms)
 
     x_train, x_test, y_train, y_test = train_test_split(
         terms_synoyms_df[term_column], terms_synoyms_df["synonym"], test_size=0.2, random_state=42)
@@ -257,7 +256,7 @@ if __name__ == "__main__":
     if "bern2+fasttext" in args.pipelines:
         bern2_ner = BERN2Recognizer()
         fasttext_normalizer = FasttextNormalizer(
-            "BioWordVec_PubMed_MIMICIII_d200.vec.bin", filtered_mesh_lookup)
+            "BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_lookup)
         pipeline = NER_NEN_Pipeline(bern2_ner, fasttext_normalizer)
 
         def model(term): return pipeline(term)[
@@ -328,7 +327,7 @@ if __name__ == "__main__":
     if "bern2+fasttext" in args.pipelines:
         bern2_ner = BERN2Recognizer()
         fasttext_normalizer = FasttextNormalizer(
-            "BioWordVec_PubMed_MIMICIII_d200.vec.bin", filtered_mesh_lookup)
+            "BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_lookup)
         pipeline = NER_NEN_Pipeline(bern2_ner, fasttext_normalizer)
 
         def model(term): return pipeline(term)[

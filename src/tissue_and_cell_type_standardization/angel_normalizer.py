@@ -1,5 +1,4 @@
 from typing import Dict
-from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import is_mesh_term_in_anatomy_or_cancer
 from src.tissue_and_cell_type_standardization.entity_normalizer import EntityNormalizer, NormalizationResult
 from src.ANGEL.run_sample import run_sample 
 from src.ANGEL.utils import get_config

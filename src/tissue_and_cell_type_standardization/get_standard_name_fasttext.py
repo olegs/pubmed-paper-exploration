@@ -1,7 +1,5 @@
 import numpy as np
-from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import is_mesh_term_in_anatomy_or_cancer
 from gensim.models import KeyedVectors
-from gensim.models.fasttext import load_facebook_model
 from nltk import download, word_tokenize
 # Import and download stopwords from NLTK.
 from nltk.corpus import stopwords
@@ -140,8 +138,6 @@ if __name__ == "__main__":
     from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
     import time
     mesh_lookup = build_mesh_lookup("desc2025.xml")
-    #filtered_mesh_lookup = {key: value for key, value in mesh_lookup.items(
-    #) if is_mesh_term_in_anatomy_or_cancer(key, mesh_lookup)}
     begin = time.time()
     normalizer = FasttextNormalizer("BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_lookup)
     end = time.time()

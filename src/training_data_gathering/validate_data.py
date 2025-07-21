@@ -4,9 +4,7 @@ import pandas as pd
 def is_synonym_valid(synonym, mesh_lookup):
     if synonym in ["UNKNOWN", "whole organism"]:
         return True
-    if synonym.strip().lower() not in mesh_lookup or not is_mesh_term_in_anatomy_or_cancer(synonym, mesh_lookup):
-        return False
-    return True
+    return synonym.strip().lower() in mesh_lookup
 
 if __name__ == "__main__":
     df = pd.read_csv("test_synonyms.csv")

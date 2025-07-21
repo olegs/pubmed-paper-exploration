@@ -77,14 +77,17 @@ def build_mesh_lookup(xml_file_path: str) -> Dict[str, MeshEntry]:
         print(f"Error: Failed to parse the XML file. {e}")
         return {}
 
-def is_term_in_one_of_categories(term: str, mesh_lookup: Dict[str, Set[str]], category_tree_number_prefixes: List[str]) -> bool:
+def is_term_in_one_of_categories(term: str, mesh_lookup: Dict[str, Set[str]], category_tree_numbers: List[str]) -> bool:
     """
-    Checks if a MeSH term is in the Anatomy or Cancer By Site category using a lookup table.
+    Checks if a MeSH term is in one of the specified categories.
+    Categories are specified by their tree numbers (e.g. "C" for disease)
 
     :param term: The MeSH term to check (e.g., "Heart", "Lung").
     :param mesh_lookup: A pre-built dictionary mapping terms to tree numbers.
+    :param category_tree_number_prefixes: MeSH tree numbers of the categories (e.g. "C" for disease) 
 
-    :return: True if the term is in the Anatomy or Disease categories, False otherwise.
+    :return: True if the term is in one of the specified categories, False 
+    otherwise.
     """
     if not term:
         return False
@@ -101,7 +104,7 @@ def is_term_in_one_of_categories(term: str, mesh_lookup: Dict[str, Set[str]], ca
     # We check whether a term is a cancer because cancer samples end up being
     # classified as diseases in MeSH
     for tn in tree_numbers:
-        for prefix in category_tree_number_prefixes:
+        for prefix in category_tree_numbers:
             if tn.startswith(prefix):
                 return True
             

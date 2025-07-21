@@ -1,10 +1,11 @@
 from collections.abc import Callable
+from argparse import ArgumentParser
 from sklearn.metrics import f1_score
 import logging
 from src.training_data_gathering.validate_data import is_synonym_valid
 import pandas as pd
 from src.tissue_and_cell_type_standardization.get_standard_name import get_standard_name
-from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
+from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup, is_term_in_one_of_categories
 from src.tissue_and_cell_type_standardization.get_standard_name_spacy import create_entity_linking_pipeline_with_ner
 from src.tissue_and_cell_type_standardization.standardization_resources import StandardizationResources
 from src.tissue_and_cell_type_standardization.get_standard_name_gilda import get_standard_name_gilda
@@ -16,6 +17,7 @@ from src.tissue_and_cell_type_standardization.ner_nen_pipeline import NER_NEN_Pi
 from src.tissue_and_cell_type_standardization.angel_normalizer import ANGELMeshNormalizer
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
+
 
 
 def synonym_f1_score(predicted_synonyms, true_synonyms, mesh_id_map):
@@ -98,29 +100,51 @@ def evaluate(model: Callable, model_name: str, x_train, y_train, x_val, y_val, m
     print("Total F1 score:", f1_total)
 
 
+def parse_args():
+    argument_parser = ArgumentParser(description="Evaluates NER-NEN pipelines")
+    argument_parser.add_argument("--mesh_categories", nargs="+", default=["A", "C04.588", "C04.557"], help="Restrict output of pipelines to specific MeSH categories")
+    argument_parser.add_argument("--term_column", default="tissue_or_cell_type", help="Column from which to read terms to normalize")
+    argument_parser.add_argument("--true_column", default="synonym", help="Column from which to true synonyms")
+    argument_parser.add_argument("file", help="Path to file with terms and synonyms")
+    argument_parser.add_argument("pipelines", nargs="+", help="Names of pipelines to evaluate")
+    return argument_parser.parse_args()
+
 
 if __name__ == "__main__":
     logging.disable(logging.WARN)
 
+    args = parse_args()
     nlp = create_entity_linking_pipeline_with_ner()
     mesh_lookup = build_mesh_lookup("desc2025.xml")
-    resources = StandardizationResources(mesh_lookup, nlp)
 
-    mesh_id_map = {key.strip().lower(): entry.id
+    test_mesh_id_map = {key.strip().lower(): entry.id
                    for key, entry in mesh_lookup.items()}
     assert abs(synonym_f1_score(["yellow marrow", "heart", "brain", "heart"], [
-                            "bone marrow", "heart", "bone", "heart"], mesh_id_map) - 2/3) <= 0.01
+                            "bone marrow", "heart", "bone", "heart"], test_mesh_id_map) - 2/3) <= 0.01
     assert abs(synonym_f1_score(["yellow marrow", "heart", "brain", "heart"], [
-                            "bone marrow", "heart", "UNPARSED", "heart"], mesh_id_map) - 2/3) <= 0.01
+                            "bone marrow", "heart", "UNPARSED", "heart"], test_mesh_id_map) - 2/3) <= 0.01
 
-    test_tissues_and_cell_types_df = pd.read_csv("labelled_cell_types.csv")
-    test_tissues_and_cell_types_df = test_tissues_and_cell_types_df[
-        test_tissues_and_cell_types_df["synonym"] != "UNKNOWN"]
-    test_tissues_and_cell_types_df = test_tissues_and_cell_types_df[
-        test_tissues_and_cell_types_df["synonym"].apply(lambda synonym: is_synonym_valid(synonym, mesh_lookup))]
+    mesh_lookup = {key: value for key, value in mesh_lookup.items(
+    ) if is_term_in_one_of_categories(key, mesh_lookup, args.mesh_categories)}
+    mesh_id_map = {key.strip().lower(): entry.id
+                   for key, entry in mesh_lookup.items()}
+    resources = StandardizationResources(mesh_lookup, nlp)
+
+    terms_synoyms_df = pd.read_csv(args.file)
+    synonym_column = args.true_column
+    term_column = args.term_column
+    terms_synoyms_df = terms_synoyms_df[
+        terms_synoyms_df[synonym_column] != "UNKNOWN"]
+   
+    invalid_synonyms = terms_synoyms_df[
+        terms_synoyms_df[synonym_column].apply(lambda synonym: not is_synonym_valid(synonym, mesh_lookup))]
+    terms_synoyms_df = terms_synoyms_df[
+        terms_synoyms_df[synonym_column].apply(lambda synonym: is_synonym_valid(synonym, mesh_lookup))]
+    invalid_synonyms.to_csv("invalid_diseases.csv")
+    print(invalid_synonyms)
 
     x_train, x_test, y_train, y_test = train_test_split(
-        test_tissues_and_cell_types_df["tissue_or_cell_type"], test_tissues_and_cell_types_df["synonym"], test_size=0.2, random_state=42)
+        terms_synoyms_df[term_column], terms_synoyms_df["synonym"], test_size=0.2, random_state=42)
     x_train, x_val, y_train, y_val = train_test_split(
         x_train, y_train, test_size=0.25, random_state=42)
 
@@ -128,53 +152,61 @@ if __name__ == "__main__":
     export_dataset(x_val, y_val, "validation.csv")
     export_dataset(x_test, y_test, "test.csv")
 
-    model = lambda term: get_standard_name(term, resources)
-    evaluate(model, "gilda_plus_spacy", x_train, y_train, x_val, y_val, mesh_id_map)
+    if "gilda_plus_spacy" in args.pipelines:
+        model = lambda term: get_standard_name(term, resources)
+        evaluate(model, "gilda_plus_spacy", x_train, y_train, x_val, y_val, mesh_id_map)
 
-    model = lambda term: get_standard_name_spacy(term, resources.nlp, resources.mesh_lookup)
-    evaluate(model, "spacy", x_train, y_train, x_val, y_val, mesh_id_map)
+    if "spacy" in args.pipelines:
+        model = lambda term: get_standard_name_spacy(term, resources.nlp, resources.mesh_lookup)
+        evaluate(model, "spacy", x_train, y_train, x_val, y_val, mesh_id_map)
 
-    model = lambda term: get_standard_name_gilda(term, resources.mesh_lookup)
-    evaluate(model, "gilda", x_train, y_train, x_val, y_val, mesh_id_map)
-
-    filtered_mesh_lookup = {key: value for key, value in mesh_lookup.items(
-    ) if is_mesh_term_in_anatomy_or_cancer(key, mesh_lookup)}
-
-    fasttext_parser = FastTextParser(
-        "BioWordVec_PubMed_MIMICIII_d200.vec.bin", filtered_mesh_lookup)
-    model = lambda term: fasttext_parser.get_standard_name(term)[0]
-    evaluate(model, "fasttext", x_train, y_train, x_val, y_val, mesh_id_map)
-
-    model = lambda term: fasttext_parser.get_standard_name_reranked(term)[0]
-    evaluate(model, "reranked_fasttext", x_train, y_train, x_val, y_val, mesh_id_map)
-
-    def gilda_plus_fasttext(term):
-        global mesh_lookup
-        term = term.replace("_", " ")
-        gilda_name = get_standard_name_gilda(term, mesh_lookup)
-        if gilda_name:
-             return gilda_name
-        try:
-            return fasttext_parser.get_standard_name_reranked(term)[0]
-        except ValueError:
-            return "UNPARSED"
-
-    evaluate(gilda_plus_fasttext, "gilda_plus_fasttext", x_train, y_train, x_val, y_val, mesh_id_map)
+    if "gilda" in args.pipelines:
+        model = lambda term: get_standard_name_gilda(term, resources.mesh_lookup)
+        evaluate(model, "gilda", x_train, y_train, x_val, y_val, mesh_id_map)
 
 
-    bern2_ner = BERN2Recognizer()
-    angel_normalizer = ANGELMeshNormalizer(filtered_mesh_lookup)
-    pipeline = NER_NEN_Pipeline(bern2_ner, angel_normalizer)
-    model = lambda term: pipeline(term)[0].standard_name if pipeline(term) else "UNPARSED"
-    evaluate(model, "bern2+ANGEL", x_train, y_train, x_val, y_val, mesh_id_map)
+    if "fasttext" in args.pipelines:
+        fasttext_parser = FastTextParser(
+            "BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_lookup)
+        model = lambda term: fasttext_parser.get_standard_name(term)[0]
+        evaluate(model, "fasttext", x_train, y_train, x_val, y_val, mesh_id_map)
 
-    mesh_term_to_id_map = {entry.id: key.strip().lower()
-                   for key, entry in mesh_lookup.items()}
-    model = lambda term: get_standard_name_bern2(f"cell type: {term}", mesh_term_to_id_map, mesh_lookup,)
-    evaluate(model, "bern2", x_train, y_train, x_val, y_val, mesh_id_map)
+    if "reranked_fasttext" in args.pipelines:
+        model = lambda term: fasttext_parser.get_standard_name_reranked(term)[0]
+        evaluate(model, "reranked_fasttext", x_train, y_train, x_val, y_val, mesh_id_map)
 
-    bern2_ner = BERN2Recognizer()
-    fasttext_normalizer = FasttextNormalizer("BioWordVec_PubMed_MIMICIII_d200.vec.bin", filtered_mesh_lookup)
-    pipeline = NER_NEN_Pipeline(bern2_ner, fasttext_normalizer)
-    model = lambda term: pipeline(term)[0].standard_name if pipeline(term) else "UNPARSED"
-    evaluate(model, "bern2+fasttext", x_train, y_train, x_val, y_val, mesh_id_map)
+    
+    if "gilda_plus_fasttext" in args.pipelines:
+        def gilda_plus_fasttext(term):
+            global mesh_lookup
+            term = term.replace("_", " ")
+            gilda_name = get_standard_name_gilda(term, mesh_lookup)
+            if gilda_name:
+                return gilda_name
+            try:
+                return fasttext_parser.get_standard_name_reranked(term)[0]
+            except ValueError:
+                return "UNPARSED"
+
+        evaluate(gilda_plus_fasttext, "gilda_plus_fasttext", x_train, y_train, x_val, y_val, mesh_id_map)
+
+
+    if "bern2+ANGEL" in args.pipelines:
+        bern2_ner = BERN2Recognizer()
+        angel_normalizer = ANGELMeshNormalizer(mesh_lookup)
+        pipeline = NER_NEN_Pipeline(bern2_ner, angel_normalizer)
+        model = lambda term: pipeline(term)[0].standard_name if pipeline(term) else "UNPARSED"
+        evaluate(model, "bern2+ANGEL", x_train, y_train, x_val, y_val, mesh_id_map)
+
+    if "bern2" in args.pipelines:
+        mesh_term_to_id_map = {entry.id: key.strip().lower()
+                    for key, entry in mesh_lookup.items()}
+        model = lambda term: get_standard_name_bern2(f"cell type: {term}", mesh_term_to_id_map, mesh_lookup,)
+        evaluate(model, "bern2", x_train, y_train, x_val, y_val, mesh_id_map)
+
+    if "bern2+fasttext" in args.pipelines:
+        bern2_ner = BERN2Recognizer()
+        fasttext_normalizer = FasttextNormalizer("BioWordVec_PubMed_MIMICIII_d200.vec.bin", filtered_mesh_lookup)
+        pipeline = NER_NEN_Pipeline(bern2_ner, fasttext_normalizer)
+        model = lambda term: pipeline(term)[0].standard_name if pipeline(term) else "UNPARSED"
+        evaluate(model, "bern2+fasttext", x_train, y_train, x_val, y_val, mesh_id_map)

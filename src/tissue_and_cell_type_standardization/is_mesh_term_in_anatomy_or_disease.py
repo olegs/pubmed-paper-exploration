@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from typing import Dict, Set
+from typing import Dict, Set, List
 
 def get_all_synonyms_for_mesh_entry(record: ET.Element) -> Set[str]:
     """
@@ -77,8 +77,7 @@ def build_mesh_lookup(xml_file_path: str) -> Dict[str, MeshEntry]:
         print(f"Error: Failed to parse the XML file. {e}")
         return {}
 
-
-def is_mesh_term_in_anatomy_or_cancer(term: str, mesh_lookup: Dict[str, Set[str]]) -> bool:
+def is_term_in_one_of_categories(term: str, mesh_lookup: Dict[str, Set[str]], category_tree_number_prefixes: List[str]) -> bool:
     """
     Checks if a MeSH term is in the Anatomy or Cancer By Site category using a lookup table.
 
@@ -102,10 +101,26 @@ def is_mesh_term_in_anatomy_or_cancer(term: str, mesh_lookup: Dict[str, Set[str]
     # We check whether a term is a cancer because cancer samples end up being
     # classified as diseases in MeSH
     for tn in tree_numbers:
-        if tn.startswith("A") or tn.startswith("C04.588") or tn.startswith("C04.557"):
-            return True
+        for prefix in category_tree_number_prefixes:
+            if tn.startswith(prefix):
+                return True
             
     return False
+
+def is_mesh_term_in_anatomy_or_cancer(term: str, mesh_lookup: Dict[str, Set[str]]) -> bool:
+    """
+    Checks if a MeSH term is in the Anatomy or Cancer By Site category using a lookup table.
+
+    :param term: The MeSH term to check (e.g., "Heart", "Lung").
+    :param mesh_lookup: A pre-built dictionary mapping terms to tree numbers.
+
+    :return: True if the term is in the Anatomy or Disease categories, False otherwise.
+    """
+    # Check if any tree number starts with 'A' or 'C04.588' which are the first
+    # letters in tree numbers for anatomy and cancer by site terms
+    # We check whether a term is a cancer because cancer samples end up being
+    # classified as diseases in MeSH
+    return is_term_in_one_of_categories(term, mesh_lookup, ["A", "C04.588", "C04.557"])
 
 
 if __name__ == "__main__":

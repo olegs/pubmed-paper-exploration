@@ -14,17 +14,7 @@ from src.tissue_and_cell_type_standardization.get_standard_name_fasttext import 
 from src.tissue_and_cell_type_standardization.get_standard_name_bern2 import get_standard_name_bern2, BERN2Recognizer
 from src.tissue_and_cell_type_standardization.ner_nen_pipeline import NER_NEN_Pipeline
 from src.tissue_and_cell_type_standardization.angel_normalizer import ANGELMeshNormalizer
-from sklearn.model_selection import train_test_split
 from tqdm import tqdm
-
-
-def synonym_f1_score(predicted_synonyms, true_synonyms, mesh_id_map):
-    predicted_synonyms = map(lambda x: x.strip().lower(), predicted_synonyms)
-    predicted_ids = [mesh_id_map[predicted_synonym]
-                     if predicted_synonym in mesh_id_map else predicted_synonym for predicted_synonym in predicted_synonyms]
-    true_ids = [mesh_id_map[true_synonym]
-                if true_synonym in mesh_id_map else true_synonym for true_synonym in true_synonyms]
-    return f1_score(predicted_ids, true_ids, average="macro", labels=list(set(true_ids)))
 
 
 def export_predictions(x_val, y_val, pred_val, output_path, mesh_id_map):
@@ -146,11 +136,11 @@ if __name__ == "__main__":
 
     args = parse_args()
     nlp = create_entity_linking_pipeline_with_ner()
-    mesh_lookup = build_mesh_lookup("desc2025.xml")
+    mesh_tree_number_map = build_mesh_lookup("desc2025.xml")
 
     print("=== PRE-RUN CHECKS ===")
     test_mesh_id_map = {key.strip().lower(): entry.id
-                        for key, entry in mesh_lookup.items()}
+                        for key, entry in mesh_tree_number_map.items()}
 
     def test_model(term): return term
     # In this context, the first list will be the predictions so they should
@@ -167,36 +157,27 @@ if __name__ == "__main__":
                         test_mesh_id_map)[0] - 2/3) <= 0.01
     print("=== PRE-RUN CHECKS COMPLETE ===")
 
-    mesh_lookup = {key: value for key, value in mesh_lookup.items(
-    ) if is_term_in_one_of_categories(key, mesh_lookup, args.mesh_categories)}
+    mesh_tree_number_map = {key: value for key, value in mesh_tree_number_map.items(
+    ) if is_term_in_one_of_categories(key, mesh_tree_number_map, args.mesh_categories)}
     mesh_id_map = {key.strip().lower(): entry.id
-                   for key, entry in mesh_lookup.items()}
-    resources = StandardizationResources(mesh_lookup, nlp)
+                   for key, entry in mesh_tree_number_map.items()}
+    resources = StandardizationResources(mesh_tree_number_map, nlp)
 
     terms_synoyms_df = pd.read_csv(args.file)
     synonym_column = args.true_column
     term_column = args.term_column
+
     terms_synoyms_df = terms_synoyms_df[
         terms_synoyms_df[synonym_column] != "UNKNOWN"]
-
     invalid_synonyms = terms_synoyms_df[
-        terms_synoyms_df[synonym_column].apply(lambda synonym: not is_synonym_valid(synonym, mesh_lookup))]
+        terms_synoyms_df[synonym_column].apply(lambda synonym: not is_synonym_valid(synonym, mesh_tree_number_map))]
     terms_synoyms_df = terms_synoyms_df[
-        terms_synoyms_df[synonym_column].apply(lambda synonym: is_synonym_valid(synonym, mesh_lookup))]
-
-    x_train, x_test, y_train, y_test = train_test_split(
-        terms_synoyms_df[term_column], terms_synoyms_df[synonym_column], test_size=0.2, random_state=42)
-    x_train, x_val, y_train, y_val = train_test_split(
-        x_train, y_train, test_size=0.25, random_state=42)
+        terms_synoyms_df[synonym_column].apply(lambda synonym: is_synonym_valid(synonym, mesh_tree_number_map))]
 
     x_full = terms_synoyms_df[term_column]
     y_full = terms_synoyms_df[synonym_column]
 
     x_full = x_full.apply(lambda term: f"{args.input_prefix}{term}")
-
-    export_dataset(x_train, y_train, "train.csv")
-    export_dataset(x_val, y_val, "validation.csv")
-    export_dataset(x_test, y_test, "test.csv")
 
     if "gilda_plus_spacy" in args.pipelines:
         def model(term): return get_standard_name(term, resources)
@@ -217,7 +198,7 @@ if __name__ == "__main__":
 
     if "fasttext" in args.pipelines:
         fasttext_parser = FastTextParser(
-            "BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_lookup)
+            "BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_tree_number_map)
 
         def model(term): return fasttext_parser.get_standard_name(term)[0]
         evaluate(model, "fasttext", x_full,
@@ -231,9 +212,9 @@ if __name__ == "__main__":
 
     if "gilda_plus_fasttext" in args.pipelines:
         def gilda_plus_fasttext(term):
-            global mesh_lookup
+            global mesh_tree_number_map
             term = term.replace("_", " ")
-            gilda_name = get_standard_name_gilda(term, mesh_lookup)
+            gilda_name = get_standard_name_gilda(term, mesh_tree_number_map)
             if gilda_name:
                 return gilda_name
             try:
@@ -246,7 +227,7 @@ if __name__ == "__main__":
 
     if "bern2+ANGEL" in args.pipelines:
         bern2_ner = BERN2Recognizer()
-        angel_normalizer = ANGELMeshNormalizer(mesh_lookup)
+        angel_normalizer = ANGELMeshNormalizer(mesh_tree_number_map)
         pipeline = NER_NEN_Pipeline(bern2_ner, angel_normalizer)
 
         def model(term): return pipeline(term)[
@@ -256,17 +237,17 @@ if __name__ == "__main__":
 
     if "bern2" in args.pipelines:
         mesh_term_to_id_map = {entry.id: key.strip().lower()
-                               for key, entry in mesh_lookup.items()}
+                               for key, entry in mesh_tree_number_map.items()}
 
         def model(term): return get_standard_name_bern2(
-            term, mesh_term_to_id_map, mesh_lookup,)
+            term, mesh_term_to_id_map, mesh_tree_number_map,)
         evaluate(model, "bern2", x_full,
                  y_full, mesh_id_map)
 
     if "bern2+fasttext" in args.pipelines:
         bern2_ner = BERN2Recognizer()
         fasttext_normalizer = FasttextNormalizer(
-            "BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_lookup)
+            "BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_tree_number_map)
         pipeline = NER_NEN_Pipeline(bern2_ner, fasttext_normalizer)
 
         def model(term): return pipeline(term)[

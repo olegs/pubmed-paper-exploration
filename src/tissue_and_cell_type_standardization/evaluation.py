@@ -131,7 +131,9 @@ def parse_args():
     argument_parser.add_argument(
         "--true_column", default="synonym", help="Column from which to true synonyms")
     argument_parser.add_argument(
-        "--export-invalid-synonyms", action="store_true", default=False, help="Write terms from input file that are not in the specified MeSH categories to a csv file")
+        "--export_invalid_synonyms", action="store_true", default=False, help="Write terms from input file that are not in the specified MeSH categories to a csv file")
+    argument_parser.add_argument(
+        "--input_prefix", default="", help="Prefix to attach to all inputs of the NER+NEN pipleines")
     argument_parser.add_argument(
         "file", help="Path to file with terms and synonyms")
     argument_parser.add_argument(
@@ -190,6 +192,8 @@ if __name__ == "__main__":
     x_full = terms_synoyms_df[term_column]
     y_full = terms_synoyms_df[synonym_column]
 
+    x_full = x_full.apply(lambda term: f"{args.input_prefix}{term}")
+
     export_dataset(x_train, y_train, "train.csv")
     export_dataset(x_val, y_val, "validation.csv")
     export_dataset(x_test, y_test, "test.csv")
@@ -197,7 +201,7 @@ if __name__ == "__main__":
     if "gilda_plus_spacy" in args.pipelines:
         def model(term): return get_standard_name(term, resources)
         evaluate(model, "gilda_plus_spacy", x_full,
-                                  y_full, mesh_id_map)
+                 y_full, mesh_id_map)
 
     if "spacy" in args.pipelines:
         def model(term): return get_standard_name_spacy(
@@ -217,7 +221,7 @@ if __name__ == "__main__":
 
         def model(term): return fasttext_parser.get_standard_name(term)[0]
         evaluate(model, "fasttext", x_full,
-                                  y_full, mesh_id_map)
+                 y_full, mesh_id_map)
 
     if "reranked_fasttext" in args.pipelines:
         def model(term): return fasttext_parser.get_standard_name_reranked(
@@ -255,7 +259,7 @@ if __name__ == "__main__":
                                for key, entry in mesh_lookup.items()}
 
         def model(term): return get_standard_name_bern2(
-            f"cell type: {term}", mesh_term_to_id_map, mesh_lookup,)
+            term, mesh_term_to_id_map, mesh_lookup,)
         evaluate(model, "bern2", x_full,
                  y_full, mesh_id_map)
 

@@ -183,9 +183,12 @@ if __name__ == "__main__":
         terms_synoyms_df[synonym_column].apply(lambda synonym: is_synonym_valid(synonym, mesh_lookup))]
 
     x_train, x_test, y_train, y_test = train_test_split(
-        terms_synoyms_df[term_column], terms_synoyms_df["synonym"], test_size=0.2, random_state=42)
+        terms_synoyms_df[term_column], terms_synoyms_df[synonym_column], test_size=0.2, random_state=42)
     x_train, x_val, y_train, y_val = train_test_split(
         x_train, y_train, test_size=0.25, random_state=42)
+
+    x_full = terms_synoyms_df[term_column]
+    y_full = terms_synoyms_df[synonym_column]
 
     export_dataset(x_train, y_train, "train.csv")
     export_dataset(x_val, y_val, "validation.csv")
@@ -193,32 +196,34 @@ if __name__ == "__main__":
 
     if "gilda_plus_spacy" in args.pipelines:
         def model(term): return get_standard_name(term, resources)
-        evaluate_train_validation(model, "gilda_plus_spacy", x_train,
-                                  y_train, x_val, y_val, mesh_id_map)
+        evaluate(model, "gilda_plus_spacy", x_full,
+                                  y_full, mesh_id_map)
 
     if "spacy" in args.pipelines:
         def model(term): return get_standard_name_spacy(
             term, resources.nlp, resources.mesh_lookup)
-        evaluate_train_validation(model, "spacy", x_train, y_train, x_val, y_val, mesh_id_map)
+        evaluate(
+            model, "spacy", x_full, y_full, mesh_id_map)
 
     if "gilda" in args.pipelines:
         def model(term): return get_standard_name_gilda(
             term, resources.mesh_lookup)
-        evaluate_train_validation(model, "gilda", x_train, y_train, x_val, y_val, mesh_id_map)
+        evaluate(
+            model, "gilda", x_full, y_full, mesh_id_map)
 
     if "fasttext" in args.pipelines:
         fasttext_parser = FastTextParser(
             "BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_lookup)
 
         def model(term): return fasttext_parser.get_standard_name(term)[0]
-        evaluate_train_validation(model, "fasttext", x_train,
-                 y_train, x_val, y_val, mesh_id_map)
+        evaluate(model, "fasttext", x_full,
+                                  y_full, mesh_id_map)
 
     if "reranked_fasttext" in args.pipelines:
         def model(term): return fasttext_parser.get_standard_name_reranked(
             term)[0]
-        evaluate_train_validation(model, "reranked_fasttext", x_train,
-                 y_train, x_val, y_val, mesh_id_map)
+        evaluate(model, "reranked_fasttext", x_full,
+                 y_full, mesh_id_map)
 
     if "gilda_plus_fasttext" in args.pipelines:
         def gilda_plus_fasttext(term):
@@ -232,8 +237,8 @@ if __name__ == "__main__":
             except ValueError:
                 return "UNPARSED"
 
-        evaluate_train_validation(gilda_plus_fasttext, "gilda_plus_fasttext",
-                 x_train, y_train, x_val, y_val, mesh_id_map)
+        evaluate(gilda_plus_fasttext, "gilda_plus_fasttext",
+                 x_full, y_full, mesh_id_map)
 
     if "bern2+ANGEL" in args.pipelines:
         bern2_ner = BERN2Recognizer()
@@ -242,8 +247,8 @@ if __name__ == "__main__":
 
         def model(term): return pipeline(term)[
             0].standard_name if pipeline(term) else "UNPARSED"
-        evaluate_train_validation(model, "bern2+ANGEL", x_train,
-                 y_train, x_val, y_val, mesh_id_map)
+        evaluate(model, "bern2+ANGEL", x_full,
+                 y_full, mesh_id_map)
 
     if "bern2" in args.pipelines:
         mesh_term_to_id_map = {entry.id: key.strip().lower()
@@ -251,7 +256,8 @@ if __name__ == "__main__":
 
         def model(term): return get_standard_name_bern2(
             f"cell type: {term}", mesh_term_to_id_map, mesh_lookup,)
-        evaluate_train_validation(model, "bern2", x_train, y_train, x_val, y_val, mesh_id_map)
+        evaluate(model, "bern2", x_full,
+                 y_full, mesh_id_map)
 
     if "bern2+fasttext" in args.pipelines:
         bern2_ner = BERN2Recognizer()
@@ -261,76 +267,5 @@ if __name__ == "__main__":
 
         def model(term): return pipeline(term)[
             0].standard_name if pipeline(term) else "UNPARSED"
-        evaluate_train_validation(model, "bern2+fasttext", x_train,
-                 y_train, x_val, y_val, mesh_id_map)
-
-    if "spacy" in args.pipelines:
-        def model(term): return get_standard_name_spacy(
-            term, resources.nlp, resources.mesh_lookup)
-        evaluate_train_validation(
-            model, "spacy", x_train, y_train, x_val, y_val, mesh_id_map)
-
-    if "gilda" in args.pipelines:
-        def model(term): return get_standard_name_gilda(
-            term, resources.mesh_lookup)
-        evaluate_train_validation(
-            model, "gilda", x_train, y_train, x_val, y_val, mesh_id_map)
-
-    if "fasttext" in args.pipelines:
-        fasttext_parser = FastTextParser(
-            "BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_lookup)
-
-        def model(term): return fasttext_parser.get_standard_name(term)[0]
-        evaluate_train_validation(model, "fasttext", x_train,
-                                  y_train, x_val, y_val, mesh_id_map)
-
-    if "reranked_fasttext" in args.pipelines:
-        def model(term): return fasttext_parser.get_standard_name_reranked(
-            term)[0]
-        evaluate_train_validation(model, "reranked_fasttext", x_train,
-                                  y_train, x_val, y_val, mesh_id_map)
-
-    if "gilda_plus_fasttext" in args.pipelines:
-        def gilda_plus_fasttext(term):
-            global mesh_lookup
-            term = term.replace("_", " ")
-            gilda_name = get_standard_name_gilda(term, mesh_lookup)
-            if gilda_name:
-                return gilda_name
-            try:
-                return fasttext_parser.get_standard_name_reranked(term)[0]
-            except ValueError:
-                return "UNPARSED"
-
-        evaluate_train_validation(gilda_plus_fasttext, "gilda_plus_fasttext",
-                                  x_train, y_train, x_val, y_val, mesh_id_map)
-
-    if "bern2+ANGEL" in args.pipelines:
-        bern2_ner = BERN2Recognizer()
-        angel_normalizer = ANGELMeshNormalizer(mesh_lookup)
-        pipeline = NER_NEN_Pipeline(bern2_ner, angel_normalizer)
-
-        def model(term): return pipeline(term)[
-            0].standard_name if pipeline(term) else "UNPARSED"
-        evaluate_train_validation(model, "bern2+ANGEL", x_train,
-                                  y_train, x_val, y_val, mesh_id_map)
-
-    if "bern2" in args.pipelines:
-        mesh_term_to_id_map = {entry.id: key.strip().lower()
-                               for key, entry in mesh_lookup.items()}
-
-        def model(term): return get_standard_name_bern2(
-            f"cell type: {term}", mesh_term_to_id_map, mesh_lookup,)
-        evaluate_train_validation(
-            model, "bern2", x_train, y_train, x_val, y_val, mesh_id_map)
-
-    if "bern2+fasttext" in args.pipelines:
-        bern2_ner = BERN2Recognizer()
-        fasttext_normalizer = FasttextNormalizer(
-            "BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_lookup)
-        pipeline = NER_NEN_Pipeline(bern2_ner, fasttext_normalizer)
-
-        def model(term): return pipeline(term)[
-            0].standard_name if pipeline(term) else "UNPARSED"
-        evaluate_train_validation(model, "bern2+fasttext", x_train,
-                                  y_train, x_val, y_val, mesh_id_map)
+        evaluate(model, "bern2+fasttext", x_full,
+                 y_full, mesh_id_map)

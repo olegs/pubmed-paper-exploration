@@ -230,8 +230,13 @@ if __name__ == "__main__":
         angel_normalizer = ANGELMeshNormalizer(mesh_tree_number_map)
         pipeline = NER_NEN_Pipeline(bern2_ner, angel_normalizer)
 
-        def model(term): return pipeline(term)[
-            0].standard_name if pipeline(term) else "UNPARSED"
+        def model(term):
+            mentions = pipeline(term)
+            # Filtering the predictions so they are of the right type increases precision
+            #mentions = list(filter(lambda mention: mention.entity_class in [
+                            #"cell_type", "cell_line"], mentions))
+            return mentions[
+                0].standard_name if mentions else "UNPARSED"
         evaluate(model, "bern2+ANGEL", x_full,
                  y_full, mesh_id_map)
 

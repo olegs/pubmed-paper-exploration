@@ -11,5 +11,12 @@ class Config:
             raise ValueError("clustering.topic_words must be greater than or equal to 5. Please check the configuration.")
         self.download_folder = self._config["ingestion"]["download_folder"]
         self.loglevel = self._config["logging"]["log_level"]
+        self.angel_config = {
+            "model_load_path": self._config["ANGEL"]["model_load_path"],
+            "model_token_path": self._config["ANGEL"]["model_token_path"],
+            "per_device_eval_batch_size": self._config.getint("ANGEL", "per_device_eval_batch_size"),
+            "num_beams": self._config.getint("ANGEL", "num_beams"),
+            "prefix_mention_is": self._config.getboolean("ANGEL", "prefix_mention_is"),
+        }
 
 config = Config("config.ini")

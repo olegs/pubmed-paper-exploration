@@ -28,7 +28,7 @@ class NER_NEN_Pipeline():
             score = normalized_enities[i].score if normalized_enities[i] else -1
 
             result.append(
-                PipelineResult(mention, entity_class, standard_name, cui, ontology, score)
+                PipelineResult(mention, entity_class, standard_name, ontology, cui, score)
             )
 
         return result

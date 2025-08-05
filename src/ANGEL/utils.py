@@ -121,101 +121,83 @@ def convert_sets_to_lists(obj):
         return {key: convert_sets_to_lists(value) for key, value in obj.items()}
     else:
         return obj
+
+
+default_config = {
+  "dataset_path": None,
+  "dpo_dataset_path": None,
+  "model_name": "ncbi",
+  "dataset": "",
+  "model_save_path": "./model_saved",
+  "model_load_path": "facebook/bart-large",
+  "model_token_path": "facebook/bart-large",
+  "trie_path": "./trie.pkl",
+  "dict_path": "./benchmark/ncbi_EL/target_kb.json",
+  "retrieved_path": "./trie.pkl",
+  "output_path": "./output",
+  "logging_path": "./logs",
+  "logging_steps": 1000,
+  "save_steps": 20000,
+  "eval_steps": 500,
+  "num_train_epochs": 8,
+  "per_device_train_batch_size": 4,
+  "per_device_eval_batch_size": 1,
+  "warmup_steps": 500,
+  "max_grad_norm": 0.1,
+  "max_steps": 20000,
+  "gradient_accumulate": 1,
+  "weight_decay": 0.01,
+  "init_lr": 5e-05,
+  "lr_scheduler_type": "polynomial",
+  "evaluation_strategy": "no",
+  "num_beams": 5,
+  "length_penalty": 1.0,
+  "beam_threshold": 0.0,
+  "max_length": 1024,
+  "min_length": 1,
+  "attention_dropout": 0.1,
+  "dropout": 0.1,
+  "rdrop": 0.0,
+  "label_smoothing_factor": 0.1,
+  "unlikelihood_loss": False,
+  "unlikelihood_weight": 0.1,
+  "max_position_embeddings": 1024,
+  "prompt_tokens_enc": 0,
+  "prompt_tokens_dec": 0,
+  "make_all_pair": False,
+  "finetune": False,
+  "t5": False,
+  "fairseq_loss": False,
+  "evaluation": False,
+  "testset": False,
+  "load_prompt": False,
+  "sample_train": False,
+  "prefix_prompt": False,
+  "init_from_vocab": False,
+  "rerank": False,
+  "no_finetune_decoder": False,
+  "syn_pretrain": False,
+  "new_dpo_method": False,
+  "gold_sty": False,
+  "prefix_mention_is": False,
+  "num_epochs": 1,
+  "beta": 0.1,
+  "dpo_topk": 10,
+  "wandb": False,
+  "sweep": False,
+  "hard_negative": False,
+  "debug": False,
+  "local_rank": 0,
+  "seed": 0
+}
+
+class ConfigObject:
+    def __init__(self, dictionary):
+        for key, value in dictionary.items():
+            setattr(self, key, value)
             
 def get_config():
-    parser = argparse.ArgumentParser(description='Training configuration')
-
-    # Dataset paths
-    parser.add_argument("-dataset_path", type=str, help="Path of the medmentions dataset")
-    parser.add_argument("-dpo_dataset_path", type=str, help="Path of the DPO dataset")
-    
-    # Model configuration
-    parser.add_argument("-model_name", type=str, default='ncbi', help="Name of the model")
-    parser.add_argument("-dataset", type=str, default='', help="Choosing dataset for fine-tuning")
-    parser.add_argument("-model_save_path", type=str, default='./model_saved', help="Path to save the trained model")
-    parser.add_argument("-model_load_path", type=str, default='facebook/bart-large', help="Path to load the pretrained model")
-    parser.add_argument("-model_token_path", type=str, default='facebook/bart-large', help="Path for tokenizer")
-    parser.add_argument("-trie_path", type=str, default='./trie.pkl', help="Path of the Trie")
-    parser.add_argument("-dict_path", type=str, default='./benchmark/ncbi_EL/target_kb.json', help="Path of the CUI to string dictionary")
-    parser.add_argument("-retrieved_path", type=str, default='./trie.pkl', help="Path of the retrieved CUI to string dictionary")
-    parser.add_argument("-output_path", type=str, default='./output', help="Output path if model directory is not exists")
-    
-    # Logging and saving
-    parser.add_argument("-logging_path", type=str, default='./logs', help="Path for saving logs")
-    parser.add_argument('-logging_steps', type=int, default=1000, help='Save logs per logging step')
-    parser.add_argument('-save_steps', type=int, default=20000, help='Save checkpoints per save steps')
-    parser.add_argument('-eval_steps', type=int, default=500, help='evaluation steps')
-
-    # Training parameters
-    parser.add_argument('-num_train_epochs', type=int, default=8, help="Number of training epochs")
-    parser.add_argument('-per_device_train_batch_size', type=int, default=4, help="Training batch size")
-    parser.add_argument('-per_device_eval_batch_size', type=int, default=1, help="Evaluation batch size")
-    parser.add_argument('-warmup_steps', type=int, default=500, help="Number of warmup steps")
-    parser.add_argument('-max_grad_norm', type=float, default=0.1, help="Gradient clipping value")
-    parser.add_argument('-max_steps', type=int, default=20000, help="Max training steps, overrides num_train_epochs")
-    parser.add_argument('-gradient_accumulate', type=int, default=1, help="Gradient accumulation steps")
-    parser.add_argument('-weight_decay', type=float, default=0.01, help="Weight decay of the optimizer")
-    parser.add_argument('-init_lr', type=float, default=5e-5, help="Initial learning rate for AdamW")
-    parser.add_argument('-lr_scheduler_type', type=str, default='polynomial', help="Learning rate scheduler type")
-    parser.add_argument('-evaluation_strategy', type=str, default='no', help="Evaluation strategy")
-
-    # Beam search parameters
-    parser.add_argument('-num_beams', type=int, default=5, help="Number of beams for beam search")
-    parser.add_argument('-length_penalty', type=float, default=1, help="Length penalty of beam search")
-    parser.add_argument('-beam_threshold', type=float, default=0, help="Logit threshold for beam search")
-    parser.add_argument('-max_length', type=int, default=1024, help="Max length for generation")
-    parser.add_argument('-min_length', type=int, default=1, help="Min length for generation")
-
-    # Dropout and regularization
-    parser.add_argument('-attention_dropout', type=float, default=0.1, help="Attention dropout")
-    parser.add_argument('-dropout', type=float, default=0.1, help="Dropout rate")
-    parser.add_argument('-rdrop', type=float, default=0.0, help="R-drop regularization")
-    parser.add_argument('-label_smoothing_factor', type=float, default=0.1, help="Label smoothing factor")
-    parser.add_argument('-unlikelihood_loss', action='store_true', help="Whether to use unlikelihood loss")
-    parser.add_argument('-unlikelihood_weight', type=float, default=0.1, help="Weight for unlikelihood loss")
-
-    # Model architecture
-    parser.add_argument('-max_position_embeddings', type=int, default=1024, help="Max position embedding length")
-    parser.add_argument('-prompt_tokens_enc', type=int, default=0, help="Number of soft prompt tokens in encoder")
-    parser.add_argument('-prompt_tokens_dec', type=int, default=0, help="Number of soft prompt tokens in decoder")
-    
-    # Special training modes and options
-    parser.add_argument('-make_all_pair', action='store_true', help="Create all possible pairs for training")
-    parser.add_argument('-finetune', action='store_true', help="Finetune the BART model")
-    parser.add_argument('-t5', action='store_true', help="Use T5 pretrained model")
-    parser.add_argument('-fairseq_loss', action='store_true', help="Use label smoothed loss in fairseq")
-    parser.add_argument('-evaluation', action='store_true', help="Set to evaluation mode")
-    parser.add_argument('-testset', action='store_true', help="Evaluate with test set or dev set")
-    parser.add_argument('-load_prompt', action='store_true', help="Load prompt during training")
-    parser.add_argument('-sample_train', action='store_true', help="Use training target sampled by TF-IDF similarity")
-    parser.add_argument('-prefix_prompt', action='store_true', help="Use prefix prompt tokens")
-    parser.add_argument('-init_from_vocab', action='store_true', help="Initialize prompt from mean of token embeddings")
-    parser.add_argument('-rerank', action='store_true', help="Rerank the retrieved names")
-    parser.add_argument('-no_finetune_decoder', action='store_true', help="Only finetune encoder")
-    parser.add_argument('-syn_pretrain', action='store_true', help="Pretrain on synthetic data")
-    parser.add_argument('-new_dpo_method', action='store_true', help="Use new DPO method for training")
-    parser.add_argument('-gold_sty', action='store_true', help="Use gold stylistic data")
-    parser.add_argument('-prefix_mention_is', action='store_true', help="Use prefix 'mention is'")
-
-    # DPO-specific configurations
-    parser.add_argument("-num_epochs", type=int, default=1, help="Number of training epochs for DPO")
-    parser.add_argument("-beta", type=float, default=0.1, help="Beta value for DPO")
-    parser.add_argument('-dpo_topk', type=int, default=10, help="Number of reranking candidates")
-    
-    # Debugging and special modes
-    parser.add_argument('-wandb', action='store_true', help="Use wandb for logging")
-    parser.add_argument("-sweep", action='store_true', help="Enable sweep debugging mode for DPO")
-    parser.add_argument("-hard_negative", action='store_true', help="Enable hard negative mode for DPO")
-    parser.add_argument("-debug", action='store_true', help="Enable debugging mode")
-    
-    # Distributed training
-    parser.add_argument("-local_rank", type=int, default=0, help="Local rank for distributed training")
-    
-    # Random seed for reproducibility
-    parser.add_argument("-seed", type=int, default=0, help="Seed for random number generators to ensure reproducibility")
-
-
-    config, _ = parser.parse_known_args()
+    config = ConfigObject(default_config)
     config.model_load_path = file_config.angel_config["model_load_path"]
     config.model_token_path = file_config.angel_config["model_token_path"]
     config.per_device_eval_batch_size = file_config.angel_config["per_device_eval_batch_size"]

@@ -1,5 +1,6 @@
 from typing import Dict
 import requests
+import json
 from src.ingestion.rate_limit import RateLimited
 from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup 
 from src.tissue_and_cell_type_standardization.named_entity_recognizer import NamedEntityRecognizer, NamedEntity
@@ -8,11 +9,13 @@ from src.tissue_and_cell_type_standardization.ner_nen_pipeline import NER_NEN_Pi
 
 
 @RateLimited(max_per_second=3)
+
 def get_standard_name_bern2(text, mesh_id_map, mesh_lookup, url="http://bern2.korea.ac.kr/plain") -> str | None:
     response = requests.post(url, json={'text': text})
     while response.status_code != 200:
         response = requests.post(url, json={'text': text})
-    response = response.json()
+    cleaned_response = response.text.replace(": NaN", ": -1")
+    response = json.loads(cleaned_response)
     candidate_ids = []
     for annotation in sorted(response["annotations"], key=lambda ann: ann["prob"]):
         annotation_ids = list(filter(lambda id: id.startswith("mesh"), annotation["id"]))

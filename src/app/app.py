@@ -10,6 +10,7 @@ from src.config import config
 from src.exception.not_enough_datasets_error import NotEnoughDatasetsError
 
 app = Flask(__name__)
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 svd_dimensions = config.svd_dimensions
 
 

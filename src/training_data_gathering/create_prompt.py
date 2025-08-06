@@ -12,7 +12,7 @@ from src.ingestion.download_related_paper_datasets import \
 from src.ingestion.download_samples import download_samples
 from src.model.geo_dataset import GEODataset
 from src.model.geo_sample import GEOSample
-from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import is_mesh_term_in_anatomy_or_cancer, build_mesh_lookup
+from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup, is_term_in_one_of_categories
 
 
 async def download_samples_for_datasets(datasets: List[GEODataset]) -> List[GEOSample]:
@@ -49,6 +49,10 @@ def download_samples_from_pubtrends_export(pubtrends_export_path):
     assert len(set(accessions)) == len(samples)
     return list(samples)
 
+def get_unique_values_for_characteristic(samples: List[GEOSample], characteristic_key: str) -> List[str]:
+    return list({sample.characteristics[characteristic_key].strip()
+                        for sample in samples if characteristic_key in sample.characteristics})
+
 
 if __name__ == "__main__":
     import os
@@ -61,26 +65,23 @@ if __name__ == "__main__":
     samples = set()
     for path in args.pubtrends_export_paths:
         samples.update(download_samples_from_pubtrends_export(path))
+    
+    unique_characteristic_values = get_unique_values_for_characteristic(samples, "treatment")
 
-    tissues = list({sample.characteristics["tissue"].strip()
-                        for sample in samples if "tissue" in sample.characteristics})
-
-    cell_types = list({sample.characteristics["cell type"].strip()
-                  for sample in samples if "cell type" in sample.characteristics})
-                
-    tissues_or_cell_types = list(set(tissues + cell_types))
-    print("Number of unique tissues and cell types", len(tissues_or_cell_types))
+    print("Number of unique values:", len(unique_characteristic_values))
 
     mesh_lookup = build_mesh_lookup("desc2025.xml")
     filtered_mesh_lookup = {key: value for key, value in mesh_lookup.items(
-    ) if is_mesh_term_in_anatomy_or_cancer(key, mesh_lookup)}
+    ) if is_term_in_one_of_categories(key, mesh_lookup, ["D"])}
     mesh_terms = [(entry.id, term) for term, entry in filtered_mesh_lookup.items()]
+    seen_ids = set()
+    mesh_terms = [seen_ids.add(id_term_pair[0]) or id_term_pair for id_term_pair in mesh_terms if id_term_pair[0] not in seen_ids]
 
     prompt_template: Template = None
     with open(os.path.join("src", "training_data_gathering","prompt_template.txt"), "r") as f:
         prompt_template = Template(f.read())
 
-    prompt = prompt_template.render(mesh_terms=mesh_terms, tissues_or_cell_types=tissues_or_cell_types)
+    prompt = prompt_template.render(mesh_terms=mesh_terms, tissues_or_cell_types=unique_characteristic_values)
 
     with open(args.output_path, "w") as f:
         f.write(prompt)

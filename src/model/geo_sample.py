@@ -34,11 +34,17 @@ class GEOSample:
             except ValueError:
                 unparsed_key = "unparsed_characteristics"
                 current_unparsed = characteristics_dict.get(unparsed_key, "")
-                characteristics_dict[unparsed_key] = current_unparsed + "|" + characteristic
+                characteristics_dict[unparsed_key] = current_unparsed + \
+                    "|" + characteristic
         return characteristics_dict
 
     def __eq__(self, other):
         return self.accession == other.accession
-    
+
     def __hash__(self):
         return hash(self.accession + self.title)
+
+    def __str__(self):
+        string = f"Accession:{self.accession}\n{self.title}\nsource:{self.metadata.get('source_name_ch1', [''])[0]}\ndescription:{self.description}\n"
+        string += "\n".join(f"{characteristic}: {value}" for characteristic, value in self.characteristics.items())
+        return string

@@ -42,3 +42,7 @@
 .tab-pane {
     padding-left: 5%;
 }
+
+#datasets-table tbody tr {
+    cursor: pointer;
+}

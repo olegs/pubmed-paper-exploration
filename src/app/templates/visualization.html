@@ -33,7 +33,210 @@
     </div>
   </nav>
   <div class="tab-content" id="nav-tabContent">
-    <div class="tab-pane fade show active" id="nav-datasets" role="tabpanel" aria-labelledby="nav-datasets-tab">...
+    <div class="tab-pane fade show active" id="nav-datasets" role="tabpanel" aria-labelledby="nav-datasets-tab">
+      <table id="datasets-table" class="table display table-hover">
+        <thead>
+          <th scope="col">Accession</th>
+          <th scope="col">Title</th>
+          <th scope="col">Organism</th>
+          <th scope="col">Type</th>
+          <th scope="col">Platform</th>
+          <th scope="col"># Samples</th>
+        </thead>
+      </table>
+      <script>
+        geo_datasets =
+          [
+            {
+              "id": "GSE178145",
+              "n_samples": 10,
+              "platform": "Infinium MethylationEPIC",
+              "title": "AOM/DSS colorectal cancer mouse transcriptome profile across 5 time point in the progression of colites to tumor [RNA-seq]",
+              "experiment_type": "Expression profiling by high throughput sequencing",
+              "summary": "Azoxymethane (AOM) and dextran sulfate sodium (DSS) mice, as a classic model for the study of colorectal cancer, can completely simulate the inflammatory cancer transformation in the development of colorectal cancer.Although people have been trying to reveal the key mechanism of colorectal cancer transformation. But the current understanding of it is still not enough. In this study, we injected mice with AOM and then periodically treated them with DSS. The mice were made to develop tumors in the colon finally. In this process, we sampled the intestinal tissues of the mice at different time points, respectively, at the 0th week, 2nd week, 4th week, 7th week and 10th week after AOM injection. to describe the gene exprression profile across all time point, we get the RNA-seq data for all samples.",
+              "organisms": [
+                "Mus musculus"
+              ],
+              "overall_design": "RNA-seq samples of AOM/DSS mouse colon across 5 time point (week-0, week-2, week4, week-7, week-10)",
+              "pubmed_ids": [
+                "35712778",
+                "38012744"
+              ]
+            },
+            {
+              "id": "GSE103541",
+              "n_samples": 10,
+              "platform": "Infinium MethylationEPIC",
+              "title": "DNA methylation profiles of Purified Blood Cell types",
+              "experiment_type": "Methylation profiling by array",
+              "summary": "DNA methylation profiles for CD4 T cells, CD8 T cells, B cells, Monocytes and Granulocytes purified from 28 individuals",
+              "organisms": [
+                "Homo sapiens"
+              ],
+              "overall_design": "DNA methylation profiles for CD4 T cells, CD8 T cells, B cells, Monocytes and Granulocytes purified from 28 individuals (140 samples in total).  145 samples are submitted. 5 samples (\"Patient 0\") failed quality control and were not included in the analysis. The raw data for these samples are provided but there are no accompanying processed data.",
+              "pubmed_ids": [
+                "33739972"
+              ]
+            },
+            {
+              "id": "GSE95676",
+              "n_samples": 10,
+              "platform": "Infinium MethylationEPIC",
+              "title": "Tissue-Specific and Genetic Regulation of Insulin Sensitivity-Associated Transcripts in African Americans",
+              "experiment_type": "Expression profiling by array",
+              "summary": "This SuperSeries is composed of the SubSeries listed below.",
+              "organisms": [
+                "Homo sapiens"
+              ],
+              "overall_design": "Refer to individual Series",
+              "pubmed_ids": [
+                "26789776"
+              ]
+            },
+            {
+              "id": "GSE278548",
+              "n_samples": 10,
+              "platform": "Infinium MethylationEPIC",
+              "title": "Metabolic modeling reveals the aging-associated decline of host-microbiome metabolic interactions in mice",
+              "experiment_type": "Expression profiling by high throughput sequencing",
+              "summary": "Aging is the predominant cause of morbidity and mortality in industrialized countries, yet the molecular mechanisms driving aging and especially the contribution by the microbiome remain unclear. We combined multi-omics with metabolic modeling to comprehensively characterize host\u2013microbiome interactions during aging in mice. Our findings reveal a complex dependency of host metabolism on known and novel microbial interactions. We observed a pronounced reduction in metabolic activity within the aging microbiome accompanied by reduced beneficial interactions between bacterial species. These microbial changes coincided with increased inflammaging as well as a corresponding downregulation of key host pathways, predicted by our model to be microbiome-dependent, that are crucial for maintaining intestinal barrier function, cellular replication, and homeostasis. Our results elucidate microbiome\u2013host interactions that potentially influence host aging processes, focusing on microbial nucleotide metabolism as a pivotal factor in aging dynamics. These pathways could serve as future targets for the development of microbiome-based anti-aging therapies.",
+              "organisms": [
+                "Mus musculus"
+              ],
+              "overall_design": "RNA sequencing with Illumina\u2019s TruSeq stranded kit, with polyA enrichment, 100bp paired end sequencing of 24 total-RNA samples each from female mice\u2019s (C57BL/6J) colons, livers, brains, quadriceps and gonadal white adipose tissue (gWAT) at 12 weeks of age raised with conventional gut microbiome (CONVR), germ-free and then conventional microbiome introduced (CONVD) or raised germ free (GF).",
+              "pubmed_ids": [
+                "40140706"
+              ]
+            },
+            {
+              "id": "GSE243994",
+              "n_samples": 10,
+              "platform": "Infinium MethylationEPIC",
+              "title": "DOS-3 mediates cell-non-autonomous DAF-16/FOXO activity in antagonizing age-related loss of C. elegans germline stem",
+              "experiment_type": "Expression profiling by high throughput sequencing",
+              "summary": "Age-related depletion of stem cells causes tissue degeneration and failure to tissue regeneration, driving aging at the organismal level. Previously we reported a cell-non-autonomous DAF-16/FOXO activity in antagonizing the age-related loss of germline stem/progenitor cells (GSPCs) in C. elegans, indicating that regulation of stem cell aging occurs at the organ system level. Here we discover the molecular effector that links the cell-non-autonomous DAF-16/FOXO activity to GSPC maintenance over time by performing a tissue-specific DAF-16/FOXO transcriptome analysis. Our data show that dos-3, which encodes a non-canonical Notch ligand, is a direct transcriptional target of DAF-16/FOXO and mediates the effect of the cell-non-autonomous DAF-16/FOXO activity on GSPC maintenance through activating Notch signaling in the germ line. Importantly, expression of a human homologous protein can functionally substitute for DOS-3 in this scenario. As Notch signaling controls the specification of many tissue stem cells, similar mechanisms may exist in other aging stem cell systems.",
+              "organisms": [
+                "Caenorhabditis elegans"
+              ],
+              "overall_design": "Comparative gene expression profiling analysis of RNA-seq data for the proximal region of the somatic gonad (PSG) cells of daf-2(rf) and daf-16(0); daf-2(rf) hermaphrodite nematodes on day1 (D1) and day 7 (D7) of adulthood.",
+              "pubmed_ids": [
+                "38851828"
+              ]
+            },
+            {
+              "id": "GSE243224",
+              "n_samples": 10,
+              "platform": "Infinium MethylationEPIC",
+              "title": "Transcriptional stress responses induced by compartment-targeted misfolding-prone proteins in Drosophila",
+              "experiment_type": "Expression profiling by high throughput sequencing",
+              "summary": "Loss of proteostasis is an aging hallmark and the culprit of many age-related diseases. Different cell compartments experience distinctive challenges to maintain protein quality control but it remains underexplored how subcellular proteostasis is regulated by aging. Here, by targeting the misfolding_x0002_prone FlucDM luciferase to the cytoplasm, mitochondria, and nucleus, we have established transgenic sensors to examine subcellular proteostasis in Drosophila. Analysis of detergent-insoluble and -soluble levels of compartment-targeted FlucDM variants indicates that thermal stress, cold shock, and endocrine signaling differentially affect subcellular proteostasis during aging. Moreover, aggregation-prone proteins that cause different neurodegenerative diseases induce a diverse range of outcomes on FlucDM insolubility, suggesting that subcellular proteostasis is deranged in a disease-specific manner. Further analyses with FlucDM and mass spectrometry indicate that pathogenic tauV337M regulates in opposite manners the solubility of protein sets located in distinct organelles. Altogether, compartment-targeted FlucDM variants pinpoint a diverse modulation of subcellular proteostasis by aging regulators.",
+              "organisms": [
+                "Drosophila melanogaster"
+              ],
+              "overall_design": "RNA-sequencing data from Drosophila melanogaster strains (whole flies, males, 10-days-old) reared at 18C, 25, and 29C, and that express misfolding-prone proteins localized primarily to the cytoplasm (Cyto-FlucDM), the mitochondria (Mito-FlucDM), and the nucleus (NLS-FlucDM) were compared to isogenic control flies (w1118) that do not express FlucDM.",
+              "pubmed_ids": [
+                "39383859"
+              ]
+            },
+            {
+              "id": "GSE255031",
+              "n_samples": 10,
+              "platform": "Infinium MethylationEPIC",
+              "title": "Combined inhibition of IL-1, IL-33 and IL-36 signaling by targeting IL1RAP ameliorates skin and lung fibrosis in preclinical models of Systemic Sclerosis",
+              "experiment_type": "Expression profiling by high throughput sequencing",
+              "summary": "Background: The IL-1 receptor accessory protein (IL1RAP) is an essential co-receptor required for signaling through the IL-1, IL-33 and IL-36 receptors. Here, we investigate the antifibrotic potential of the combined inhibition of these cytokines by an anti-IL1RAP antibody to provide a scientific background for clinical development in systemic sclerosis (SSc). Methods: The expression of IL1RAP-associated signaling molecules was determined by data mining of publicly available RNAseq data as well as by imaging mass cytometry (IMC). Efficacy of therapeutic dosing of anti-IL1RAP antibodies was determined in three complimentary mouse models: chronic sclerodermatous graft-versus-host-disease (cGvHD), bleomycin-induced dermal fibrosis model and topoisomerase-I (topo)-induced fibrosis.  Results: SSc skin showed upregulation of IL1RAP and IL1RAP-related signaling molecules on mRNA and protein level compared to normal skin. IL-1, IL-33, and IL-36 all regulate distinct genes sets related to different pathophysiological processes in SSc. The responses of human fibroblasts and endothelial cells to IL-1, IL-33, and IL-36 were completely blocked by treatment with an anti-IL1RAP-antibody in vitro. Moreover, anti-IL1RAP antibody treatment reduced dermal and pulmonary fibrosis in cGvHD-, bleomycin- and topoisomerase-induced fibrosis. Importantly, RNAseq analyses revealed effects of IL1RAP inhibition on multiple processes related to inflammation and fibrosis that are also deregulated in human SSc skin.  Conclusion: This study provides first evidence for the therapeutic benefits of targeting of IL1RAP in SSc. Our findings have high translational potential as the anti-IL1RAP antibody CAN10 has recently entered a phase 1 clinical trial.",
+              "organisms": [
+                "Mus musculus"
+              ],
+              "overall_design": "The allogeneically transplanted mice (cGVHD mice) were given i.p twice a week for 4 weeks of ddH2O (Allo_H), anti-mouse IL1RAP antibody (mCAN10), Nintedanib (Nin), or isotype mIgG2a LALA-PG antibody (Allo). The syngeneically transplanted mice treated with isotype mIgG2a LALA-PG antibody were used as control (Syn).",
+              "pubmed_ids": [
+                "38594058"
+              ]
+            },
+            {
+              "id": "GSE12480",
+              "n_samples": 10,
+              "platform": "Infinium MethylationEPIC",
+              "title": "Mitochondrial gene expression decline in aging is tissue-specific and independent of mitochondrial number",
+              "experiment_type": "Expression profiling by array",
+              "summary": "Aging is the progressive decline in organismal function that leads to an increased risk of multiple diseases and mortality. The molecular basis of this decline is unknown. Using quantitative PCR for mitochondrial mRNA from multiple tissues from the same animals, we found that the rate of change in mouse mitochondrial expression is tissue-specific, with cardiac expression declining early (8-10 months), adipose expression declining late (25-30 months), and no change in kidney or skin. In cardiac tissue, mitochondria-derived mRNA levels declined more slowly than nuclear encoded mRNAs, suggesting a potential dysregulation. These changes were independent of alteration in mitochondrial number, as measured by quantitative PCR of mitochondrial DNA and citrate synthase activity. We found no change in the variability between mitochondrial mRNA levels with age, suggesting that the changes are not due to random dysregulation at the level of gene expression. Caloric restriction (CR), a lifespan-extending intervention proposed to act through mitochondrial biogenesis, delayed the decline in both cardiac and adipose mitochondrial mRNA levels of F344 rats. CR caused an increase in citrate synthase activity but did not alter mitochondrial DNA content, indicating increased translation or reduced turnover of mitochondrial proteins. These results demonstrate that mitochondrial gene expression changes with age are not coupled to mitochondrial number, are likely to be regulated, and are governed by tissue-specific processes. These findings indicate that aging is neither a programmed organism-wide change orchestrated in a top-down fashion nor a product of random dysregulation of gene expression but that tissue-specific factors may independently control aging in different organ compartments.",
+              "organisms": [
+                "Mus musculus"
+              ],
+              "overall_design": "Cardiac ventricle total RNA from 10 young (4-6 month) and 10 young (25-28 month) mice were compared.",
+              "pubmed_ids": []
+            },
+            {
+              "id": "GSE46209",
+              "n_samples": 10,
+              "platform": "Infinium MethylationEPIC",
+              "title": "Non-telomeric role for Rap1 in regulating metabolism and protecting against obesity",
+              "experiment_type": "Expression profiling by array",
+              "summary": "The mammalian telomere-binding protein Rap1 was found to have additional non-telomeric functions, acting as a transcriptional cofactor and a regulator of the NF-kB pathway. Here, we assess the effect of disrupting mouse Rap1 in vivo, and report on its unanticipated role in metabolic regulation and body weight homeostasis. Rap1 inhibition causes dysregulation in hepatic as well as adipose function. In addition, using a separation-of-function allele, we show that the metabolic function of Rap1 is independent of its recruitment to TTAGGG binding elements found at telomeres, and at other interstitial loci.",
+              "organisms": [
+                "Mus musculus"
+              ],
+              "overall_design": "Total RNA was isolated from the liver and intra-abdominal white adipose tissue of 3 female Rap1 deficient mice and 3 control littermates at 6-8 weeks of age. Rap1 deficient mouse embryonic fibroblasts (MEF) were isolated from 13.5 day embryos, immortalized with SV40LgT, and stably infected with vector, Rap1-wildtype, or Rap1 carrying an isoleucine to arginine mutation at amino acid 312. Total RNA was extracted from MEFs following a similar protocol. The samples were labeled, hybridized, and scanned using standard protocols by the Core Facility at NYU Langone Medical Center on Affymetrix GeneChip Mouse Genome 430 2.0 Arrays.",
+              "pubmed_ids": [
+                "23791522"
+              ]
+            },
+            {
+              "id": "GSE244506",
+              "n_samples": 10,
+              "platform": "Infinium MethylationEPIC",
+              "title": "Aging Differentially Alters the Transcriptome and Landscape of Chromatin Accessibility in the Male and Female Mouse Hippocampus",
+              "experiment_type": "Genome binding/occupancy profiling by high throughput sequencing",
+              "summary": "This SuperSeries is composed of the SubSeries listed below.",
+              "organisms": [
+                "Mus musculus"
+              ],
+              "overall_design": "Refer to individual Series",
+              "pubmed_ids": [
+                "38318533"
+              ]
+            },
+          ]
+      </script>
+      <script>let dataset_table = new DataTable('#datasets-table', {
+          data: geo_datasets,
+          columns: [
+            { data: 'id' },
+            { data: 'title' },
+            { data: 'organisms' },
+            { data: 'experiment_type' },
+            { data: 'platform' },
+            { data: 'n_samples' },
+          ]
+        });</script>
+      <script>
+        // Formatting function for row details - modify as you need
+        function format(d) {
+          // `d` is the original data object for the row
+          return (
+            `<strong>Summary</strong><br>` +
+            `<p>${d.summary}</p>` +
+            `<strong>Overall design</strong>` +
+            `<p>${d.overall_design}</p>`
+          );
+        }
+
+        // Add event listener for opening and closing details
+        dataset_table.on('click', 'tr', function (e) {
+          let tr = e.target.closest('tr');
+          let row = dataset_table.row(tr);
+
+          if (row.child.isShown()) {
+            // This row is already open - close it
+            row.child.hide();
+          }
+          else {
+            // Open this row
+            row.child(format(row.data())).show();
+          }
+        });
+
+      </script>
     </div>
     <div class="tab-pane fade" id="nav-clustering" role="tabpanel" aria-labelledby="nav-clustering-tab">
       <main class="container mt-3">
@@ -67,10 +270,14 @@
                   <td>{{ datasets }}</td>
                   <td>{{ topics }}</td>
                 </tr>
-                {% endfor %}
+                {% endfor %} data: geo_datasets,
+                columns: [
+                { data: 'id' },
+                { data: 'title' },
+                ]
               </tbody>
             </table>
-            <script>new DataTable('#topics-table');</script>
+            <script>let topic_table = new DataTable('#topics-table');</script>
           </div>
         </div>
       </main>

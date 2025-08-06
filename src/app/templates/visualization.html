@@ -54,15 +54,15 @@
             <strong>Topics</strong>
             <p>A topic is a collection of datasets that focus on a common subject, have elements in common etc.<br>
               Topics are determined based on text similarity.</p>
-            <table class="table">
+            <table id="topics-table" class="table display">
               <thead>
-                <th>#</th>
-                <th>Datasets</th>
-                <th>Topics</th>
+                <th scope="col">#</th>
+                <th scope="col">Datasets</th>
+                <th scope="col">Topics</th>
               </thead>
               <tbody>
                 {% for index, datasets, color, topics in topic_table %}
-                <tr>
+                <tr scope="row">
                   <td>{{ index }} <i class="fa-solid fa-circle" style="color: {{ color }};"></i></td>
                   <td>{{ datasets }}</td>
                   <td>{{ topics }}</td>
@@ -70,6 +70,7 @@
                 {% endfor %}
               </tbody>
             </table>
+            <script>new DataTable('#topics-table');</script>
           </div>
         </div>
       </main>

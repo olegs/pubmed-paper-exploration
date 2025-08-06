@@ -136,11 +136,11 @@ if __name__ == "__main__":
 
     args = parse_args()
     nlp = create_entity_linking_pipeline_with_ner()
-    mesh_tree_number_map = build_mesh_lookup("desc2025.xml")
+    mesh_lookup = build_mesh_lookup("desc2025.xml")
 
     print("=== PRE-RUN CHECKS ===")
     test_mesh_id_map = {key.strip().lower(): entry.id
-                        for key, entry in mesh_tree_number_map.items()}
+                        for key, entry in mesh_lookup.items()}
 
     def test_model(term): return term
     # In this context, the first list will be the predictions so they should
@@ -157,11 +157,11 @@ if __name__ == "__main__":
                         test_mesh_id_map)[0] - 2/3) <= 0.01
     print("=== PRE-RUN CHECKS COMPLETE ===")
 
-    mesh_tree_number_map = {key: value for key, value in mesh_tree_number_map.items(
-    ) if is_term_in_one_of_categories(key, mesh_tree_number_map, args.mesh_categories)}
+    mesh_lookup = {key: value for key, value in mesh_lookup.items(
+    ) if is_term_in_one_of_categories(key, mesh_lookup, args.mesh_categories)}
     mesh_id_map = {key.strip().lower(): entry.id
-                   for key, entry in mesh_tree_number_map.items()}
-    resources = StandardizationResources(mesh_tree_number_map, nlp)
+                   for key, entry in mesh_lookup.items()}
+    resources = StandardizationResources(mesh_lookup, nlp)
 
     terms_synoyms_df = pd.read_csv(args.file)
     synonym_column = args.true_column
@@ -170,9 +170,9 @@ if __name__ == "__main__":
     terms_synoyms_df = terms_synoyms_df[
         terms_synoyms_df[synonym_column] != "UNKNOWN"]
     invalid_synonyms = terms_synoyms_df[
-        terms_synoyms_df[synonym_column].apply(lambda synonym: not is_synonym_valid(synonym, mesh_tree_number_map))]
+        terms_synoyms_df[synonym_column].apply(lambda synonym: not is_synonym_valid(synonym, mesh_lookup))]
     terms_synoyms_df = terms_synoyms_df[
-        terms_synoyms_df[synonym_column].apply(lambda synonym: is_synonym_valid(synonym, mesh_tree_number_map))]
+        terms_synoyms_df[synonym_column].apply(lambda synonym: is_synonym_valid(synonym, mesh_lookup))]
 
     x_full = terms_synoyms_df[term_column]
     y_full = terms_synoyms_df[synonym_column]
@@ -198,7 +198,7 @@ if __name__ == "__main__":
 
     if "fasttext" in args.pipelines:
         fasttext_parser = FastTextParser(
-            "BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_tree_number_map)
+            "BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_lookup)
 
         def model(term): return fasttext_parser.get_standard_name(term)[0]
         evaluate(model, "fasttext", x_full,
@@ -212,9 +212,9 @@ if __name__ == "__main__":
 
     if "gilda_plus_fasttext" in args.pipelines:
         def gilda_plus_fasttext(term):
-            global mesh_tree_number_map
+            global mesh_lookup
             term = term.replace("_", " ")
-            gilda_name = get_standard_name_gilda(term, mesh_tree_number_map)
+            gilda_name = get_standard_name_gilda(term, mesh_lookup)
             if gilda_name:
                 return gilda_name
             try:
@@ -227,7 +227,7 @@ if __name__ == "__main__":
 
     if "bern2+ANGEL" in args.pipelines:
         bern2_ner = BERN2Recognizer()
-        angel_normalizer = ANGELMeshNormalizer(mesh_tree_number_map)
+        angel_normalizer = ANGELMeshNormalizer(mesh_lookup)
         pipeline = NER_NEN_Pipeline(bern2_ner, angel_normalizer)
 
         def model(term):
@@ -241,18 +241,18 @@ if __name__ == "__main__":
                  y_full, mesh_id_map)
 
     if "bern2" in args.pipelines:
-        mesh_term_to_id_map = {entry.id: key.strip().lower()
-                               for key, entry in mesh_tree_number_map.items()}
+        mesh_id_to_term_map = {entry.id: key.strip().lower()
+                               for key, entry in mesh_lookup.items()}
 
         def model(term): return get_standard_name_bern2(
-            term, mesh_term_to_id_map, mesh_tree_number_map,)
+            term, mesh_id_to_term_map, mesh_lookup,)
         evaluate(model, "bern2", x_full,
                  y_full, mesh_id_map)
 
     if "bern2+fasttext" in args.pipelines:
         bern2_ner = BERN2Recognizer()
         fasttext_normalizer = FasttextNormalizer(
-            "BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_tree_number_map)
+            "BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_lookup)
         pipeline = NER_NEN_Pipeline(bern2_ner, fasttext_normalizer)
 
         def model(term): return pipeline(term)[

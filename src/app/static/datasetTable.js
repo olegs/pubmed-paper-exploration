@@ -1,17 +1,42 @@
 let datasetTable = null;
 
+function get_fields_html(dataset) {
+    let no_tissue = dataset.tissue_standardized.every(value => value === null);
+    let no_disease = dataset.disease_standardized.every(value => value === null);
+    let no_cell_type = dataset.cell_type_standardized.every(value => value === null);
+
+    if (no_tissue && no_cell_type && no_disease) {
+        return "";
+    }
+
+    let fields_html = "<p>";
+    if (!no_disease) {
+        fields_html += `<strong>(Inferred) Diseases: </strong> ${dataset.disease_standardized.join(", ")}<br/>`;
+    }
+    if (!no_tissue) {
+        fields_html += `<strong>(Inferred) Tissues: </strong> ${dataset.tissue_standardized.join(", ")}<br/>`;
+    }
+    if (!no_cell_type) {
+        fields_html += `<strong>(Inferred) Cell types: </strong> ${dataset.cell_type_standardized.join(", ")}<br/>`;
+    }
+    fields_html += "</p>"
+
+    return fields_html
+}
+
 // Formatting function for row details
-function format(d) {
-    // `d` is the original data object for the row
+function get_expanded_html(dataset) {
+    let fields_html = get_fields_html(dataset);
     return (
         `<strong class="emphasized-field">Summary</strong>` +
-        `<p>${d.summary}</p>` +
+        `<p>${dataset.summary}</p>` +
         `<strong class="emphasized-field">Overall design</strong>` +
-        `<p>${d.overall_design}</p>` +
-        `<strong>Platform${d.platforms.length > 1 ? "s" : ""}:</strong> ` +
-        `${d.platforms.join(",")}<br/>` +
+        `<p>${dataset.overall_design}</p>` +
+        fields_html +
+        `<strong>Platform${dataset.platforms.length > 1 ? "s" : ""}:</strong> ` +
+        `${dataset.platforms.join(",")}<br/>` +
         `<strong>Contact:</strong> ` +
-        `${d.contact_name} <a href="mailto:${d.contact_email}">${d.contact_email}</a><br/>`
+        `${dataset.contact_name} <a href="mailto:${dataset.contact_email}">${dataset.contact_email}</a><br/>`
     );
 }
 
@@ -26,7 +51,7 @@ function expandRowClickHandler(e) {
     }
     else {
         // Open this row
-        row.child(format(row.data())).show();
+        row.child(get_expanded_html(row.data())).show();
     }
 }
 

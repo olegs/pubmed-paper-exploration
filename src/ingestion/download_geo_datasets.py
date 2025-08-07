@@ -29,12 +29,11 @@ def is_running_in_jupyter():
         return False
 
 
-def download_geo_datasets(pubmed_ids: List[int], runningInJupyter: bool = False) -> List[GEODataset]:
+def download_geo_datasets(pubmed_ids: List[int]) -> List[GEODataset]:
     """
     Downloads the GEO datasets for papers with the given PubMed IDs.
 
     :param dataset_ids: PubMed IDs for which to download GEO datasets.
-    :param runningInJupyter: Set to True if the function is being run in a
     :returns: A list containing the dowloaded datasets.
     """
 

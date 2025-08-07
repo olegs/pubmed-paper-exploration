@@ -8,11 +8,12 @@ from src.visualization.visualize_clusters import visualize_clusters_html
 from src.visualization.get_topic_table import get_topic_table
 from src.config import config
 from src.exception.not_enough_datasets_error import NotEnoughDatasetsError
+from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
 
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 svd_dimensions = config.svd_dimensions
-
+mesh_lookup = build_mesh_lookup("desc2025.xml")
 
 @app.route("/")
 def index():
@@ -30,7 +31,7 @@ def visualize_pubmed_ids():
         abort(400)
 
     try:
-        analyzer = DatasetAnalyzer(svd_dimensions, n_clusters)
+        analyzer = DatasetAnalyzer(svd_dimensions, n_clusters, mesh_lookup)
         result = analyzer.analyze_paper_datasets(pubmed_ids)
         n_datasets = len(result.df)
 

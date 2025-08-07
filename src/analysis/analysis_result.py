@@ -13,6 +13,7 @@ class AnalysisResult:
         silhouette_score: float
     ):
         self.df = pd.DataFrame(map(GEODataset.to_dict, datasets))
+        self.datasets_list = list(map(GEODataset.to_dict, datasets))
         self.df["cluster"] = cluster_assignments
         self.df["x"] = tsne_embeddings_2d[:, 0]
         self.df["y"] = tsne_embeddings_2d[:, 1]

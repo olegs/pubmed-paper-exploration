@@ -46,3 +46,11 @@
 #datasets-table tbody tr {
     cursor: pointer;
 }
+
+td fa-solid {
+    display: inline;
+}
+
+.emphasized-field {
+    font-size: 1.25rem;
+}

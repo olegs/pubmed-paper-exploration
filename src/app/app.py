@@ -2,7 +2,7 @@ import traceback
 import json
 from typing import List, Tuple
 import pandas as pd
-from flask import Flask, render_template, request, abort
+from flask import Flask, render_template, request, abort, jsonify
 from src.analysis.analyzer import DatasetAnalyzer
 from src.visualization.visualize_clusters import visualize_clusters_html
 from src.visualization.get_topic_table import get_topic_table
@@ -43,6 +43,7 @@ def visualize_pubmed_ids():
             n_ids=n_ids,
             n_datasets=n_datasets,
             topic_table=topic_table,
+            datasets_json = result.datasets_list
         )
     except NotEnoughDatasetsError as _:
         return render_template(

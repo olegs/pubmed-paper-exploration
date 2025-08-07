@@ -1,12 +1,17 @@
 from typing import List, Dict
 from src.model.geo_sample import GEOSample
 from dateutil.parser import parse as parse_date
+import json
 
+platform_map = None
+with open("src/model/gpl_platform_map.json") as f:
+    platform_map = json.load(f)
 
 class GEODataset:
     def __init__(self, metadata: dict[str, List[str]]):
         self.id = metadata.get("geo_accession")[0]
         self.title: str = metadata.get("title")[0]
+        self.experiment_types: List[str] = metadata["type"]
         self.experiment_type: str = metadata["type"][0]
         self.summary: str = metadata.get("summary", [""])[0]
         self.organisms: List[str] = metadata.get("sample_organism", [])
@@ -16,6 +21,15 @@ class GEODataset:
         self.sample_accessions: List[str] = metadata.get("sample_id", [])
         self.samples: List[GEOSample] | None = None
         self.publication_date = parse_date(metadata["submission_date"][0]) if "submission_date" in metadata else None
+        self.platforms: List[str] = [platform_map.get(gpl, gpl) for gpl in self.platform_ids]
+        self.contact_name: str = metadata.get("contact_name", [",,"])[0]
+        self.contact_name = " ".join(self.contact_name.split(","))
+        self.contact_email: str = metadata.get("contact_email", [""])[0]
+        self.sample_count: int = len(self.sample_accessions)
+        self.supplementary_files: List[str] = metadata.get("supplementary_file", [])
+        # Make the links downloadable
+        self.supplementary_files = list(map(lambda link: link.replace("ftp://", "https://"), self.supplementary_files))
+        self.supplementary_filenames = list(map(lambda link: link.split("/")[-1], self.supplementary_files))
         self.metadata = metadata
 
     def __str__(self):
@@ -51,8 +65,15 @@ class GEODataset:
             "id": self.id,
             "title": self.title,
             "experiment_type": self.experiment_type,
+            "experiment_types": self.experiment_types,
             "summary": self.summary,
             "organisms": self.organisms,
             "overall_design": self.overall_design,
             "pubmed_ids": self.pubmed_ids,
+            "platforms": self.platforms,
+            "contact_name": self.contact_name,
+            "contact_email": self.contact_email,
+            "sample_count": self.sample_count,
+            "supplementary_files": self.supplementary_files,
+            "supplementary_filenames": self.supplementary_filenames,
         }

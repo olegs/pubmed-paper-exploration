@@ -1,9 +1,13 @@
 import traceback
 import json
+import uuid
+import os.path as path
+import os
 from typing import List, Tuple
 import pandas as pd
 from flask import Flask, render_template, request, abort, jsonify
 from src.analysis.analyzer import DatasetAnalyzer
+from src.analysis.analysis_result import AnalysisResult
 from src.visualization.visualize_clusters import visualize_clusters_html
 from src.visualization.get_topic_table import get_topic_table
 from src.config import config
@@ -20,9 +24,49 @@ mesh_lookup = build_mesh_lookup("desc2025.xml")
 def index():
     return render_template("index.html")
 
+def save_result(result):
+    if not path.isdir("completed_jobs"):
+        os.mkdir("completed_jobs")
+    job_id = str(uuid.uuid4())
+    with open(f"completed_jobs/{job_id}.pkl", "wb") as f:
+        pickle.dump(result, f)
+    result.samples.to_csv(f"completed_jobs/{job_id}_samples.csv")
+
+def load_result(job_id) -> AnalysisResult:
+    try:
+        with open(f"completed_jobs/{job_id}.pkl", "rb") as f:
+            return pickle.load(f)
+    except FileNotFoundError:
+        return None
+
+@app.route("/visualize", methods=["GET"])
+def visualize_completed_job():
+    job_id = request.args.get("job-id")
+    if not job_id:
+        abort(400)
+
+    result: AnalysisResult = load_result(job_id)
+    if not result:
+        abort(404)
+
+    n_datasets = len(result.df)
+    # FIXME: Store pubmed_ids in analysis result
+    n_ids = len(set(pubmed_id for dataset in result.datasets_list for pubmed_id in dataset["pubmed_ids"]))
+    clustering_html = visualize_clusters_html(result.df, result.cluster_topics)
+    topic_table = get_topic_table(result.cluster_topics, result.df)
+
+    return render_template(
+        "visualization.html",
+        clustering_html=clustering_html,
+        n_ids=n_ids,
+        n_datasets=n_datasets,
+        topic_table=topic_table,
+        datasets_json = result.datasets_list
+    )
 
 @app.route("/visualize", methods=["POST"])
 def visualize_pubmed_ids():
+        
     try:
         pubmed_ids = json.loads(request.form["pubmed_ids"])
         n_ids = len(pubmed_ids)
@@ -36,9 +80,8 @@ def visualize_pubmed_ids():
         result = analyzer.analyze_paper_datasets(pubmed_ids)
         n_datasets = len(result.df)
 
-        with open("analysis.pkl", "wb") as f:
-            pickle.dump(result, f)
-        result.samples.to_csv("samples.csv")
+        save_result(result)
+        
 
         clustering_html = visualize_clusters_html(result.df, result.cluster_topics)
         topic_table = get_topic_table(result.cluster_topics, result.df)

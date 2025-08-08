@@ -15,6 +15,7 @@ class GEOSample:
         self.sample_type = metadata.get("type", ["N/A"])[0]
         self.characteristics = self._parse_characteristics(
             metadata.get("characteristics_ch1"))
+        self.dataset_id = metadata.get("series_id", ["N/A"])[0]
 
     def _parse_characteristics(self, characteristics: List[str]) -> Dict[str, str]:
         """

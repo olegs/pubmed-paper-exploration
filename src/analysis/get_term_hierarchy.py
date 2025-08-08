@@ -21,6 +21,8 @@ def get_tree_number(term, mesh_lookup):
     return next(iter(tree_numbers))
 
 def get_hierarchy(term: str, standardization_resources: StandardizationResources):
+    if term is None:
+        return None
     term_not_in_mesh = term not in standardization_resources.mesh_lookup
     if term_not_in_mesh:
         return get_hierarchy_for_experiment_type(term)

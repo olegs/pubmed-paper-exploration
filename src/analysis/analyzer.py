@@ -17,6 +17,8 @@ from src.tissue_and_cell_type_standardization.ner_nen_pipeline import NER_NEN_Pi
 from src.tissue_and_cell_type_standardization.gliner_recognizer import GlinerRecognizer
 from src.analysis.standardization_resources import StandardizationResources
 from src.utils.weak_lru import weak_lru
+from src.model.geo_sample import GEOSample
+from src.analysis.get_term_hierarchy import get_hierarchy
 import pandas as pd
 
 
@@ -34,10 +36,13 @@ class DatasetAnalyzer:
             ("cell_type", ["cell type"]),
         ]
         self.mesh_lookup = mesh_lookup
+        self.normalization_cache = {}
         if mesh_lookup:
-            self.standrdization_resources = StandardizationResources(mesh_lookup)
+            self.standrdization_resources = StandardizationResources(
+                mesh_lookup)
             bern2_recognizer = BERN2Recognizer()
-            gliner_recognizer = GlinerRecognizer(["Disease", "Cell type", "Tissue", "Organ"])
+            gliner_recognizer = GlinerRecognizer(
+                ["Disease", "Cell type", "Tissue", "Organ"])
             angel_tissue_cell_type = ANGELMeshNormalizer(StandardizationResources(
                 mesh_lookup, ["A", "C04.588", "C04.557"]).mesh_term_to_id_map)
             angel_disease = ANGELMeshNormalizer(StandardizationResources(
@@ -49,7 +54,7 @@ class DatasetAnalyzer:
             )
 
             self.normalizers = {
-                #"disease": BERN2Pipeline(StandardizationResources(mesh_lookup, ["C"]).mesh_id_to_term_map),
+                # "disease": BERN2Pipeline(StandardizationResources(mesh_lookup, ["C"]).mesh_id_to_term_map),
                 "disease": pipeline_disease,
                 "tissue": pipeline_tissue_cell_type,
                 "cell_type": pipeline_tissue_cell_type
@@ -65,10 +70,10 @@ class DatasetAnalyzer:
         """
 
         datasets = download_geo_datasets(pubmed_ids)
-        download_samples_for_datasets(datasets)
-        return self.analyze_datasets(datasets)
+        samples = download_samples_for_datasets(datasets)
+        return self.analyze_datasets(datasets, samples)
 
-    def analyze_datasets(self, datasets: List[GEODataset]):
+    def analyze_datasets(self, datasets: List[GEODataset], samples: List[GEOSample] | None=None):
         """
         Analyzes the datasets and clusters them.
 
@@ -96,8 +101,12 @@ class DatasetAnalyzer:
         unique_characteristics_values = pd.DataFrame(self.standardize_unique_characteristics_values(
             datasets)) if self.mesh_lookup else None
 
+        samples_df = None
+        if samples:
+            samples_df = pd.DataFrame([self.get_standardized_characeristics_values(sample) for sample in samples])
+
         return AnalysisResult(
-            datasets, cluster_assignments, cluster_topics, tsne_embeddings_2d, silhouette_score, unique_characteristics_values
+            datasets, cluster_assignments, cluster_topics, tsne_embeddings_2d, silhouette_score, unique_characteristics_values, samples_df
         )
 
     def standardize_unique_characteristics_values(self, datasets: List[GEODataset]) -> pd.DataFrame:
@@ -121,13 +130,21 @@ class DatasetAnalyzer:
 
         return unique_values_of_characteristics
 
-    @weak_lru(maxsize=2000)
     def normalize(self, characteristic: str, value: str):
-        invalid_mentions = ["disease", "diseases", "cell type", "tissue", "tissues" "cell", "cells"]
-        entities = self.normalizers[characteristic](f"{characteristic}: {value}")
+        string_to_normalize = f"{characteristic}: {value}"
+        cached_normalization = self.normalization_cache.get(
+            string_to_normalize)
+        if cached_normalization:
+            return cached_normalization
+
+        invalid_mentions = ["disease", "diseases",
+                            "cell type", "tissue", "tissues" "cell", "cells", "healthy", "normal"]
+        entities = self.normalizers[characteristic](string_to_normalize)
         entities = [
             entity for entity in entities if (entity.mention not in invalid_mentions) and (entity.standard_name not in invalid_mentions)]
-        return entities[0].standard_name if entities else None
+
+        self.normalization_cache[string_to_normalize] = entities[0].standard_name if entities else None
+        return self.normalization_cache[string_to_normalize]
 
     def get_unique_standardized_characteristics_values(self, dataset: GEODataset) -> Dict[str, str]:
         """
@@ -158,6 +175,23 @@ class DatasetAnalyzer:
             result[f"{characteristic}_standardized"] = unique_normalized_characteristic_values
 
         return result
+
+    def get_standardized_characeristics_values(self, sample: GEOSample):
+        standardized_sample_dict = {}
+        standardized_sample_dict["id"] = sample.accession
+        standardized_sample_dict["dataset_id"] = sample.dataset_id
+        for characteristic, keys in self.characteristics_to_standardize:
+            first_key_in_characteristics = next(
+                (key for key in keys if key in sample.characteristics), None)
+            if first_key_in_characteristics is not None:
+                characteristic_value = sample.characteristics[first_key_in_characteristics]
+                standardized_sample_dict[characteristic] = characteristic_value
+                standardized_sample_dict[f"{characteristic}_standardized"] = self.normalize(
+                    characteristic, characteristic_value)
+                standardized_sample_dict[f"{characteristic}_hierarchy"] = get_hierarchy(
+                    standardized_sample_dict[f"{characteristic}_standardized"], self.standrdization_resources)
+
+        return standardized_sample_dict
 
 
 if __name__ == "__main__":

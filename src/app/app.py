@@ -9,6 +9,7 @@ from src.visualization.get_topic_table import get_topic_table
 from src.config import config
 from src.exception.not_enough_datasets_error import NotEnoughDatasetsError
 from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
+import pickle
 
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -34,6 +35,10 @@ def visualize_pubmed_ids():
         analyzer = DatasetAnalyzer(svd_dimensions, n_clusters, mesh_lookup)
         result = analyzer.analyze_paper_datasets(pubmed_ids)
         n_datasets = len(result.df)
+
+        with open("analysis.pkl", "wb") as f:
+            pickle.dump(result, f)
+        result.samples.to_csv("samples.csv")
 
         clustering_html = visualize_clusters_html(result.df, result.cluster_topics)
         topic_table = get_topic_table(result.cluster_topics, result.df)

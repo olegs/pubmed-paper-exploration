@@ -1,5 +1,6 @@
 from src.model.geo_dataset import GEODataset
-from typing import List
+from src.model.geo_sample import GEOSample
+from typing import List, Dict
 import numpy as np
 import pandas as pd
 
@@ -11,13 +12,15 @@ class AnalysisResult:
         cluster_topics: List[List[str]],
         tsne_embeddings_2d: np.ndarray,
         silhouette_score: float,
-        standardized_characteristics_values: pd.DataFrame
+        standardized_characteristics_values: pd.DataFrame,
+        standardized_samples: pd.DataFrame | None = None,
     ):
         self.df = pd.DataFrame(list(map(GEODataset.to_dict, datasets)))
-        self.df = pd.merge(self.df, standardized_characteristics_values, on="id", how="left", suffixes=("",""), sort=False) if standardized_characteristics_values else self.df
-        self.datasets_list = self.df.to_dict(orient="records") if standardized_characteristics_values else list(map(GEODataset.to_dict, datasets))
+        self.df = pd.merge(self.df, standardized_characteristics_values, on="id", how="left", suffixes=("",""), sort=False) if standardized_characteristics_values is not None else self.df
+        self.datasets_list = self.df.to_dict(orient="records") if standardized_characteristics_values is not None else list(map(GEODataset.to_dict, datasets))
         self.df["cluster"] = cluster_assignments
         self.df["x"] = tsne_embeddings_2d[:, 0]
         self.df["y"] = tsne_embeddings_2d[:, 1]
         self.cluster_topics = cluster_topics
         self.silhouette_score = silhouette_score
+        self.samples = standardized_samples

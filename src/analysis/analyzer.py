@@ -35,6 +35,7 @@ class DatasetAnalyzer:
         ]
         self.mesh_lookup = mesh_lookup
         if mesh_lookup:
+            self.standrdization_resources = StandardizationResources(mesh_lookup)
             bern2_recognizer = BERN2Recognizer()
             gliner_recognizer = GlinerRecognizer(["Disease", "Cell type", "Tissue", "Organ"])
             angel_tissue_cell_type = ANGELMeshNormalizer(StandardizationResources(

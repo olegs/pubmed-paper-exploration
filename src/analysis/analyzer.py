@@ -34,24 +34,25 @@ class DatasetAnalyzer:
             ("cell_type", ["cell type"]),
         ]
         self.mesh_lookup = mesh_lookup
-        bern2_recognizer = BERN2Recognizer()
-        gliner_recognizer = GlinerRecognizer(["Disease", "Cell type", "Tissue", "Organ"])
-        angel_tissue_cell_type = ANGELMeshNormalizer(StandardizationResources(
-            mesh_lookup, ["A", "C04.588", "C04.557"]).mesh_term_to_id_map)
-        angel_disease = ANGELMeshNormalizer(StandardizationResources(
-            mesh_lookup, ["C"]).mesh_term_to_id_map)
-        pipeline_tissue_cell_type = NER_NEN_Pipeline(
-            gliner_recognizer, angel_tissue_cell_type)
-        pipeline_disease = NER_NEN_Pipeline(
-            gliner_recognizer, angel_disease
-        )
+        if mesh_lookup:
+            bern2_recognizer = BERN2Recognizer()
+            gliner_recognizer = GlinerRecognizer(["Disease", "Cell type", "Tissue", "Organ"])
+            angel_tissue_cell_type = ANGELMeshNormalizer(StandardizationResources(
+                mesh_lookup, ["A", "C04.588", "C04.557"]).mesh_term_to_id_map)
+            angel_disease = ANGELMeshNormalizer(StandardizationResources(
+                mesh_lookup, ["C"]).mesh_term_to_id_map)
+            pipeline_tissue_cell_type = NER_NEN_Pipeline(
+                gliner_recognizer, angel_tissue_cell_type)
+            pipeline_disease = NER_NEN_Pipeline(
+                gliner_recognizer, angel_disease
+            )
 
-        self.normalizers = {
-            #"disease": BERN2Pipeline(StandardizationResources(mesh_lookup, ["C"]).mesh_id_to_term_map),
-            "disease": pipeline_disease,
-            "tissue": pipeline_tissue_cell_type,
-            "cell_type": pipeline_tissue_cell_type
-        }
+            self.normalizers = {
+                #"disease": BERN2Pipeline(StandardizationResources(mesh_lookup, ["C"]).mesh_id_to_term_map),
+                "disease": pipeline_disease,
+                "tissue": pipeline_tissue_cell_type,
+                "cell_type": pipeline_tissue_cell_type
+            }
 
     def analyze_paper_datasets(self, pubmed_ids: List[int]) -> AnalysisResult:
         """
@@ -92,7 +93,7 @@ class DatasetAnalyzer:
         self.tsne.perplexity = min(30, len(datasets) - 1)
         tsne_embeddings_2d = self.tsne.fit_transform(embeddings_svd)
         unique_characteristics_values = pd.DataFrame(self.standardize_unique_characteristics_values(
-            datasets))
+            datasets)) if self.mesh_lookup else None
 
         return AnalysisResult(
             datasets, cluster_assignments, cluster_topics, tsne_embeddings_2d, silhouette_score, unique_characteristics_values

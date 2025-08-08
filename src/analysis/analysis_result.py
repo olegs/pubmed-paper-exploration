@@ -13,9 +13,9 @@ class AnalysisResult:
         silhouette_score: float,
         standardized_characteristics_values: pd.DataFrame
     ):
-        self.df = pd.DataFrame(list(map(GEODataset.to_dict, datasets)), datasets)
-        self.df = pd.merge(self.df, standardized_characteristics_values, on="id", how="left", suffixes=("",""), sort=False)
-        self.datasets_list = self.df.to_dict(orient="records")
+        self.df = pd.DataFrame(list(map(GEODataset.to_dict, datasets)))
+        self.df = pd.merge(self.df, standardized_characteristics_values, on="id", how="left", suffixes=("",""), sort=False) if standardized_characteristics_values else self.df
+        self.datasets_list = self.df.to_dict(orient="records") if standardized_characteristics_values else list(map(GEODataset.to_dict, datasets))
         self.df["cluster"] = cluster_assignments
         self.df["x"] = tsne_embeddings_2d[:, 0]
         self.df["y"] = tsne_embeddings_2d[:, 1]

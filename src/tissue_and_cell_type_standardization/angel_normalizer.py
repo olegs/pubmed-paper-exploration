@@ -4,10 +4,10 @@ from src.ANGEL.run_sample import run_sample
 from src.ANGEL.utils import get_config
 
 class ANGELMeshNormalizer(EntityNormalizer):
-    def __init__(self, mesh_term_to_id_map: Dict[str, str]):
+    def __init__(self, mesh_term_to_id_map: Dict[str, str], candidates=None):
         self.mesh_term_to_id_map = mesh_term_to_id_map
         self.config = get_config()
-        self.candidates = list(self.mesh_term_to_id_map.keys())
+        self.candidates = candidates or list(self.mesh_term_to_id_map.keys())
 
     def normalize_entity(self, entity: str):
         input_sentence = f"START {entity} END"

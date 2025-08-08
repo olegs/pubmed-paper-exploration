@@ -14,6 +14,7 @@ def download_related_paper_datasets(paper_export: Dict[str, object]) -> List[GEO
     all related papers.
     """
     df = pd.read_json(StringIO(paper_export["df"]))
+    df["id"].to_csv("t-cell-exhaustion-ids.csv")
     return download_geo_datasets(df["id"].to_list())
 
 

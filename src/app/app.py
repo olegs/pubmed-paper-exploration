@@ -5,7 +5,7 @@ import os.path as path
 import os
 from typing import List, Tuple
 import pandas as pd
-from flask import Flask, render_template, request, abort, jsonify
+from flask import Flask, render_template, request, abort, Blueprint, url_for
 from src.analysis.analyzer import DatasetAnalyzer
 from src.analysis.analysis_result import AnalysisResult
 from src.visualization.visualize_clusters import visualize_clusters_html
@@ -14,15 +14,28 @@ from src.config import config
 from src.exception.not_enough_datasets_error import NotEnoughDatasetsError
 from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
 import pickle
+from bokeh.embed import server_document
+from flask_cors import CORS, cross_origin
+from bokeh.embed import server_document
+
 
 app = Flask(__name__)
+cors = CORS(app, origins=["http://localhost:5006"])
 app.config['TEMPLATES_AUTO_RELOAD'] = True
-svd_dimensions = config.svd_dimensions
-mesh_lookup = build_mesh_lookup("desc2025.xml")
+app.config['CORS_HEADERS'] = 'Content-Type'
+bp = Blueprint('app', __name__,
+               template_folder='templates',
+               static_folder="static")
 
-@app.route("/")
+
+svd_dimensions = config.svd_dimensions
+#mesh_lookup = build_mesh_lookup("desc2025.xml")
+
+
+@bp.route("/")
 def index():
     return render_template("index.html")
+
 
 def save_result(result):
     if not path.isdir("completed_jobs"):
@@ -31,6 +44,8 @@ def save_result(result):
     with open(f"completed_jobs/{job_id}.pkl", "wb") as f:
         pickle.dump(result, f)
     result.samples.to_csv(f"completed_jobs/{job_id}_samples.csv")
+    return job_id
+
 
 def load_result(job_id) -> AnalysisResult:
     try:
@@ -39,7 +54,9 @@ def load_result(job_id) -> AnalysisResult:
     except FileNotFoundError:
         return None
 
-@app.route("/visualize", methods=["GET"])
+
+@bp.route("/visualize", methods=["GET"])
+@cross_origin()
 def visualize_completed_job():
     job_id = request.args.get("job-id")
     if not job_id:
@@ -51,9 +68,13 @@ def visualize_completed_job():
 
     n_datasets = len(result.df)
     # FIXME: Store pubmed_ids in analysis result
-    n_ids = len(set(pubmed_id for dataset in result.datasets_list for pubmed_id in dataset["pubmed_ids"]))
+    n_ids = len(set(
+        pubmed_id for dataset in result.datasets_list for pubmed_id in dataset["pubmed_ids"]))
     clustering_html = visualize_clusters_html(result.df, result.cluster_topics)
     topic_table = get_topic_table(result.cluster_topics, result.df)
+    print("HOST", request.headers.get("Host"))
+    sunburst_plot = server_document(
+        f"http://localhost/sunburst_server?job-id={job_id}")
 
     return render_template(
         "visualization.html",
@@ -61,12 +82,14 @@ def visualize_completed_job():
         n_ids=n_ids,
         n_datasets=n_datasets,
         topic_table=topic_table,
-        datasets_json = result.datasets_list
+        datasets_json=result.datasets_list,
+        sunburst_plot=sunburst_plot
     )
 
-@app.route("/visualize", methods=["POST"])
+
+@bp.route("/visualize", methods=["POST"])
+@cross_origin()
 def visualize_pubmed_ids():
-        
     try:
         pubmed_ids = json.loads(request.form["pubmed_ids"])
         n_ids = len(pubmed_ids)
@@ -80,11 +103,14 @@ def visualize_pubmed_ids():
         result = analyzer.analyze_paper_datasets(pubmed_ids)
         n_datasets = len(result.df)
 
-        save_result(result)
-        
+        job_id = save_result(result)
 
-        clustering_html = visualize_clusters_html(result.df, result.cluster_topics)
+        clustering_html = visualize_clusters_html(
+            result.df, result.cluster_topics)
         topic_table = get_topic_table(result.cluster_topics, result.df)
+        # FIXME: Replace localhost with deployment url
+        sunburst_plot = server_document(
+            f"http://localhost/sunburst_server?job-id={job_id}")
 
         return render_template(
             "visualization.html",
@@ -92,7 +118,8 @@ def visualize_pubmed_ids():
             n_ids=n_ids,
             n_datasets=n_datasets,
             topic_table=topic_table,
-            datasets_json = result.datasets_list
+            datasets_json=result.datasets_list,
+            sunburst_plot=sunburst_plot
         )
     except NotEnoughDatasetsError as _:
         return render_template(
@@ -112,3 +139,5 @@ def visualize_pubmed_ids():
             full_error_message="An error occured on our end. Please try again.",
         ), 500
 
+
+app.register_blueprint(bp, url_prefix='/app')

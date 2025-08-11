@@ -28,11 +28,12 @@ def get_standard_name_bern2(text, mesh_id_map, mesh_lookup, url="http://bern2.ko
     return candidate_terms[0] if candidate_terms else None
 
 class BERN2Pipeline(NER_NEN_Pipeline):
-    def __init__(self, mesh_id_map: Dict[str, str], url: str="http://bern2.korea.ac.kr/plain"):
+    def __init__(self, mesh_id_map: Dict[str, str], ncbi_gene: Dict[str, str], url: str="http://localhost:8888/plain"):
         self.url = url
         self.mesh_id_map = mesh_id_map
+        self.ncbi_gene = ncbi_gene
 
-    @RateLimited(3)
+    #@RateLimited(3)
     def __call__(self, text: str) -> List[PipelineResult]:
         response = requests.post(self.url, json={'text': text})
         while response.status_code != 200:
@@ -42,13 +43,19 @@ class BERN2Pipeline(NER_NEN_Pipeline):
 
         entities = []
         for annotation in response["annotations"]:
+            mesh_ids = list(filter(lambda id: id.startswith("mesh"), annotation["id"]))
+            if (not mesh_ids) and ("CUI-less" not in annotation["id"]):
+                cui = annotation["id"][0]
+                ontology = cui.split(":")[0]
+                entities.append(PipelineResult(annotation["mention"], annotation["obj"], self.ncbi_gene.get(cui, cui), ontology,  cui, annotation["prob"]))
+
             for mesh_id in filter(lambda id: id.startswith("mesh"), annotation["id"]):
                 mesh_id = mesh_id[len("mesh:"):]
                 standard_name = self.mesh_id_map.get(mesh_id)
                 if standard_name:
                     entities.append(PipelineResult(annotation["mention"], annotation["obj"], standard_name, "MeSH",  mesh_id, annotation["prob"]))
                 else:
-                    entities.append(PipelineResult(annotation["mention"], annotation["obj"], None, None,  None, annotation["prob"]))
+                    entities.append(PipelineResult(annotation["mention"], annotation["obj"], None, "MeSH",  None, annotation["prob"]))
         
         return entities
 
@@ -92,19 +99,19 @@ class BERN2MeshNormalizer(EntityNormalizer):
 
 
 if __name__ == '__main__':
+    import json
     mesh_lookup = build_mesh_lookup("desc2025.xml")
     mesh_id_map = {entry.id: key.strip().lower()
                    for key, entry in mesh_lookup.items()}
+    ncbi_gene = {}
+    with open("gene_ontology_map.json") as f:
+        ncbi_gene = json.load(f) 
     recognizer = BERN2Recognizer()
     normalizer = BERN2MeshNormalizer(mesh_id_map)
-    pipeline = NER_NEN_Pipeline(recognizer, normalizer)
+    pipeline = BERN2Pipeline(mesh_id_map, ncbi_gene)
 
     while True:
         text = input(">")
-        print(get_standard_name_bern2(text, mesh_id_map, mesh_lookup))
-        print("-----")
-        for e in recognizer(text):
-            print(e)
         print("-----")
         for e in pipeline(text):
             print(e)

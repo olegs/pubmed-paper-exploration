@@ -20,10 +20,11 @@ from src.utils.weak_lru import weak_lru
 from src.model.geo_sample import GEOSample
 from src.analysis.get_term_hierarchy import get_hierarchy
 import pandas as pd
+from tqdm import tqdm
 
 
 class DatasetAnalyzer:
-    def __init__(self, svd_components, n_clusters, mesh_lookup):
+    def __init__(self, svd_components, n_clusters, mesh_lookup, ncbi_gene):
         self.svd = make_pipeline(
             TruncatedSVD(n_components=svd_components, random_state=42),
             Normalizer(copy=False),
@@ -40,25 +41,7 @@ class DatasetAnalyzer:
         if mesh_lookup:
             self.standrdization_resources = StandardizationResources(
                 mesh_lookup)
-            bern2_recognizer = BERN2Recognizer()
-            gliner_recognizer = GlinerRecognizer(
-                ["Disease", "Cell type", "Tissue", "Organ"])
-            angel_tissue_cell_type = ANGELMeshNormalizer(StandardizationResources(
-                mesh_lookup, ["A", "C04.588", "C04.557"]).mesh_term_to_id_map)
-            angel_disease = ANGELMeshNormalizer(StandardizationResources(
-                mesh_lookup, ["C"]).mesh_term_to_id_map)
-            pipeline_tissue_cell_type = NER_NEN_Pipeline(
-                gliner_recognizer, angel_tissue_cell_type)
-            pipeline_disease = NER_NEN_Pipeline(
-                gliner_recognizer, angel_disease
-            )
-
-            self.normalizers = {
-                # "disease": BERN2Pipeline(StandardizationResources(mesh_lookup, ["C"]).mesh_id_to_term_map),
-                "disease": pipeline_disease,
-                "tissue": pipeline_tissue_cell_type,
-                "cell_type": pipeline_tissue_cell_type
-            }
+            self.bern2_pipeline = BERN2Pipeline(self.standrdization_resources.mesh_id_to_term_map, ncbi_gene)
 
     def analyze_paper_datasets(self, pubmed_ids: List[int]) -> AnalysisResult:
         """
@@ -101,34 +84,61 @@ class DatasetAnalyzer:
         unique_characteristics_values = pd.DataFrame(self.standardize_unique_characteristics_values(
             datasets)) if self.mesh_lookup else None
 
-        samples_df = None
-        if samples:
-            samples_df = pd.DataFrame([self.get_standardized_characeristics_values(sample) for sample in samples])
-
         return AnalysisResult(
-            datasets, cluster_assignments, cluster_topics, tsne_embeddings_2d, silhouette_score, unique_characteristics_values, samples_df
+            datasets, cluster_assignments, cluster_topics, tsne_embeddings_2d, silhouette_score, unique_characteristics_values, None
         )
 
     def standardize_unique_characteristics_values(self, datasets: List[GEODataset]) -> pd.DataFrame:
         """
         """
-        unique_values_of_characteristics = {
+        entities_per_dataset = {
             "id": [],
-            "disease": [],
-            "tissue": [],
-            "cell_type": [],
-            "disease_standardized": [],
-            "tissue_standardized": [],
-            "cell_type_standardized": []
+            "entities": []
         }
-        for dataset in datasets:
-            unique_values_of_characteristics["id"].append(dataset.id)
-            standardized_characteristics = self.get_unique_standardized_characteristics_values(
-                dataset)
-            for field, values in standardized_characteristics.items():
-                unique_values_of_characteristics[field].append(values)
+        for dataset in tqdm(datasets):
+            dataset_with_characteristics_str = dataset.get_str_with_sample_characteristics()
+            entities = []
+            try:
+                entities = self.bern2_pipeline(dataset_with_characteristics_str)
+            except Exception as e:
+                print("BERN 2 API failed for dataset:", dataset.id)
+                print(dataset_with_characteristics_str)
+                entities = []
 
-        return unique_values_of_characteristics
+                entities_per_dataset["id"].append(dataset.id)
+                entities_per_dataset["entities"].append(entities)
+
+        
+        return self._pivot_by_entity(entities_per_dataset)
+
+    def _pivot_by_entity(self, entities_per_dataset):
+        entity_types = list({entity.entity_class for entity_list in entities_per_dataset["entities"] for entity in entity_list})
+        for entity_type in entity_types:
+            entities_per_dataset[f"{entity_type}"] = []
+            entities_per_dataset[f"{entity_type}_standardized"] = []
+            entities_per_dataset[f"{entity_type}_ontology"] = []
+        
+        for entity_list in entities_per_dataset["entities"]:
+            for entity_type in entity_types:
+                mentions = list(filter(lambda e: e.entity_class == entity_type, entity_list))
+                seen_standard_names = set()
+                mentions = [mention for mention in mentions if mention.standard_name not in seen_standard_names and not seen_standard_names.add(mention.standard_name)]
+                entities_per_dataset[f"{entity_type}"].append(
+                    [mention.mention for mention in mentions]
+                )
+                entities_per_dataset[f"{entity_type}_standardized"].append(
+                    [mention.standard_name for mention in mentions]
+                )
+                entities_per_dataset[f"{entity_type}_ontology"].append(
+                    [mention.ontology for mention in mentions]
+                )
+        
+        del entities_per_dataset["entities"]
+
+        
+        return pd.DataFrame(entities_per_dataset)
+
+
 
     def normalize(self, characteristic: str, value: str):
         string_to_normalize = f"{characteristic}: {value}"

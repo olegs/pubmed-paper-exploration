@@ -17,6 +17,7 @@ import pickle
 from bokeh.embed import server_document
 from flask_cors import CORS, cross_origin
 from bokeh.embed import server_document
+import csv
 
 
 app = Flask(__name__)
@@ -29,7 +30,10 @@ bp = Blueprint('app', __name__,
 
 
 svd_dimensions = config.svd_dimensions
-#mesh_lookup = build_mesh_lookup("desc2025.xml")
+mesh_lookup = build_mesh_lookup("desc2025.xml")
+ncbi_gene = {}
+with open("gene_ontology_map.json") as f:
+    ncbi_gene = json.load(f)
 
 
 @bp.route("/")
@@ -43,7 +47,9 @@ def save_result(result):
     job_id = str(uuid.uuid4())
     with open(f"completed_jobs/{job_id}.pkl", "wb") as f:
         pickle.dump(result, f)
-    result.samples.to_csv(f"completed_jobs/{job_id}_samples.csv")
+    result.df.to_csv(f"completed_jobs/{job_id}_df.csv", quotechar='"', quoting=csv.QUOTE_NONNUMERIC) 
+    if result.samples:
+        result.samples.to_csv(f"completed_jobs/{job_id}_samples.csv")
     return job_id
 
 
@@ -72,7 +78,6 @@ def visualize_completed_job():
         pubmed_id for dataset in result.datasets_list for pubmed_id in dataset["pubmed_ids"]))
     clustering_html = visualize_clusters_html(result.df, result.cluster_topics)
     topic_table = get_topic_table(result.cluster_topics, result.df)
-    print("HOST", request.headers.get("Host"))
     sunburst_plot = server_document(
         f"http://localhost/sunburst_server?job-id={job_id}")
 
@@ -99,7 +104,7 @@ def visualize_pubmed_ids():
         abort(400)
 
     try:
-        analyzer = DatasetAnalyzer(svd_dimensions, n_clusters, mesh_lookup)
+        analyzer = DatasetAnalyzer(svd_dimensions, n_clusters, mesh_lookup, ncbi_gene)
         result = analyzer.analyze_paper_datasets(pubmed_ids)
         n_datasets = len(result.df)
 

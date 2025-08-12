@@ -70,6 +70,22 @@ class GEODataset:
             self.summary
             != "This SuperSeries is composed of the SubSeries listed below."
         )
+    
+    def get_str_with_sample_characteristics(self):
+        string = f"{self.title}\n{self.experiment_type}\n{self.overall_design}\n"
+        characteristics = {}
+        for sample in self.samples:
+            for key, value in sample.characteristics.items():
+                if key in characteristics:
+                    characteristics[key].add(value)
+                else:
+                    characteristics[key] = set([value])
+        
+        for key, values in characteristics.items():
+            string += f"{key}: {','.join(values)} ; \n"
+        
+        return string
+
 
     def to_dict(self) -> Dict:
         """

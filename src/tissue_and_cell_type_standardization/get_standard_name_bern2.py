@@ -35,9 +35,23 @@ class BERN2Pipeline(NER_NEN_Pipeline):
 
     #@RateLimited(3)
     def __call__(self, text: str) -> List[PipelineResult]:
-        response = requests.post(self.url, json={'text': text})
-        while response.status_code != 200:
-            response = requests.post(self.url, json={'text': text})
+        response = None
+        tries = 0
+        while tries < 3:
+            try:
+                response = requests.post(self.url, json={'text': text}, timeout=5)
+                if response.status_code == 200:
+                    break
+                else:
+                    print("BERN2 non-200 status:", response.text)
+            except requests.exceptions.ReadTimeout as e:
+                print("BERN2 Timeout")
+                print("Input:")
+                print(text)
+            tries += 1
+            if tries == 3:
+                raise Exception("BERN2 API Failure")
+
         cleaned_response = response.text.replace(": NaN", ": -1")
         response = json.loads(cleaned_response)
 
@@ -49,7 +63,7 @@ class BERN2Pipeline(NER_NEN_Pipeline):
                 ontology = cui.split(":")[0]
                 entities.append(PipelineResult(annotation["mention"], annotation["obj"], self.ncbi_gene.get(cui, cui), ontology,  cui, annotation["prob"]))
 
-            for mesh_id in filter(lambda id: id.startswith("mesh"), annotation["id"]):
+            for mesh_id in mesh_ids:
                 mesh_id = mesh_id[len("mesh:"):]
                 standard_name = self.mesh_id_map.get(mesh_id)
                 if standard_name:

@@ -104,4 +104,4 @@ if __name__ == "__main__":
     counter = HierarchicalDataCounter(hierarchies)
     print(counter.get_df()[["parent", "name", "value"]])
     print()
-    print(counter.get_df_at_levels([2, 3])[["parent", "name", "value"]])
+    print(counter.get_df_at_levels([3, 5])[["parent", "name", "value"]])

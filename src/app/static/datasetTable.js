@@ -78,8 +78,6 @@ function downloadSupplementaryFilesClickHandler(e) {
 
 }
 
-// Download button event listener
-
 
 document.addEventListener("DOMContentLoaded", function () {
     datasetTable = new DataTable('#datasets-table', {
@@ -101,3 +99,33 @@ document.addEventListener("DOMContentLoaded", function () {
     datasetTable.on('click', 'tr:not([data-dt-row]) td:not(.dt-download)', expandRowClickHandler);
     datasetTable.on('click', 'tbody td.dt-download', downloadSupplementaryFilesClickHandler);
 });
+
+function toListOfDicts(dictOfLists) {
+  const result = [];
+  const keys = Object.keys(dictOfLists);
+  
+  if (keys.length === 0) {
+    return result;
+  }
+  
+  const arrayLength = dictOfLists[keys[0]].length;
+  
+  for (let i = 0; i < arrayLength; i++) {
+    const newObj = {};
+    for (const key of keys) {
+      newObj[key] = dictOfLists[key][i];
+    }
+    result.push(newObj);
+  }
+  
+  return result;
+}
+
+function refreshTable(newData) {
+    newData = toListOfDicts(newData);
+    console.log(newData.length);
+    datasetTable.clear();
+    datasetTable.rows.add(newData);
+    datasetTable.columns.adjust().draw();
+    console.log("Refresh successful");
+}

@@ -1,9 +1,9 @@
 let datasetTable = null;
 
 function get_fields_html(dataset) {
-    let no_tissue = dataset.tissue_standardized.every(value => value === null);
-    let no_disease = dataset.disease_standardized.every(value => value === null);
-    let no_cell_type = dataset.cell_type_standardized.every(value => value === null);
+    let no_tissue = (!dataset.tissue_standardized) || dataset.tissue_standardized.every(value => value === null);
+    let no_disease = (!dataset.disease_standardized) || dataset.disease_standardized.every(value => value === null);
+    let no_cell_type = (!dataset.cell_type_standardized)  || dataset.cell_type_standardized.every(value => value === null);
 
     if (no_tissue && no_cell_type && no_disease) {
         return "";

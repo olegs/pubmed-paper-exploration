@@ -1,6 +1,14 @@
 {% extends "base.html" %} {% block title %}PubMed Dataset Explorer - Visualization{% endblock title %}
 {% block head_css_js %}
 <script src="{{ url_for('app.static',filename='datasetTable.js') }}"></script>
+<script type="text/javascript" src="/static/js/bokeh.min.js?v=54230d5bae06805e980b1e9c2f283cb7211714250a6ca620e2b7284d537903673502717d41126c6177289aee62adad252e78ab0b72b51596e7cd16435bb78e4b"></script>
+<script type="text/javascript" src="/static/js/bokeh-gl.min.js?v=515fb88e02db1c83a7355899f0034a2af078f7a8f8bf6117da89f1848427c44347afa84d6137b948a24e0e238ee2c967e8dcd01c328027d54ced9d3ccc73331d"></script>
+<script type="text/javascript" src="/static/js/bokeh-widgets.min.js?v=d5b821e8717b837fe44619b82717fc30e3d8f1bcca5fb3a6a9535b1f0cb6795a949247e44157319518324ad9ccb4e790d2f591cf19f1ee885e38e6ad06d951fd"></script>
+<script type="text/javascript" src="/static/js/bokeh-tables.min.js?v=8e6afd489317749752767572f2a6ad77bec29bee73c7ef922f2fc83b5af1e50639b886abfdf2d35179ab14ebfc5f9a8f7d319fdbfe84d900a0409191d94192fc"></script>
+<script type="text/javascript" src="/static/js/bokeh-mathjax.min.js?v=9dcfcc1bd398c3920f4252b5d60e4ab3947ca1d3bb486f809f0b815dbfa84c8723b4be6fa13ea5c265769af4a1a281108282ff638bcb3fc95a1fa88a7bf07421"></script>
+<script type="text/javascript">
+    Bokeh.set_log_level("info");
+</script>
 {% endblock head_css_js%}
 {% block body %}
 
@@ -35,8 +43,11 @@
     </div>
   </nav>
   <div class="tab-content" id="nav-tabContent">
-    {{ sunburst_plot | safe }}
     <div class="tab-pane fade show active" id="nav-datasets" role="tabpanel" aria-labelledby="nav-datasets-tab">
+      {{ sunburst_plot | safe }}
+      <div id="sunburst-container">
+
+      </div>
       <table id="datasets-table" class="table display table-hover">
         <thead>
           <th scope="col">Accession</th>

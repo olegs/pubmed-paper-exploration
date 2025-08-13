@@ -1,0 +1,57 @@
+{% macro embed(obj) -%}
+<div id="{{ obj.elementid }}"{% if obj.id %} data-root-id="{{ obj.id }}"{% endif %} style="display: contents;"></div>
+{%- endmacro %}
+{% block head %}
+{% block inner_head %}
+{% block title %}{% endblock %}
+{%  block preamble -%}{%- endblock %}
+{%  block resources -%}
+{%   block css_resources -%}
+{%-  endblock css_resources %}
+{%   block js_resources -%}
+{%-  endblock js_resources %}
+{%  endblock resources %}
+{%  block postamble %}{% endblock %}
+{% endblock inner_head %}
+{% endblock head%}
+{% block body %}
+{% block inner_body %}
+let sunburstContainer = document.getElementById("sunburst-container");
+sunburstContainer.innerHTML = `
+{%    block contents %}
+{%      for doc in docs %}
+{{        embed(doc) if doc.elementid }}
+{%-       for root in doc.roots %}
+{%          block root scoped %}
+{{            embed(root) }}
+{%          endblock %}
+{%        endfor %}
+{%      endfor %}
+{%    endblock contents %}
+{{ plot_script | replace("</script>", "<\/script>") | indent(4) }}
+{%  endblock inner_body %}
+`;
+// 2. Find all the scripts that were just inserted.
+const scripts = sunburstContainer.querySelectorAll("script");
+
+// 3. Loop through them and replace each one with an executable copy.
+scripts.forEach(oldScript => {
+  // Don't try to execute the JSON data block
+  if (oldScript.type === 'application/json') {
+      return;
+  }
+  
+  const newScript = document.createElement("script");
+
+  // Copy all attributes from the old script to the new one.
+  Array.from(oldScript.attributes).forEach(attr => {
+    newScript.setAttribute(attr.name, attr.value);
+  });
+
+  // Copy the content of the script.
+  newScript.textContent = oldScript.textContent;
+
+  // Replace the old, non-executable script with the new, executable one.
+  oldScript.parentNode.replaceChild(newScript, oldScript);
+});
+{% endblock body%}

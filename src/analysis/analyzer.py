@@ -39,9 +39,9 @@ class DatasetAnalyzer:
         self.mesh_lookup = mesh_lookup
         self.normalization_cache = {}
         if mesh_lookup:
-            self.standrdization_resources = StandardizationResources(
+            self.standardization_resources = StandardizationResources(
                 mesh_lookup)
-            self.bern2_pipeline = BERN2Pipeline(self.standrdization_resources.mesh_id_to_term_map, ncbi_gene)
+            self.bern2_pipeline = BERN2Pipeline(self.standardization_resources.mesh_id_to_term_map, ncbi_gene)
 
     def analyze_paper_datasets(self, pubmed_ids: List[int]) -> AnalysisResult:
         """
@@ -96,6 +96,7 @@ class DatasetAnalyzer:
             "entities": []
         }
         for dataset in tqdm(datasets):
+            entities_per_dataset["id"].append(dataset.id)
             dataset_with_characteristics_str = dataset.get_str_with_sample_characteristics()
             entities = []
             try:
@@ -104,9 +105,8 @@ class DatasetAnalyzer:
                 print("BERN 2 API failed for dataset:", dataset.id)
                 print(dataset_with_characteristics_str)
                 entities = []
+            entities_per_dataset["entities"].append(entities)
 
-                entities_per_dataset["id"].append(dataset.id)
-                entities_per_dataset["entities"].append(entities)
 
         
         return self._pivot_by_entity(entities_per_dataset)
@@ -117,6 +117,7 @@ class DatasetAnalyzer:
             entities_per_dataset[f"{entity_type}"] = []
             entities_per_dataset[f"{entity_type}_standardized"] = []
             entities_per_dataset[f"{entity_type}_ontology"] = []
+            entities_per_dataset[f"{entity_type}_hierarchy"] = []
         
         for entity_list in entities_per_dataset["entities"]:
             for entity_type in entity_types:
@@ -131,6 +132,9 @@ class DatasetAnalyzer:
                 )
                 entities_per_dataset[f"{entity_type}_ontology"].append(
                     [mention.ontology for mention in mentions]
+                )
+                entities_per_dataset[f"{entity_type}_hierarchy"].append(
+                    [get_hierarchy(mention.standard_name, self.standardization_resources) for mention in mentions]
                 )
         
         del entities_per_dataset["entities"]
@@ -199,7 +203,7 @@ class DatasetAnalyzer:
                 standardized_sample_dict[f"{characteristic}_standardized"] = self.normalize(
                     characteristic, characteristic_value)
                 standardized_sample_dict[f"{characteristic}_hierarchy"] = get_hierarchy(
-                    standardized_sample_dict[f"{characteristic}_standardized"], self.standrdization_resources)
+                    standardized_sample_dict[f"{characteristic}_standardized"], self.standardization_resources)
 
         return standardized_sample_dict
 

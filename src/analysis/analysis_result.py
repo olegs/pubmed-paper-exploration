@@ -1,5 +1,6 @@
 from src.model.geo_dataset import GEODataset
 from src.model.geo_sample import GEOSample
+from src.analysis.get_term_hierarchy import get_hierarchy_for_experiment_type
 from typing import List, Dict
 import numpy as np
 import pandas as pd
@@ -16,6 +17,7 @@ class AnalysisResult:
         standardized_samples: pd.DataFrame | None = None,
     ):
         self.df: pd.DataFrame = pd.DataFrame(list(map(GEODataset.to_dict, datasets)))
+        self.df["experiment_type_hierarchy"] = self.df["experiment_type"].map(lambda et: get_hierarchy_for_experiment_type(et))
         self.df = pd.merge(self.df, standardized_characteristics_values, on="id", how="left", suffixes=("",""), sort=False) if standardized_characteristics_values is not None else self.df
         self.datasets_list = self.df.to_dict(orient="records") if standardized_characteristics_values is not None else list(map(GEODataset.to_dict, datasets))
         self.df["cluster"] = cluster_assignments

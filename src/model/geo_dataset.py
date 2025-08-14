@@ -82,7 +82,14 @@ class GEODataset:
                     characteristics[key] = set([value])
         
         for key, values in characteristics.items():
-            string += f"{key}: {','.join(values)} ; \n"
+            if len(values) < 20:
+                string += f"{key}: {','.join(values)} ; \n"
+        
+        bern2_character_limit = 3000
+        while len(string) > bern2_character_limit:
+            lines = string.split("\n")
+            lines.remove(max(lines, key=len))
+            string = "\n".join(lines)
         
         return string
 

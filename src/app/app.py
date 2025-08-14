@@ -78,8 +78,9 @@ def visualize_completed_job():
         pubmed_id for dataset in result.datasets_list for pubmed_id in dataset["pubmed_ids"]))
     clustering_html = visualize_clusters_html(result.df, result.cluster_topics)
     topic_table = get_topic_table(result.cluster_topics, result.df)
+    host = request.headers.get("Host")
     sunburst_plot = server_document(
-        f"http://localhost/sunburst_server?job-id={job_id}")
+        f"http://{host}/sunburst_server?job-id={job_id}")
 
     return render_template(
         "visualization.html",

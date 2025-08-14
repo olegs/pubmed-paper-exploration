@@ -299,7 +299,6 @@ def plot_sunburst(df, title, category_name, click_callback, zoom_out_callback, r
 def update_plot_data(sunburst_plot, new_df):
     new_plot = plot_sunburst(new_df, "", "", None, None)
     new_data = new_plot.select(name=WEDGES_RENDERER_NAME)[0].data_source.data
-    sunburst_plot.title = new_plot.title
     sunburst_plot.select(name=WEDGES_RENDERER_NAME)[
         0].data_source.data = dict(new_data)
     sunburst_plot.select(name=WEDGE_TEXT_RENDERER_NAME)[

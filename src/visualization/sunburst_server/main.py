@@ -129,8 +129,10 @@ class InteractiveSunburst:
         new_plot_df = self.preprocess_entity_hierarchies()
         update_plot_data(self.plot, new_plot_df)
         self._set_category_name_in_plot()
-        self.plot.title = self.entity + "s"
+        self.plot.title.text = self.get_title()
         self._send_data_to_frontend()
+        print(self.plot.title)
+        print(self.plot.title.text)
 
     def _send_data_to_frontend(self):
         updated_ds = ColumnDataSource(self._get_filtered_df())

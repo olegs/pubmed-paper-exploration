@@ -83,8 +83,13 @@ document.addEventListener("DOMContentLoaded", function () {
     datasetTable = new DataTable('#datasets-table', {
         data: geo_datasets,
         columns: [
-            { data: 'id' },
-            { data: 'title' },
+            { 
+                data: 'id',
+                render: function(data, type, row) {
+                    return `<a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=${row.id}" target="_blank">${row.id}</a>`;
+                }
+            },
+            { data: 'title', className: "dt-title" },
             { data: 'organisms' },
             { data: 'experiment_type' },
             { data: 'sample_count' },
@@ -96,7 +101,7 @@ document.addEventListener("DOMContentLoaded", function () {
             },
         ]
     });
-    datasetTable.on('click', 'tr:not([data-dt-row]) td:not(.dt-download)', expandRowClickHandler);
+    datasetTable.on('click', 'tbody td.dt-title', expandRowClickHandler);
     datasetTable.on('click', 'tbody td.dt-download', downloadSupplementaryFilesClickHandler);
 });
 

@@ -196,10 +196,29 @@ class SunburstClickCallbackManager:
             self.zoom_out_callback()
 
 
-def plot_sunburst(df, title, categrory_name, click_callback, zoom_out_callback, ring_width=0.8, max_text_width=19, root_id=""):
+def truncate_display_names(plot_df):
+    for idx, row in plot_df.iterrows():
+        display_name = row["display_name"]
+        lines = display_name.split("\n")
+        line_count = len(lines)
+        angle = row["end_angle"] - row["start_angle"]
+        percentage_needed_per_line = 0.023  # Empirically determined
+        max_lines = int(angle / (percentage_needed_per_line * 2 * np.pi))
+        if line_count > max_lines and max_lines > 0:
+            lines = lines[:max_lines]
+            name_with_excess_lines_removed = "\n".join(lines)
+            truncated_name = name_with_excess_lines_removed[:-3] + "..."
+            plot_df.loc[idx, "display_name"] = truncated_name
+        elif line_count > max_lines:
+            plot_df.loc[idx, "display_name"] = ""
+    return plot_df
+
+
+def plot_sunburst(df, title, category_name, click_callback, zoom_out_callback, ring_width=0.8, max_text_width=18, root_id=""):
     plot_df = process_data_for_sunburst(df, ring_width, root_id)
     plot_df["display_name"] = plot_df["name"].map(
         lambda name: "\n".join(wrap(name, width=max_text_width)))
+    plot_df = truncate_display_names(plot_df)
     source = ColumnDataSource(plot_df)
 
     p = figure(
@@ -258,7 +277,7 @@ def plot_sunburst(df, title, categrory_name, click_callback, zoom_out_callback, 
     category_text_ds = ColumnDataSource({
         "x": [0],
         "y": [0],
-        "text": [categrory_name]
+        "text": ["\n".join(wrap(category_name, width=25))]
     })
     p.text(x="x", y="y", text="text", text_font_size="14px",
            text_align="center", text_baseline="middle",
@@ -285,11 +304,18 @@ def update_plot_data(sunburst_plot, new_df):
         0].data_source.data = dict(new_data)
     sunburst_plot.select(name=WEDGE_TEXT_RENDERER_NAME)[
         0].data_source.data = dict(new_data)
-    
-def set_category_text(sunburst_plot, category_text):
+
+
+def set_category_name(sunburst_plot, entity_name, category_name=""):
     text_renderer = sunburst_plot.select(name=CATEGORY_TEXT_RENDER_NAME)[0]
-    print("Setting text:", category_text)
-    text_renderer.data_source.data = {"x": [0], "y": [0], "text": [category_text]}
+    category_text = entity_name
+    if category_name:
+        category_text += ":\n" + "\n".join(wrap(category_name, width=25))
+    text_renderer.data_source.data = {
+        "x": [0],
+        "y": [0],
+        "text": [category_text]
+    }
 
 
 if __name__ == "__main__":

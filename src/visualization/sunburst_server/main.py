@@ -8,7 +8,7 @@ from bokeh.palettes import RdYlBu3
 from bokeh.plotting import figure, curdoc
 import pickle
 from src.analysis.analysis_result import AnalysisResult
-from src.visualization.sunburst_server.plot_sunburst import plot_sunburst, update_plot_data, set_category_text
+from src.visualization.sunburst_server.plot_sunburst import plot_sunburst, update_plot_data, set_category_name
 from src.visualization.sunburst_server.hierarchical_data_counter import HierarchicalDataCounter
 from src.visualization.sunburst_server.contains_name_at_level_filter import ContainsNameAtLevelFilter
 
@@ -118,9 +118,9 @@ class InteractiveSunburst:
     def _set_category_name_in_plot(self):
         subcategory_name = self.filters[-1].name if self.filters else ""
         if subcategory_name:
-            set_category_text(self.plot, f"{self.entity}:\n{subcategory_name}")
+            set_category_name(self.plot, self.entity, subcategory_name)
             return
-        set_category_text(self.plot, self.entity)
+        set_category_name(self.plot, self.entity)
 
     def _redraw(self):
         new_plot_df = self.preprocess_entity_hierarchies()

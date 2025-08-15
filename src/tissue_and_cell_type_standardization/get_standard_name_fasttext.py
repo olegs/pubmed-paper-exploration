@@ -72,15 +72,26 @@ class FastTextParser:
         return [synonym_score[1] for synonym_score in top_synonyms[:n_output_terms]]
 
 
+import time
+
 class FasttextNormalizer(EntityNormalizer):
     def __init__(self, fasttext_model_path, mesh_lookup, binary_model=True):
+        begin = time.time()
         self.model = KeyedVectors.load_word2vec_format(
             fasttext_model_path, binary=binary_model)
         self.model.fill_norms()
+        end = time.time()
+        print("Fasttext load time", end - begin)
+
+        begin = time.time()
         self.mesh_embeddings = []
-        for term, entry in mesh_lookup.items():
+        for term, entry_or_id in mesh_lookup.items():
+            term_id = entry_or_id.id if not isinstance(entry_or_id, str) else entry_or_id
             self.mesh_embeddings.append(
-                (entry.id, term, self.model.get_mean_vector(preprocess(term))))
+                (term_id, term, self.model.get_mean_vector(preprocess(term))))
+        end = time.time()
+        print("Mesh calcuclation time", end - begin)
+
 
     def _get_standard_name_cosine(self, name, top_k: int = 5):
         tokenized_name = preprocess(name)
@@ -101,6 +112,10 @@ class FasttextNormalizer(EntityNormalizer):
 
     def get_standard_name(self, name, top_k: int = 5):
         return [sim[1] for sim in self._get_standard_name_cosine(name, top_k)]
+    
+    def get_standard_name_with_score(self, name, top_k: int = 5):
+        return [sim[1:3] for sim in self._get_standard_name_cosine(name, top_k)]
+
 
     def get_standard_name_reranked(self, name, top_k: int = 50, n_output_terms=5):
         term_similarities = self._get_standard_name_cosine(name, top_k * 3)
@@ -151,9 +166,13 @@ if __name__ == "__main__":
 
     while True:
         name = input("Enter name to standardize: ")
+        top_k = int(input("Enter topk"))
+        n_outputs = int(input("Enter nubmer of outputs: "))
         print("standardizing:", name)
         begin = time.time()
         print(normalizer(name))
         print(normalizer(name)[0:5])
+        print(normalizer.get_standard_name_reranked(name, 50, n_outputs))
+        print(normalizer.get_standard_name(name, n_outputs))
         end = time.time()
         print("Parsing done in ", end-begin, "seconds")

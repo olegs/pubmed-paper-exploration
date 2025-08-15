@@ -12,13 +12,55 @@ WEDGE_TEXT_RENDERER_NAME = "wedge_text"
 CATEGORY_TEXT_RENDER_NAME = "category_text"
 
 
-data = {
-    'id': ['/lib', '/home', '/home/user', '/home/user/data', '/home/user/docs', '/tmp'],
-    'parent': ['', '', '/home', '/home/user', '/home/user', ''],
-    'name': ['lib', 'home', 'user', 'data', 'docs', 'tmp'],
-    'value': [25, 0, 0, 40, 35, 25]  # Values for children
-}
-df = pd.DataFrame(data)
+class SunburstPlot:
+    def __init__(self, df, title, category_name, click_callback, zoom_out_callback, ring_width=0.8, max_text_width=18, root_id=""):
+        self.ring_width = ring_width
+        self.max_text_width = max_text_width
+        self.category_text = category_name
+        self.root_id = root_id
+        self._title = title
+
+        self.plot = plot_sunburst(df, title, category_name, click_callback,
+                                  zoom_out_callback, ring_width, max_text_width, root_id)
+
+    @property
+    def title(self):
+        return self._title
+
+    @title.setter
+    def title(self, new_title):
+        self._title = new_title
+        self.plot.title.text = new_title
+
+    def set_plot_data(self, new_df):
+        old_data = pd.DataFrame(self.plot.select(
+            name=WEDGES_RENDERER_NAME)[0].data_source.data)
+        if len(new_df) == 0:
+            new_df = old_data.iloc[0:0].copy()
+            self._set_category_text("No data")
+        new_data = process_data_for_sunburst(new_df, self.ring_width)
+        self.plot.select(name=WEDGES_RENDERER_NAME)[
+            0].data_source.data = dict(new_data)
+        self.plot.select(name=WEDGE_TEXT_RENDERER_NAME)[
+            0].data_source.data = dict(new_data)
+
+    def _set_category_text(self, category_text):
+        text_renderer = self.plot.select(name=CATEGORY_TEXT_RENDER_NAME)[0]
+        text_renderer.data_source.data = {
+            "x": [0],
+            "y": [0],
+            "text": [category_text]
+        }
+
+    def set_category_name(self, entity_name, category_name=""):
+        category_text = entity_name
+        if category_name:
+            category_text += ":\n" + "\n".join(wrap(category_name, width=25))
+        self.category_text = category_text
+        self._set_category_text(category_text)
+
+    def scatter(self, *args, **kwargs):
+        self.plot.scatter(*args, **kwargs)
 
 
 def calculate_angles_and_radii(df, ring_width, root_id=""):
@@ -147,11 +189,14 @@ def add_text_color(plot_df):
     return plot_df
 
 
-def process_data_for_sunburst(df, ring_width, root_id=""):
+def process_data_for_sunburst(df, ring_width, root_id="", max_text_width=18):
     plot_df = calculate_angles_and_radii(df, ring_width, root_id)
     plot_df = add_wedge_color(plot_df, root_id)
     plot_df = calculate_text_positions(plot_df)
     plot_df = add_text_color(plot_df)
+    plot_df["display_name"] = plot_df["name"].map(
+        lambda name: "\n".join(wrap(name, width=max_text_width)))
+    plot_df = truncate_display_names(plot_df)
     return plot_df
 
 
@@ -216,9 +261,6 @@ def truncate_display_names(plot_df):
 
 def plot_sunburst(df, title, category_name, click_callback, zoom_out_callback, ring_width=0.8, max_text_width=18, root_id=""):
     plot_df = process_data_for_sunburst(df, ring_width, root_id)
-    plot_df["display_name"] = plot_df["name"].map(
-        lambda name: "\n".join(wrap(name, width=max_text_width)))
-    plot_df = truncate_display_names(plot_df)
     source = ColumnDataSource(plot_df)
 
     p = figure(
@@ -294,27 +336,6 @@ def plot_sunburst(df, title, category_name, click_callback, zoom_out_callback, r
 
     show(p)
     return p
-
-
-def update_plot_data(sunburst_plot, new_df):
-    new_plot = plot_sunburst(new_df, "", "", None, None)
-    new_data = new_plot.select(name=WEDGES_RENDERER_NAME)[0].data_source.data
-    sunburst_plot.select(name=WEDGES_RENDERER_NAME)[
-        0].data_source.data = dict(new_data)
-    sunburst_plot.select(name=WEDGE_TEXT_RENDERER_NAME)[
-        0].data_source.data = dict(new_data)
-
-
-def set_category_name(sunburst_plot, entity_name, category_name=""):
-    text_renderer = sunburst_plot.select(name=CATEGORY_TEXT_RENDER_NAME)[0]
-    category_text = entity_name
-    if category_name:
-        category_text += ":\n" + "\n".join(wrap(category_name, width=25))
-    text_renderer.data_source.data = {
-        "x": [0],
-        "y": [0],
-        "text": [category_text]
-    }
 
 
 if __name__ == "__main__":

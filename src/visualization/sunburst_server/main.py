@@ -8,7 +8,7 @@ from bokeh.palettes import RdYlBu3
 from bokeh.plotting import curdoc
 import pickle
 from src.analysis.analysis_result import AnalysisResult
-from src.visualization.sunburst_server.plot_sunburst import plot_sunburst, update_plot_data, set_category_name
+from src.visualization.sunburst_server.plot_sunburst import SunburstPlot
 from src.visualization.sunburst_server.hierarchical_data_counter import HierarchicalDataCounter
 from src.visualization.sunburst_server.contains_name_at_level_filter import ContainsNameAtLevelFilter
 from src.visualization.sunburst_server.value_in_cell_filter import AnyValueInCellFilter
@@ -49,7 +49,7 @@ class InteractiveSunburst:
         self.zoom_levels = []
         self.zoom_filters = []
         self.value_filters = {}
-        self.plot = plot_sunburst(
+        self.plot = SunburstPlot(
             self.preprocess_entity_hierarchies(), self.get_title(), self.entity, lambda row: self._click_callback(row), lambda: self._zoom_out_callback())
 
         # A dummy data source for sending updated data to the frontend using
@@ -63,7 +63,7 @@ class InteractiveSunburst:
         df = self.df.copy()
         for filter in self.zoom_filters + list(self.value_filters.values()):
             df = filter(df)
-        
+
         return df
 
     def _click_callback(self, row):
@@ -109,8 +109,9 @@ class InteractiveSunburst:
         column_name = get_hierarchy_column_name(self.entity)
         df = self._get_filtered_df()
         term_hierarchies = df[column_name].tolist()
-        representative_row = max(term_hierarchies, key=len)
-        if is_nested(representative_row):
+        representative_row = max(
+            term_hierarchies, key=len) if len(df) > 0 else None
+        if representative_row and is_nested(representative_row):
             term_hierarchies = flatten(term_hierarchies)
 
         hierarchical_data_counter = HierarchicalDataCounter(term_hierarchies)
@@ -121,18 +122,16 @@ class InteractiveSunburst:
     def _set_category_name_in_plot(self):
         subcategory_name = self.zoom_filters[-1].name if self.zoom_filters else ""
         if subcategory_name:
-            set_category_name(self.plot, self.entity, subcategory_name)
+            self.plot.set_category_name(self.entity, subcategory_name)
             return
-        set_category_name(self.plot, self.entity)
+        self.plot.set_category_name(self.entity)
 
     def _redraw(self):
         new_plot_df = self.preprocess_entity_hierarchies()
-        update_plot_data(self.plot, new_plot_df)
         self._set_category_name_in_plot()
-        self.plot.title.text = self.get_title()
+        self.plot.set_plot_data(new_plot_df)
+        self.plot.title = self.get_title()
         self._send_data_to_frontend()
-        print(self.plot.title)
-        print(self.plot.title.text)
 
     def _send_data_to_frontend(self):
         updated_ds = ColumnDataSource(self._get_filtered_df())
@@ -199,6 +198,7 @@ experiment_type_multi_choice = MultiChoice(title="Experiment type", value=[
 def group_by_select_on_change(attr, old, new):
     interactive_sunburst.set_entity(new)
 
+
 group_by_select.on_change("value", group_by_select_on_change)
 
 
@@ -207,6 +207,7 @@ def get_removed_value(old_values, new_values):
     new = set(new_values)
     return old.difference(new).pop()
 
+
 def experiment_type_multi_choice_on_change(attr, old, new):
     if len(new) > len(old):
         interactive_sunburst.add_value_filter("experiment_types", new[-1])
@@ -214,7 +215,9 @@ def experiment_type_multi_choice_on_change(attr, old, new):
     removed_value = get_removed_value(old, new)
     interactive_sunburst.remove_value_filter("experiment_types", removed_value)
 
-experiment_type_multi_choice.on_change("value", experiment_type_multi_choice_on_change)
+
+experiment_type_multi_choice.on_change(
+    "value", experiment_type_multi_choice_on_change)
 
 
 def organism_multi_choice_on_change(attr, old, new):
@@ -224,9 +227,10 @@ def organism_multi_choice_on_change(attr, old, new):
     removed_value = get_removed_value(old, new)
     interactive_sunburst.remove_value_filter("organisms", removed_value)
 
+
 organism_multi_choice.on_change("value", organism_multi_choice_on_change)
 
 
 # put the button and plot in a layout and add to the document
-curdoc().add_root(row(interactive_sunburst.plot, column(group_by_select,
-                                                        organism_multi_choice, experiment_type_multi_choice)))
+curdoc().add_root(row(interactive_sunburst.plot.plot, column(group_by_select,
+                                                             organism_multi_choice, experiment_type_multi_choice)))

@@ -3,8 +3,6 @@ import json
 import uuid
 import os.path as path
 import os
-from typing import List, Tuple
-import pandas as pd
 from flask import Flask, render_template, request, abort, Blueprint, url_for
 from src.analysis.analyzer import DatasetAnalyzer
 from src.analysis.analysis_result import AnalysisResult

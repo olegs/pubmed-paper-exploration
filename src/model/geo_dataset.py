@@ -72,7 +72,7 @@ class GEODataset:
         )
     
     def get_str_with_sample_characteristics(self):
-        string = f"{self.title}\n{self.experiment_type}\n{self.overall_design}\n"
+        string = f"Title: {self.title} ; Experiment type: {self.experiment_type} ; Overall design: {self.overall_design} ; "
         characteristics = {}
         for sample in self.samples:
             for key, value in sample.characteristics.items():
@@ -87,9 +87,9 @@ class GEODataset:
         
         bern2_character_limit = 3000
         while len(string) > bern2_character_limit:
-            lines = string.split("\n")
+            lines = string.split(" ; ")
             lines.remove(max(lines, key=len))
-            string = "\n".join(lines)
+            string = " ; ".join(lines)
         
         return string
 

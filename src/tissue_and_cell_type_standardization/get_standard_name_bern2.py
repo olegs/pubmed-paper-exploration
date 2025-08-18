@@ -29,11 +29,14 @@ def get_standard_name_bern2(text, mesh_id_map, mesh_lookup, url="http://bern2.ko
         filter(lambda term: term.strip().lower() in mesh_lookup, candidate_terms))
     return candidate_terms[0] if candidate_terms else None
 
+class BERN2Error(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)()
 
 class BERN2Pipeline(NER_NEN_Pipeline):
-    def __init__(self, mesh_id_map: Dict[str, str], ncbi_gene: Dict[str, str], url: str = "http://localhost:8888/plain"):
+    def __init__(self, mesh_id_to_term_map: Dict[str, str], ncbi_gene: Dict[str, str], url: str = "http://localhost:8888/plain"):
         self.url = url
-        self.mesh_id_map = mesh_id_map
+        self.mesh_id_to_term_map = mesh_id_to_term_map
         self.ncbi_gene = ncbi_gene
 
     def preprocess_annotations(self, annotations, text):
@@ -56,7 +59,7 @@ class BERN2Pipeline(NER_NEN_Pipeline):
                 print(text)
             tries += 1
             if tries == 3:
-                raise Exception("BERN2 API Failure")
+                raise BERN2Error("BERN2 API Failure")
 
         cleaned_response = response.text.replace(": NaN", ": -1")
         response = json.loads(cleaned_response)
@@ -76,7 +79,7 @@ class BERN2Pipeline(NER_NEN_Pipeline):
 
             for mesh_id in mesh_ids:
                 mesh_id = mesh_id[len("mesh:"):]
-                standard_name = self.mesh_id_map.get(mesh_id)
+                standard_name = self.mesh_id_to_term_map.get(mesh_id)
                 if standard_name:
                     entities.append(PipelineResult(
                         annotation["mention"], annotation["obj"], standard_name, "MeSH",  mesh_id, annotation["prob"]))
@@ -88,10 +91,9 @@ class BERN2Pipeline(NER_NEN_Pipeline):
 
 
 class BERN2Recognizer(NamedEntityRecognizer):
-    def __init__(self, url: str = "http://bern2.korea.ac.kr/plain"):
+    def __init__(self, url: str = "http://localhost:8888/plain"):
         self.url = url
 
-    @RateLimited(3)
     def extract_named_entities(self, text):
         # TODO: Add retry
         response = requests.post(self.url, json={'text': text}).json()

@@ -6,22 +6,33 @@ from src.ANGEL.run_sample import run_sample
 
 
 class ANGELFasttextMeshNormalizer(ANGELMeshNormalizer):
-    def __init__(self, mesh_term_to_id_map: Dict[str, str]):
-        super().__init__(mesh_term_to_id_map, None)
+    def __init__(self, mesh_lookup):
+        super().__init__(mesh_lookup, None)
         self.fasttext = FasttextNormalizer(
-            "BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_term_to_id_map)
+            "BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_lookup)
 
     def _normalize(self, input_sentence, entity):
         prefix_sentence = f"{entity} is"
-        candidates = self.fasttext.get_standard_name_with_score(entity, 50)
-        if candidates[0][1] == 0:
+        candidates = []
+        try:
+            candidates = self.fasttext.get_standard_name_with_score(entity, 50)
+        except Exception as e:
+            print(e)
+        if candidates and (candidates[0][1] < 0.001):
+            print("Found exact match")
             standard_name = candidates[0][0]
-            return NormalizationResult(entity, standard_name, "MeSH", self.mesh_term_to_id_map[standard_name], 1.0)
+            return NormalizationResult(entity, standard_name, "MeSH", self.mesh_lookup[standard_name].id, 1.0)
+        elif candidates:
+            print(f"First candidate for {entity}:", candidates[0])
+
 
         candidates = [c[0] for c in candidates]
+        if not candidates:
+            candidates = [key for key in self.mesh_lookup.keys()]
+            print(candidates[0])
         standard_name = run_sample(
             self.config, input_sentence, prefix_sentence, candidates).strip()
-        return NormalizationResult(entity, standard_name, "MeSH", self.mesh_term_to_id_map[standard_name], 1.0)
+        return NormalizationResult(entity, standard_name, "MeSH", self.mesh_lookup[standard_name].id, 1.0)
 
     def normalize_entity(self, entity: str) -> NormalizationResult:
         input_sentence = f"START {entity} END"
@@ -42,6 +53,8 @@ if __name__ == "__main__":
                    for key, entry in mesh_lookup.items()}
 
     normalizer = ANGELFasttextMeshNormalizer(mesh_id_map)
+
+    #print(normalizer.normalize_with_context(""))
 
     while True:
         term = input("> ")

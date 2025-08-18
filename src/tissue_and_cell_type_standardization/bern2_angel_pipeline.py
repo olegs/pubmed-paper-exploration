@@ -1,20 +1,34 @@
 from typing import Dict
 from src.tissue_and_cell_type_standardization.get_standard_name_bern2 import BERN2Pipeline
 from typing import Dict
+from src.tissue_and_cell_type_standardization.angel_fasttext_normalizer import ANGELFasttextMeshNormalizer
 from src.tissue_and_cell_type_standardization.angel_normalizer import ANGELMeshNormalizer
-from src.tissue_and_cell_type_standardization.entity_normalizer import NormalizationResult
+from tqdm import tqdm
 
 
 class BERN2AngelPipeline(BERN2Pipeline):
-    def __init__(self, mesh_id_map: Dict[str, str], ncbi_gene: Dict[str, str], url: str="http://localhost:8888/plain"):
-        super().__init__(mesh_id_map, ncbi_gene, url)
-        self.angel = ANGELMeshNormalizer({value: key for key, value in mesh_id_map.items()})
+    def __init__(self, mesh_lookup, ncbi_gene: Dict[str, str], url: str="http://localhost:8888/plain", must_normalize_to_mesh=False):
+        mesh_id_to_term_map = {entry.id: key.strip().lower()
+                               for key, entry in mesh_lookup.items()}
+        super().__init__(mesh_id_to_term_map, ncbi_gene, url)
+        assert "leydig cells" in mesh_lookup
+        self.angel = ANGELMeshNormalizer(mesh_lookup)
+        self.must_normalize_to_mesh = must_normalize_to_mesh
+        self.angel_cache = {}
 
     def preprocess_annotations(self, annotations, text):
-        for annotation in annotations:
-            if "CUI-less" in annotation["id"]:
-                normalization = self.angel.normalize_with_context(text, annotation["span"]["begin"], annotation["span"]["end"])
-                annotation["id"].append("mesh:" + normalization.cui)
+        for annotation in tqdm(annotations):
+            if "CUI-less" in annotation["id"] or (self.must_normalize_to_mesh and not any(term_id.startswith("mesh:") for term_id in annotation["id"])):
+                mention = annotation["mention"]
+                mesh_id = ""
+                if mention in self.angel_cache:
+                    mesh_id = self.angel_cache[mention].cui
+                else:
+                    normalization = self.angel.normalize_entity(mention)
+                    mesh_id = normalization.cui
+                    self.angel_cache[mention] = normalization
+
+                annotation["id"].append("mesh:" + mesh_id)
         return annotations
 
 

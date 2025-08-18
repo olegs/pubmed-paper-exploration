@@ -90,7 +90,7 @@ class FasttextNormalizer(EntityNormalizer):
             self.mesh_embeddings.append(
                 (term_id, term, self.model.get_mean_vector(preprocess(term))))
         end = time.time()
-        print("Mesh calcuclation time", end - begin)
+        print(self.mesh_embeddings[0])
 
 
     def _get_standard_name_cosine(self, name, top_k: int = 5):

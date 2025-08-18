@@ -1,4 +1,5 @@
 from collections.abc import Callable
+import json
 from argparse import ArgumentParser
 from sklearn.metrics import f1_score, recall_score, precision_score
 import logging
@@ -14,6 +15,7 @@ from src.tissue_and_cell_type_standardization.get_standard_name_fasttext import 
 from src.tissue_and_cell_type_standardization.get_standard_name_bern2 import get_standard_name_bern2, BERN2Recognizer
 from src.tissue_and_cell_type_standardization.ner_nen_pipeline import NER_NEN_Pipeline
 from src.tissue_and_cell_type_standardization.angel_normalizer import ANGELMeshNormalizer
+from src.tissue_and_cell_type_standardization.bern2_angel_fasttext_pipeline import BERN2AngelPipeline
 from tqdm import tqdm
 
 
@@ -157,9 +159,11 @@ if __name__ == "__main__":
                         test_mesh_id_map)[0] - 2/3) <= 0.01
     print("=== PRE-RUN CHECKS COMPLETE ===")
 
+    print("Mesh terms before filtering", len(mesh_lookup))
     mesh_lookup = {key: value for key, value in mesh_lookup.items(
     ) if is_term_in_one_of_categories(key, mesh_lookup, args.mesh_categories)}
-    mesh_id_map = {key.strip().lower(): entry.id
+    print("Mesh terms", len(mesh_lookup))
+    mesh_term_to_id_map = {key.strip().lower(): entry.id
                    for key, entry in mesh_lookup.items()}
     resources = StandardizationResources(mesh_lookup, nlp)
 
@@ -182,19 +186,19 @@ if __name__ == "__main__":
     if "gilda_plus_spacy" in args.pipelines:
         def model(term): return get_standard_name(term, resources)
         evaluate(model, "gilda_plus_spacy", x_full,
-                 y_full, mesh_id_map)
+                 y_full, mesh_term_to_id_map)
 
     if "spacy" in args.pipelines:
         def model(term): return get_standard_name_spacy(
             term, resources.nlp, resources.mesh_lookup)
         evaluate(
-            model, "spacy", x_full, y_full, mesh_id_map)
+            model, "spacy", x_full, y_full, mesh_term_to_id_map)
 
     if "gilda" in args.pipelines:
         def model(term): return get_standard_name_gilda(
             term, resources.mesh_lookup)
         evaluate(
-            model, "gilda", x_full, y_full, mesh_id_map)
+            model, "gilda", x_full, y_full, mesh_term_to_id_map)
 
     if "fasttext" in args.pipelines:
         fasttext_parser = FastTextParser(
@@ -202,13 +206,13 @@ if __name__ == "__main__":
 
         def model(term): return fasttext_parser.get_standard_name(term)[0]
         evaluate(model, "fasttext", x_full,
-                 y_full, mesh_id_map)
+                 y_full, mesh_term_to_id_map)
 
     if "reranked_fasttext" in args.pipelines:
         def model(term): return fasttext_parser.get_standard_name_reranked(
             term)[0]
         evaluate(model, "reranked_fasttext", x_full,
-                 y_full, mesh_id_map)
+                 y_full, mesh_term_to_id_map)
 
     if "gilda_plus_fasttext" in args.pipelines:
         def gilda_plus_fasttext(term):
@@ -223,7 +227,7 @@ if __name__ == "__main__":
                 return "UNPARSED"
 
         evaluate(gilda_plus_fasttext, "gilda_plus_fasttext",
-                 x_full, y_full, mesh_id_map)
+                 x_full, y_full, mesh_term_to_id_map)
 
     if "bern2+ANGEL" in args.pipelines:
         bern2_ner = BERN2Recognizer()
@@ -238,7 +242,23 @@ if __name__ == "__main__":
             return mentions[
                 0].standard_name if mentions else "UNPARSED"
         evaluate(model, "bern2+ANGEL", x_full,
-                 y_full, mesh_id_map)
+                 y_full, mesh_term_to_id_map)
+
+    if "bern2+ANGEL+fasttext" in args.pipelines:
+        ncbi_gene = {}
+        with open("gene_ontology_map.json") as f:
+            ncbi_gene = json.load(f) 
+        pipeline = BERN2AngelPipeline(mesh_lookup, ncbi_gene, must_normalize_to_mesh=True)
+
+        def model(term):
+            mentions = pipeline(term)
+            # Filtering the predictions so they are of the right type increases precision
+            #mentions = list(filter(lambda mention: mention.entity_class in [
+                            #"cell_type", "cell_line"], mentions))
+            return mentions[
+                0].standard_name if mentions else "UNPARSED"
+        evaluate(model, "bern2+ANGEL+fasttext", x_full,
+                 y_full, mesh_term_to_id_map)
 
     if "bern2" in args.pipelines:
         mesh_id_to_term_map = {entry.id: key.strip().lower()
@@ -247,7 +267,7 @@ if __name__ == "__main__":
         def model(term): return get_standard_name_bern2(
             term, mesh_id_to_term_map, mesh_lookup,)
         evaluate(model, "bern2", x_full,
-                 y_full, mesh_id_map)
+                 y_full, mesh_term_to_id_map)
 
     if "bern2+fasttext" in args.pipelines:
         bern2_ner = BERN2Recognizer()
@@ -258,4 +278,4 @@ if __name__ == "__main__":
         def model(term): return pipeline(term)[
             0].standard_name if pipeline(term) else "UNPARSED"
         evaluate(model, "bern2+fasttext", x_full,
-                 y_full, mesh_id_map)
+                 y_full, mesh_term_to_id_map)

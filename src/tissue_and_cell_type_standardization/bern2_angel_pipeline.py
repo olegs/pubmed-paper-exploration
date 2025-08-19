@@ -1,9 +1,7 @@
 from typing import Dict
 from src.tissue_and_cell_type_standardization.get_standard_name_bern2 import BERN2Pipeline
 from typing import Dict
-from src.tissue_and_cell_type_standardization.angel_fasttext_normalizer import ANGELFasttextMeshNormalizer
 from src.tissue_and_cell_type_standardization.angel_normalizer import ANGELMeshNormalizer
-from tqdm import tqdm
 
 
 class BERN2AngelPipeline(BERN2Pipeline):
@@ -11,15 +9,15 @@ class BERN2AngelPipeline(BERN2Pipeline):
         mesh_id_to_term_map = {entry.id: key.strip().lower()
                                for key, entry in mesh_lookup.items()}
         super().__init__(mesh_id_to_term_map, ncbi_gene, url)
-        assert "leydig cells" in mesh_lookup
         self.angel = ANGELMeshNormalizer(mesh_lookup)
         self.must_normalize_to_mesh = must_normalize_to_mesh
         self.angel_cache = {}
 
     def preprocess_annotations(self, annotations, text):
-        for annotation in tqdm(annotations):
+        for annotation in annotations:
             if "CUI-less" in annotation["id"] or (self.must_normalize_to_mesh and not any(term_id.startswith("mesh:") for term_id in annotation["id"])):
                 mention = annotation["mention"]
+                mention = mention.strip().lower()
                 mesh_id = ""
                 if mention in self.angel_cache:
                     mesh_id = self.angel_cache[mention].cui

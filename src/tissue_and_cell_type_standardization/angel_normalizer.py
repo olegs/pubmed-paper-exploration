@@ -11,6 +11,9 @@ class ANGELMeshNormalizer(EntityNormalizer):
     def normalize_entity(self, entity: str):
         input_sentence = f"START {entity} END"
         prefix_sentence = f"{entity} is"
+        if entity in self.mesh_lookup:
+            mesh_entry = self.mesh_lookup[entity.strip().lower()]
+            return NormalizationResult(entity, mesh_entry.term, "MeSH", mesh_entry.id, 1.0)
         
         standard_name = run_sample(self.config, input_sentence, prefix_sentence, self.candidates).strip()
         return NormalizationResult(entity, standard_name, "MeSH", self.mesh_lookup[standard_name].id, 1.0)

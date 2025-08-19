@@ -15,7 +15,7 @@ from src.tissue_and_cell_type_standardization.get_standard_name_fasttext import 
 from src.tissue_and_cell_type_standardization.get_standard_name_bern2 import get_standard_name_bern2, BERN2Recognizer
 from src.tissue_and_cell_type_standardization.ner_nen_pipeline import NER_NEN_Pipeline
 from src.tissue_and_cell_type_standardization.angel_normalizer import ANGELMeshNormalizer
-from src.tissue_and_cell_type_standardization.bern2_angel_fasttext_pipeline import BERN2AngelPipeline
+from src.tissue_and_cell_type_standardization.bern2_angel_pipeline import BERN2AngelPipeline
 from tqdm import tqdm
 
 
@@ -230,21 +230,6 @@ if __name__ == "__main__":
                  x_full, y_full, mesh_term_to_id_map)
 
     if "bern2+ANGEL" in args.pipelines:
-        bern2_ner = BERN2Recognizer()
-        angel_normalizer = ANGELMeshNormalizer(mesh_lookup)
-        pipeline = NER_NEN_Pipeline(bern2_ner, angel_normalizer)
-
-        def model(term):
-            mentions = pipeline(term)
-            # Filtering the predictions so they are of the right type increases precision
-            #mentions = list(filter(lambda mention: mention.entity_class in [
-                            #"cell_type", "cell_line"], mentions))
-            return mentions[
-                0].standard_name if mentions else "UNPARSED"
-        evaluate(model, "bern2+ANGEL", x_full,
-                 y_full, mesh_term_to_id_map)
-
-    if "bern2+ANGEL+fasttext" in args.pipelines:
         ncbi_gene = {}
         with open("gene_ontology_map.json") as f:
             ncbi_gene = json.load(f) 

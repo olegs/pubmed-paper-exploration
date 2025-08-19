@@ -7,6 +7,7 @@ platform_map = None
 with open("src/model/gpl_platform_map.json") as f:
     platform_map = json.load(f)
 
+GEO_DATASET_CHARCTERISTICS_STR_SEPARATOR = " ; "
 
 class GEODataset:
     def __init__(self, metadata: dict[str, List[str]]):
@@ -83,13 +84,13 @@ class GEODataset:
         
         for key, values in characteristics.items():
             if len(values) < 20:
-                string += f"{key}: {','.join(values)} ; \n"
+                string += f"{key}: {','.join(values)}" + GEO_DATASET_CHARCTERISTICS_STR_SEPARATOR
         
         bern2_character_limit = 3000
         while len(string) > bern2_character_limit:
-            lines = string.split(" ; ")
+            lines = string.split(GEO_DATASET_CHARCTERISTICS_STR_SEPARATOR)
             lines.remove(max(lines, key=len))
-            string = " ; ".join(lines)
+            string = GEO_DATASET_CHARCTERISTICS_STR_SEPARATOR.join(lines)
         
         return string
 

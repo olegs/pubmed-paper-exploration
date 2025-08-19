@@ -2,6 +2,8 @@ from typing import Dict
 from src.tissue_and_cell_type_standardization.get_standard_name_bern2 import BERN2Pipeline
 from typing import Dict
 from src.tissue_and_cell_type_standardization.angel_normalizer import ANGELMeshNormalizer
+from src.utils.get_line_at_index import get_line_at_index
+from src.model.geo_dataset import GEO_DATASET_CHARCTERISTICS_STR_SEPARATOR
 
 
 class BERN2AngelPipeline(BERN2Pipeline):
@@ -16,6 +18,7 @@ class BERN2AngelPipeline(BERN2Pipeline):
     def preprocess_annotations(self, annotations, text):
         for annotation in annotations:
             if "CUI-less" in annotation["id"] or (self.must_normalize_to_mesh and not any(term_id.startswith("mesh:") for term_id in annotation["id"])):
+                self.assign_entity_type_based_on_line(annotation, text)
                 mention = annotation["mention"]
                 mention = mention.strip().lower()
                 mesh_id = ""
@@ -28,6 +31,13 @@ class BERN2AngelPipeline(BERN2Pipeline):
 
                 annotation["id"].append("mesh:" + mesh_id)
         return annotations
+    
+    def assign_entity_type_based_on_line(self, annotation, text):
+        line = get_line_at_index(text, annotation["span"]["begin"], GEO_DATASET_CHARCTERISTICS_STR_SEPARATOR)
+        if line.startswith("cell type: "):
+            annotation["obj"] = "cell_type"
+        elif line.startswith("cell line: "):
+            annotation["obj"] = "cell_line"
 
 
 if __name__=="__main__":

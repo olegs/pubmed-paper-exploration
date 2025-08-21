@@ -1,6 +1,6 @@
 from typing import List, Tuple
 from operator import itemgetter
-from sklearn.cluster import AgglomerativeClustering
+from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 from sklearn.decomposition import TruncatedSVD
 from sklearn.pipeline import make_pipeline
@@ -80,10 +80,10 @@ def cluster(embeddings: spmatrix, n_clusters: int) -> Tuple[List[int], np.ndarra
 
     :param embeddings: Vector representations of the datasets.
     :param n_cluster: Number of clusters to create.
-    :return: Cluster assignements for each dataset.
+    :return: Cluster assignements for each dataset and silhouette score.
     """
 
-    clusterer = AgglomerativeClustering(n_clusters=n_clusters)
+    clusterer = KMeans(n_clusters=n_clusters)
 
     try:
         cluster_assignments = clusterer.fit_predict(embeddings)

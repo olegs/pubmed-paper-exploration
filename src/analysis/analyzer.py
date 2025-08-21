@@ -7,7 +7,7 @@ from sklearn.manifold import TSNE
 from src.ingestion.download_geo_datasets import download_geo_datasets
 from src.ingestion.download_samples import download_samples_for_datasets
 from src.analysis.vectorize_datasets import vectorize_datasets
-from src.analysis.cluster import cluster, get_clusters_top_terms
+from src.analysis.cluster import auto_cluster, get_clusters_top_terms
 from src.analysis.analysis_result import AnalysisResult
 from src.config import logger
 from src.model.geo_dataset import GEODataset
@@ -21,13 +21,12 @@ from tqdm import tqdm
 
 
 class DatasetAnalyzer:
-    def __init__(self, svd_components, n_clusters, mesh_lookup, ncbi_gene):
+    def __init__(self, svd_components, mesh_lookup, ncbi_gene):
         self.svd = make_pipeline(
             TruncatedSVD(n_components=svd_components, random_state=42),
             Normalizer(copy=False),
         )
         self.tsne = TSNE(n_components=2, random_state=42)
-        self.n_clusters = n_clusters
         self.characteristics_to_standardize = [
             ("disease", ["disease", "disease state"]),
             ("tissue", ["tissue"]),
@@ -68,9 +67,10 @@ class DatasetAnalyzer:
                     explained_variance * 100)
 
         begin = time.time()
-        cluster_assignments, silhouette_score = cluster(
-            embeddings_svd, self.n_clusters)
+        cluster_assignments, silhouette_score, n_clusters = auto_cluster(
+            embeddings_svd)
         end = time.time()
+        self.n_clusters = n_clusters
         logger.info("Clustering time: %.2fs", end - begin)
         cluster_topics = get_clusters_top_terms(
             embeddings, cluster_assignments, vocabulary
@@ -82,7 +82,7 @@ class DatasetAnalyzer:
             datasets)) if self.mesh_lookup else None
 
         return AnalysisResult(
-            datasets, cluster_assignments, cluster_topics, tsne_embeddings_2d, silhouette_score, unique_characteristics_values, None
+            datasets, n_clusters, cluster_assignments, cluster_topics, tsne_embeddings_2d, silhouette_score, unique_characteristics_values, None
         )
 
     def standardize_unique_characteristics_values(self, datasets: List[GEODataset]) -> pd.DataFrame:

@@ -83,7 +83,7 @@ def cluster(embeddings: spmatrix, n_clusters: int) -> Tuple[List[int], np.ndarra
     :return: Cluster assignements for each dataset and silhouette score.
     """
 
-    clusterer = KMeans(n_clusters=n_clusters)
+    clusterer = KMeans(n_clusters=n_clusters, random_state=42)
 
     try:
         cluster_assignments = clusterer.fit_predict(embeddings)
@@ -98,6 +98,23 @@ def cluster(embeddings: spmatrix, n_clusters: int) -> Tuple[List[int], np.ndarra
 
     return cluster_assignments, silhouette_avg
 
+def auto_cluster(embeddings: spmatrix) -> Tuple[List[int], np.ndarray]:
+    """
+    Clusters the vector representations of GEO datasets and chooses the optimal
+    number of clusters based on silhoutte score.
+
+    :param embeddings: Vector representations of the datasets.
+    :return: Cluster assignements for each dataset, silhouette score and number of clusters.
+    """
+    best_clustering = (None, -1, 0)
+    for n_cluster in range(2, min(20, embeddings.shape[0])):
+        cluster_assignments, silhouette_score = cluster(embeddings, n_cluster)
+        if silhouette_score > best_clustering[1]:
+            best_clustering = (cluster_assignments, silhouette_score, n_cluster)
+    
+    return best_clustering
+
+
 
 if __name__ == "__main__":
     from src.ingestion.download_geo_datasets import download_geo_datasets
@@ -109,7 +126,7 @@ if __name__ == "__main__":
 
     # ids.txt is a copy of the provided PMIDs_list.txt
     with open("ids.txt") as file:
-        pubmed_ids = map(int, file)
+        pubmed_ids = list(map(int, file))
         datasets = download_geo_datasets(pubmed_ids)
 
         embeddings, vocabulary = vectorize_datasets(datasets)
@@ -122,9 +139,11 @@ if __name__ == "__main__":
         print(f"Explained variance of the SVD step: {explained_variance * 100:.1f}%")
 
         begin = time.time()
-        labels = cluster(embeddings_svd, N_CLUSTERS)
+        labels, score, n_clusters = auto_cluster(embeddings_svd)
         end = time.time()
         print("Clustering time:", end - begin)
+        print("Number of clusters", n_clusters)
+        print("Silhouette score", score)
         topics = get_clusters_top_terms(embeddings, labels, vocabulary)
         for i in range(len(topics)):
             print(f"Cluster {i} topics: {' '.join(topics[i])}")

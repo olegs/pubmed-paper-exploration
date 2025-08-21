@@ -9,6 +9,7 @@ class AnalysisResult:
     def __init__(
         self,
         datasets: List[GEODataset],
+        n_clusters: int,
         cluster_assignments: np.array,
         cluster_topics: List[List[str]],
         tsne_embeddings_2d: np.ndarray,
@@ -26,3 +27,4 @@ class AnalysisResult:
         self.cluster_topics: List = cluster_topics
         self.silhouette_score: float = silhouette_score
         self.samples: pd.DataFrame | None = standardized_samples
+        self.n_clusters = n_clusters

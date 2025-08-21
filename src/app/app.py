@@ -32,6 +32,7 @@ mesh_lookup = build_mesh_lookup("desc2025.xml")
 ncbi_gene = {}
 with open("gene_ontology_map.json") as f:
     ncbi_gene = json.load(f)
+analyzer = DatasetAnalyzer(svd_dimensions, mesh_lookup, ncbi_gene)
 
 
 @bp.route("/")
@@ -87,7 +88,8 @@ def visualize_completed_job():
         n_datasets=n_datasets,
         topic_table=topic_table,
         datasets_json=result.datasets_list,
-        sunburst_plot=sunburst_plot
+        sunburst_plot=sunburst_plot,
+        n_clusters=result.n_clusters
     )
 
 
@@ -103,7 +105,6 @@ def visualize_pubmed_ids():
         abort(400)
 
     try:
-        analyzer = DatasetAnalyzer(svd_dimensions, n_clusters, mesh_lookup, ncbi_gene)
         result = analyzer.analyze_paper_datasets(pubmed_ids)
         n_datasets = len(result.df)
 
@@ -123,7 +124,8 @@ def visualize_pubmed_ids():
             n_datasets=n_datasets,
             topic_table=topic_table,
             datasets_json=result.datasets_list,
-            sunburst_plot=sunburst_plot
+            sunburst_plot=sunburst_plot,
+            n_clusters=result.n_clusters
         )
     except NotEnoughDatasetsError as _:
         return render_template(

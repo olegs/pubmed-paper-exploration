@@ -26,7 +26,13 @@ source .venv/bin/activate
 ```bash
 pip install -r requirements.txt
 ```
-4. Launch the flask app
+4. Clone [PubTrends](https://github.com/jetBrains-Research/pubtrends/) and launch the fasttext container
+```bash
+git clone https://github.com/jetBrains-Research/pubtrends/
+cd pubtrends
+docker compose up -f docker-compose.fasttext
+```
+5. Launch the flask app
 ```bash
 python -m flask --app src.app.app run
 ```

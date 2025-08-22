@@ -69,7 +69,7 @@ class DatasetAnalyzer:
 
         begin = time.time()
         cluster_assignments, silhouette_score, n_clusters = auto_cluster(
-            embeddings)
+            embeddings_svd)
         end = time.time()
         self.n_clusters = n_clusters
         logger.info("Clustering time: %.2fs", end - begin)

@@ -17,7 +17,7 @@ def get_topic_colors(n_topics) -> List[str]:
     :return: List of strings containing the hex codes for the colors.
     """
     if n_topics <= 10:
-        return Category10[n_topics]
+        return Category10[max(n_topics, 3)]
 
     return Category20[n_topics]
 

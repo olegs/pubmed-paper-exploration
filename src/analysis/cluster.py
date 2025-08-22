@@ -115,7 +115,7 @@ def auto_cluster(embeddings: spmatrix) -> Tuple[List[int], np.ndarray]:
     :return: Cluster assignements for each dataset, silhouette score and number of clusters.
     """
     best_clustering = (None, -1, 0)
-    for n_cluster in range(2, min(20, embeddings.shape[0])):
+    for n_cluster in range(5, min(20, embeddings.shape[0])):
         cluster_assignments, silhouette_score = cluster(embeddings, n_cluster)
         if silhouette_score > best_clustering[1]:
             best_clustering = (cluster_assignments,

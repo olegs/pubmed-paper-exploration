@@ -10,6 +10,7 @@ from src.analysis.vectorize_datasets import vectorize_datasets
 from src.analysis.cluster import auto_cluster, get_clusters_top_terms
 from src.analysis.analysis_result import AnalysisResult
 from src.config import logger
+from src.config import config
 from src.model.geo_dataset import GEODataset
 from src.tissue_and_cell_type_standardization.get_standard_name_bern2 import BERN2Error
 from src.tissue_and_cell_type_standardization.bern2_angel_pipeline import BERN2AngelPipeline
@@ -49,17 +50,17 @@ class DatasetAnalyzer:
         """
 
         datasets = download_geo_datasets(pubmed_ids)
-        samples = download_samples_for_datasets(datasets)
-        return self.analyze_datasets(datasets, samples)
+        download_samples_for_datasets(datasets)
+        return self.analyze_datasets(datasets)
 
-    def analyze_datasets(self, datasets: List[GEODataset], samples: List[GEOSample] | None=None):
+    def analyze_datasets(self, datasets: List[GEODataset]):
         """
         Analyzes the datasets and clusters them.
 
         :param datasets: List of GEODataset objects.
         :return: An instance of AnalysisResult containg the results.
         """
-        embeddings, vocabulary = vectorize_datasets(datasets)
+        embeddings, vocabulary, corpus_counts = vectorize_datasets(datasets)
         embeddings_svd = self.svd.fit_transform(embeddings)
 
         explained_variance = self.svd[0].explained_variance_ratio_.sum()
@@ -68,12 +69,12 @@ class DatasetAnalyzer:
 
         begin = time.time()
         cluster_assignments, silhouette_score, n_clusters = auto_cluster(
-            embeddings_svd)
+            embeddings)
         end = time.time()
         self.n_clusters = n_clusters
         logger.info("Clustering time: %.2fs", end - begin)
         cluster_topics = get_clusters_top_terms(
-            embeddings, cluster_assignments, vocabulary
+            cluster_assignments, vocabulary, corpus_counts, config.topic_words
         )
 
         self.tsne.perplexity = min(30, len(datasets) - 1)

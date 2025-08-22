@@ -1,5 +1,53 @@
 import configparser
 
+#############################
+## Embeddings settings #####
+#############################
+
+# Size of a chunk for global text embeddings used for clustering
+EMBEDDINGS_CHUNK_SIZE = 512
+EMBEDDINGS_SENTENCE_OVERLAP = 0
+
+# Size of a chunk for precise questioning
+EMBEDDINGS_QUESTIONS_CHUNK_SIZE = 64
+EMBEDDINGS_QUESTIONS_SENTENCE_OVERLAP = 1
+
+
+#############################
+## Embeddings settings #####
+#############################
+
+# Size of a chunk for global text embeddings used for clustering
+EMBEDDINGS_CHUNK_SIZE = 512
+EMBEDDINGS_SENTENCE_OVERLAP = 0
+
+# Size of a chunk for precise questioning
+EMBEDDINGS_QUESTIONS_CHUNK_SIZE = 64
+EMBEDDINGS_QUESTIONS_SENTENCE_OVERLAP = 1
+
+#####################
+## Analysis config ##
+#####################
+
+# Global vectorization max vocabulary size
+VECTOR_WORDS = 10_000
+
+# Terms with lower frequency will be ignored, remove rare words
+VECTOR_MIN_DF = 0.001
+
+# Terms with higher frequency will be ignored, remove abundant words
+VECTOR_MAX_DF = 0.8
+
+#####################
+## Word2vec config ##
+#####################
+
+WORD2VEC_EMBEDDINGS_LENGTH = 128
+WORD2VEC_WINDOW = 5
+WORD2VEC_EPOCHS = 3
+
+
+
 
 class Config:
     def __init__(self, config_path):

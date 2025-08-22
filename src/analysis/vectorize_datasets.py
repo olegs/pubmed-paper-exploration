@@ -4,6 +4,9 @@ from scipy.sparse import spmatrix
 from typing import List, Tuple
 from src.exception.not_enough_datasets_error import NotEnoughDatasetsError
 from src.model.geo_dataset import GEODataset
+from src.analysis.text import vectorize_corpus, embeddings, chunks_to_text_embeddings
+from src.config.config import VECTOR_WORDS, VECTOR_MIN_DF, VECTOR_MAX_DF
+import pandas as pd
 
 
 def vectorize_datasets(datasets: List[GEODataset]) -> Tuple[spmatrix, List[str]]:
@@ -15,13 +18,21 @@ def vectorize_datasets(datasets: List[GEODataset]) -> Tuple[spmatrix, List[str]]
     :param datasets: Datasets to vectorize.
     :return: Tuple (Sparse matrix containing the tf-idf vectors of the datasets, Vocabulary of the datasets).
     """
-    vectorizer = TfidfVectorizer(stop_words="english", max_df=0.5)
-    corpus = map(str, datasets)
-    try:
-        dataset_embeddings = vectorizer.fit_transform(corpus)
-    except ValueError:
-        raise NotEnoughDatasetsError("Too few datasets to perform tf-idf vectorization")
-    return dataset_embeddings, vectorizer.get_feature_names_out()
+    df = pd.DataFrame(
+        {
+            "id": dataset.id,
+            "title": dataset.title,
+            "abstract": dataset.get_metadata_str()
+        }
+    for dataset in datasets)
+    corpus, corpus_tokens, corpus_counts = vectorize_corpus(
+        df, max_features=VECTOR_WORDS, min_df=VECTOR_MIN_DF, max_df=VECTOR_MAX_DF, test=False
+    )
+
+    chunks_embeddings, chunks_idx = embeddings(
+        df, corpus, corpus_tokens, corpus_counts, test=False
+    )
+    return chunks_to_text_embeddings(df, chunks_embeddings, chunks_idx), corpus_tokens, corpus_counts
 
 if __name__ == "__main__":
     from src.ingestion.download_geo_datasets import download_geo_datasets

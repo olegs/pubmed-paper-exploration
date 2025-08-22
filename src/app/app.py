@@ -99,9 +99,8 @@ def visualize_pubmed_ids():
     try:
         pubmed_ids = json.loads(request.form["pubmed_ids"])
         n_ids = len(pubmed_ids)
-        n_clusters = int(request.form["n_clusters"])
     except ValueError as e:
-        app.logger.error(e)
+        app.logger.error(f"ValueError: {e}")
         abort(400)
 
     try:
@@ -113,9 +112,9 @@ def visualize_pubmed_ids():
         clustering_html = visualize_clusters_html(
             result.df, result.cluster_topics)
         topic_table = get_topic_table(result.cluster_topics, result.df)
-        # FIXME: Replace localhost with deployment url
+        host = request.headers.get("Host")
         sunburst_plot = server_document(
-            f"http://localhost/sunburst_server?job-id={job_id}")
+            f"http://{host}/sunburst_server?job-id={job_id}")
 
         return render_template(
             "visualization.html",
@@ -128,10 +127,10 @@ def visualize_pubmed_ids():
             n_clusters=result.n_clusters
         )
     except NotEnoughDatasetsError as _:
+        app.logger.error(f"Not enough datasets for {len(pubmed_ids)} PubMed IDs")
         return render_template(
             "index.html",
             pubmed_ids=pubmed_ids,
-            n_clusters=n_clusters,
             short_error_message="Too few PubMed IDs",
             full_error_message="Not enough datasests are associated with the PubMed IDs. Please add more PubMed IDs.",
         ), 400
@@ -140,7 +139,6 @@ def visualize_pubmed_ids():
         return render_template(
             "index.html",
             pubmed_ids=pubmed_ids,
-            n_clusters=n_clusters,
             short_error_message="An error occured",
             full_error_message="An error occured on our end. Please try again.",
         ), 500

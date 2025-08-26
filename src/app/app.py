@@ -110,7 +110,11 @@ def visualize_pubmed_ids():
                     pubmed_ids = asyncio.run(get_pubmed_ids(request.form["query"]))
                     break
                 except Exception as e:
+                    app.logger.error(e)
                     continue
+            if pubmed_ids is None:
+                app.logger.error("Something went wrong when getting PubMed IDs")
+                abort(500)
             app.logger.info(f"Found {len(pubmed_ids)} for {request.form['query']}")
         else:
             app.logger.error(f"Neither query nor pubmed ids specified")

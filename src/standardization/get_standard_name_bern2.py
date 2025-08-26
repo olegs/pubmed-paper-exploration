@@ -50,7 +50,7 @@ class BERN2Pipeline(NER_NEN_Pipeline):
         while tries < 3:
             try:
                 response = requests.post(
-                    self.url, json={'text': text}, timeout=5)
+                    self.url, json={'text': text}, timeout=30)
                 if response.status_code == 200:
                     break
                 else:

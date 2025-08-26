@@ -5,7 +5,7 @@ from nltk import download, word_tokenize
 from nltk.corpus import stopwords
 from scipy.spatial.distance import cosine
 import numpy as np
-from src.tissue_and_cell_type_standardization.entity_normalizer import EntityNormalizer, NormalizationResult
+from src.standardization.entity_normalizer import EntityNormalizer, NormalizationResult
 
 download('stopwords')  # Download stopwords list.
 download('punkt_tab')
@@ -150,7 +150,7 @@ class FasttextNormalizer(EntityNormalizer):
         return result[0]
 
 if __name__ == "__main__":
-    from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
+    from src.standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
     import time
     mesh_lookup = build_mesh_lookup("desc2025.xml")
     begin = time.time()

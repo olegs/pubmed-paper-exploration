@@ -90,7 +90,7 @@ def get_standard_name_spacy(name: str, nlp, mesh_lookup: Dict[str, Set[str]]) ->
 
 
 if __name__ == "__main__":
-    from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
+    from src.standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
     nlp = create_entity_linking_pipeline_with_ner("mesh")
     mesh_lookup = build_mesh_lookup("desc2025.xml")
     print(get_standard_name_spacy("mouse fat", nlp, mesh_lookup))

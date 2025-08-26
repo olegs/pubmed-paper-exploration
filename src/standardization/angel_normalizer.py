@@ -1,4 +1,4 @@
-from src.tissue_and_cell_type_standardization.entity_normalizer import EntityNormalizer, NormalizationResult
+from src.standardization.entity_normalizer import EntityNormalizer, NormalizationResult
 from src.ANGEL.run_sample import run_sample 
 from src.ANGEL.utils import get_config
 
@@ -28,7 +28,7 @@ class ANGELMeshNormalizer(EntityNormalizer):
 
 
 if __name__ == "__main__":
-    from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
+    from src.standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
     mesh_lookup = build_mesh_lookup("desc2025.xml")
 
     normalizer = ANGELMeshNormalizer(mesh_lookup)

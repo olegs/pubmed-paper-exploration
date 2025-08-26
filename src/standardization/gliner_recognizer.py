@@ -1,4 +1,4 @@
-from src.tissue_and_cell_type_standardization.named_entity_recognizer import NamedEntityRecognizer, NamedEntity
+from src.standardization.named_entity_recognizer import NamedEntityRecognizer, NamedEntity
 from gliner import GLiNER
 
 

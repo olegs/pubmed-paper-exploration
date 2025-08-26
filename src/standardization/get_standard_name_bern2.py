@@ -3,10 +3,10 @@ import requests
 import json
 from typing import List
 from src.ingestion.rate_limit import RateLimited
-from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
-from src.tissue_and_cell_type_standardization.named_entity_recognizer import NamedEntityRecognizer, NamedEntity
-from src.tissue_and_cell_type_standardization.entity_normalizer import EntityNormalizer, NormalizationResult
-from src.tissue_and_cell_type_standardization.ner_nen_pipeline import NER_NEN_Pipeline, PipelineResult
+from src.standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
+from src.standardization.named_entity_recognizer import NamedEntityRecognizer, NamedEntity
+from src.standardization.entity_normalizer import EntityNormalizer, NormalizationResult
+from src.standardization.ner_nen_pipeline import NER_NEN_Pipeline, PipelineResult
 
 
 @RateLimited(max_per_second=3)

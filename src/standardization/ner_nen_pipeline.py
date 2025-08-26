@@ -1,5 +1,5 @@
-from src.tissue_and_cell_type_standardization.named_entity_recognizer import NamedEntityRecognizer
-from src.tissue_and_cell_type_standardization.entity_normalizer import EntityNormalizer
+from src.standardization.named_entity_recognizer import NamedEntityRecognizer
+from src.standardization.entity_normalizer import EntityNormalizer
 from collections import namedtuple
 from typing import List
 

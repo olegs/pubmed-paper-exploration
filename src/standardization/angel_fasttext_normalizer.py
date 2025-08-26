@@ -1,7 +1,7 @@
 from typing import Dict
-from src.tissue_and_cell_type_standardization.angel_normalizer import ANGELMeshNormalizer
-from src.tissue_and_cell_type_standardization.get_standard_name_fasttext import FasttextNormalizer
-from src.tissue_and_cell_type_standardization.entity_normalizer import NormalizationResult
+from src.standardization.angel_normalizer import ANGELMeshNormalizer
+from src.standardization.get_standard_name_fasttext import FasttextNormalizer
+from src.standardization.entity_normalizer import NormalizationResult
 from src.ANGEL.run_sample import run_sample
 
 
@@ -46,7 +46,7 @@ class ANGELFasttextMeshNormalizer(ANGELMeshNormalizer):
 
 
 if __name__ == "__main__":
-    from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
+    from src.standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
     mesh_lookup = build_mesh_lookup("desc2025.xml")
 
     mesh_id_map = {key.strip().lower(): entry.id

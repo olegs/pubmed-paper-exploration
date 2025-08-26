@@ -19,7 +19,6 @@ async def get_pubmed_ids_esearch(query: str) -> List[int]:
     :param query: Search query.
     :return: List of PubMed IDs.
     """
-    job_id = None
     async with aiohttp.ClientSession(base_url=EUTILS_BASE_URL) as session:
         async with session.get("esearch.fcgi", params={
             "db": "pubmed",

@@ -5,12 +5,10 @@ The app was built using [flask](https://flask.palletsprojects.com/en/stable/) an
 
 ## Prerequisites
 - Python 3.10 or higher
+- R 4.3 or higher
 - pip
 - venv
-- A copy of the MeSH vocabulary. You can download it by running this command:
-```bash 
-wget -O desc2025.xml https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/xmlmesh/desc2025.xml
-```
+
 
 
 ## Launch instructions
@@ -26,16 +24,42 @@ source .venv/bin/activate
 ```bash
 pip install -r requirements.txt
 ```
-4. Clone [PubTrends](https://github.com/jetBrains-Research/pubtrends/) and launch the fasttext container
+4. Download a copy of the MeSH vocabulary. You can download it by running this command:
+```bash 
+wget -O desc2025.xml https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/xmlmesh/desc2025.xml
+```
+5. Download a copy of the NCBI Gene vocabulary. You can download it by running the following commands:
+```bash
+wget https://ftp.ncbi.nlm.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz
+gunzip <Homo_sapiens.gene_info.gz > Homo_sapiens.gene_info
+python -m src.standardization.generate_ncbi_gene_map Homo_sapiens.gene_info gene_ontology_map.json
+```
+6. Generate the mapping between GPL numbers and platfrom names by running this R script (may take a while)
+```bash
+R < get_gpl_names.R
+mv gpl_platform_map.json src/model/gpl_platform_map.json
+```
+7. Clone [PubTrends](https://github.com/jetBrains-Research/pubtrends/) and launch the fasttext container
 ```bash
 git clone https://github.com/jetBrains-Research/pubtrends/
 cd pubtrends
-docker compose up -f docker-compose.fasttext
+docker compose up -f docker-compose.fasttext -d
+cd ..
 ```
-5. Launch the flask app
+8. Launch the flask app
 ```bash
 python -m flask --app src.app.app run
 ```
+9. Launch the bokeh server
+```bash
+python -m bokeh serve --allow-websocket-origin=localhost --allow-websocket-origin=localhost:5006 --show src/visualization/sunburst_server
+```
+10. Run nginx
+```bash
+docker compose up -d
+```
+
+The app can now accessed at `localhost/app` on port 80.
 
 ## Configuration options
 - `download_folder`: The path to which to download the GEO datasets.

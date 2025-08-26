@@ -60,7 +60,8 @@ def run_sample(config, input_sentence, prefix_sentence, candidates):
                                                     load_prompt = True, 
                                                     soft_prompt_path=config.model_load_path
                                                     )
-    model = model.cuda().to(model.device)        
+    if torch.cuda.is_available():
+        model = model.cuda().to(model.device)        
     trie = load_candidate_trie(tuple(candidates))
             
     eval_dataset = process_sample(

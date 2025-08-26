@@ -11,6 +11,7 @@ from src.ingestion.fetch_geo_ids import fetch_geo_ids
 from src.ingestion.fetch_geo_accessions import fetch_geo_accessions, fetch_geo_accessions_europepmc
 from src.config import config
 from src.exception.http_error import HttpError
+import aiofiles
 
 download_folder = config.download_folder
 
@@ -74,8 +75,9 @@ async def _download_from_url(url: str, destination_path: str, session: aiohttp.C
             print("Download error, HTTP status:", response.status)
             print("Body:", await response.text())
             raise HttpError(f"Status: {response.status}")
-        with open(destination_path, "w") as f:
-            f.write(await response.text())
+        async with aiofiles.open(destination_path, "wb") as f:
+            async for chunk in response.content.iter_chunked(10):
+                await f.write(chunk)
 
 
 async def download_geo_dataset(accession: str, session: aiohttp.ClientSession) -> GEODataset:
@@ -97,8 +99,9 @@ async def download_geo_dataset(accession: str, session: aiohttp.ClientSession) -
             print("Retrying download", accession)
             await _download_from_url(dataset_metadata_url, download_path, session)
 
-    with open(download_path) as soft_file:
-        metadata = GEOparse.GEOparse.parse_metadata(soft_file)
+    async with aiofiles.open(download_path) as soft_file:
+        lines = await soft_file.readlines()
+        metadata = GEOparse.GEOparse.parse_metadata(lines)
         return GEODataset(metadata) if accession.startswith("GSE") else GEOSample(metadata)
 
 

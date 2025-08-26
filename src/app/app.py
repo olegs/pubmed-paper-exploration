@@ -11,11 +11,13 @@ from src.visualization.get_topic_table import get_topic_table
 from src.config import config
 from src.exception.not_enough_datasets_error import NotEnoughDatasetsError
 from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
+from src.ingestion.get_pubmed_ids import get_pubmed_ids_esearch, get_pubmed_ids
 import pickle
 from bokeh.embed import server_document
 from flask_cors import CORS, cross_origin
 from bokeh.embed import server_document
 import csv
+import asyncio
 
 
 app = Flask(__name__)
@@ -97,7 +99,21 @@ def visualize_completed_job():
 @cross_origin()
 def visualize_pubmed_ids():
     try:
-        pubmed_ids = json.loads(request.form["pubmed_ids"])
+        pubmed_ids = None
+        if request.form.get("pubmed_ids") and request.form.get("pubmed_ids") != "[]":
+            pubmed_ids = json.loads(request.form["pubmed_ids"])
+        elif request.form.get("query"):
+            pubmed_ids = None
+            for _ in range(3):
+                try:
+                    pubmed_ids = asyncio.run(get_pubmed_ids_esearch(request.form["query"]))
+                    break
+                except Exception as e:
+                    continue
+            app.logger.info(f"Found {len(pubmed_ids)} for {request.form['query']}")
+        else:
+            app.logger.error(f"Neither query nor pubmed ids specified")
+            abort(400)
         n_ids = len(pubmed_ids)
     except ValueError as e:
         app.logger.error(f"ValueError: {e}")

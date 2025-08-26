@@ -4,10 +4,11 @@ This repository contains a web app which takes a set of PubMed IDs and clusters 
 The app was built using [flask](https://flask.palletsprojects.com/en/stable/) and [bokeh](https://bokeh.org/).
 
 ## Prerequisites
-- Python 3.10 or higher
+- Python 3.10
 - R 4.3 or higher
 - pip
 - venv
+- Local [BERN2](https://github.com/dmis-lab/BERN2) instance. You can find the installation and launch instructions for BERN2 [here](https://github.com/dmis-lab/BERN2?tab=readme-ov-file#installing-bern2).
 
 
 

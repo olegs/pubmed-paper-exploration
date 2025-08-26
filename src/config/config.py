@@ -66,5 +66,7 @@ class Config:
             "num_beams": self._config.getint("ANGEL", "num_beams"),
             "prefix_mention_is": self._config.getboolean("ANGEL", "prefix_mention_is"),
         }
+        self.bern2_url = self._config["BERN2"]["url"]
+        self.bern2_rate_limit = self._config.getint("BERN2", "rate_limit")
 
 config = Config("config.ini")

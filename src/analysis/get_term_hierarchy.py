@@ -42,7 +42,7 @@ def get_hierarchy(term: str, standardization_resources: StandardizationResources
 
 
 if __name__ == "__main__":
-    from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
+    from src.standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
     mesh_lookup = build_mesh_lookup("desc2025.xml")
     standardization_resources = StandardizationResources(mesh_lookup)
 

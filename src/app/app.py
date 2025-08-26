@@ -10,8 +10,8 @@ from src.visualization.visualize_clusters import visualize_clusters_html
 from src.visualization.get_topic_table import get_topic_table
 from src.config import config
 from src.exception.not_enough_datasets_error import NotEnoughDatasetsError
-from src.tissue_and_cell_type_standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
-from src.ingestion.get_pubmed_ids import get_pubmed_ids_esearch, get_pubmed_ids
+from src.standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
+from src.ingestion.get_pubmed_ids import get_pubmed_ids, get_pubmed_ids_esearch
 import pickle
 from bokeh.embed import server_document
 from flask_cors import CORS, cross_origin
@@ -106,7 +106,7 @@ def visualize_pubmed_ids():
             pubmed_ids = None
             for _ in range(3):
                 try:
-                    pubmed_ids = asyncio.run(get_pubmed_ids_esearch(request.form["query"]))
+                    pubmed_ids = asyncio.run(get_pubmed_ids(request.form["query"]))
                     break
                 except Exception as e:
                     continue

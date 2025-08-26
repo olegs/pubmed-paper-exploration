@@ -54,23 +54,38 @@ async def get_pubmed_ids(query: str) -> List[int]:
             job_id = job_info["jobid"]
         logger.info(f"Submitted PubTrends job: {job_id}")
         await wait_for_job_to_complete(session, job_id)
-        async with session.get("/get_result_api",
-                               params={
-                                   "jobid": job_id,
-                                   "query": query
-                               }):
-            if response.status != 200:
-                return HttpError("PubTrends get job result error")
-            pubtrends_result = await response.json()
-            df = await asyncio.to_thread(pd.read_json, StringIO(pubtrends_result["df"]))
-            return df["id"].to_csv()
+        try:
+            return await _get_pubtrends_result(session, job_id, query)
+        except Exception:
+            time.sleep(1)
+            return await _get_pubtrends_result(session, job_id, query)
+
+
+async def _get_pubtrends_result(session, job_id, query) -> List[int]:
+    async with session.get("/get_result_api",
+                            params={
+                                "jobid": job_id,
+                                "query": query
+                            }) as result_response:
+        if result_response.status != 200:
+            raise HttpError("PubTrends get job result error")
+        pubtrends_result = await result_response.json()
+        df = await asyncio.to_thread(pd.read_json, StringIO(pubtrends_result["df"]))
+        return df["id"].to_list()
+
 
 
 async def wait_for_job_to_complete(pubtrends_session: aiohttp.ClientSession, job_id: str):
+    error_count = 0
     for _ in range(1800):
+        if error_count > 3:
+            raise HttpError(f"PubTrends Check Status Error")
         async with pubtrends_session.get(f"/check_status_api/{job_id}") as response:
             if response.status != 200:
-                raise HttpError("PubTrends Check Status Error")
+                logger.log(f"PubTrends Check Status Error: {response.status}")
+                error_count += 1
+                time.sleep(PUBTRENDS_POLL_INTERVAL_SECONDS)
+                continue
             job_status_response = await response.json()
             job_status = job_status_response["status"]
             if job_status.lower() not in ["success", "unknown", "pending"]:

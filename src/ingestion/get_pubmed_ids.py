@@ -73,7 +73,6 @@ async def wait_for_job_to_complete(pubtrends_session: aiohttp.ClientSession, job
             if response.status != 200:
                 raise HttpError("PubTrends Check Status Error")
             job_status_response = await response.json()
-            print(job_status_response)
             job_status = job_status_response["status"]
             if job_status.lower() not in ["success", "unknown", "pending"]:
                 raise HttpError("PubTrends job failed")

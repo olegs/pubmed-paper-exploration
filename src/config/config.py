@@ -68,5 +68,8 @@ class Config:
         }
         self.bern2_url = self._config["BERN2"]["url"]
         self.bern2_rate_limit = self._config.getint("BERN2", "rate_limit")
+        self.search_backend = self._config["search"]["backend"]
+        if self.search_backend not in ["esearch", "pubtrends"]:
+            raise Exception("search.backend should be either 'esearch' or 'pubtrends'")
 
 config = Config("config.ini")

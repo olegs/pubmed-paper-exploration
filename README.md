@@ -68,5 +68,6 @@ The app can now accessed at `localhost/app` on port 80.
 - `log_level`: Logging level. It can be one of: `DEBUG`, `INFO`, `WARNING` or `ERROR`.
 - `BERN2.url`: URL to the BERN2 API endpoint
 - `BERN2.rate_limit`: Maximum number of requests per second to the BERN2 API endpoint
+- `search.backend`: Which API to use to search for papers. Can be either `pubtrends` or `esearch`. ESearch is generally faster.
 
 

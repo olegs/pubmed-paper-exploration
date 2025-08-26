@@ -30,7 +30,8 @@ async def fetch_geo_ids(
             "id": ",".join(map(str, pubmed_ids)),
         }
     ) as response:
-        assert response.status == 200
+        if response.status != 200:
+            raise Exception("ELink error")
         response = await response.json()
         if "ERROR" in response:
             raise EntrezError("Error when fetching GEO IDs")

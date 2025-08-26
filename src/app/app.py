@@ -35,6 +35,7 @@ ncbi_gene = {}
 with open("gene_ontology_map.json") as f:
     ncbi_gene = json.load(f)
 analyzer = DatasetAnalyzer(svd_dimensions, mesh_lookup, ncbi_gene)
+get_pubmed_ids = get_pubmed_ids if config.search_backend == "pubtrends" else get_pubmed_ids_esearch
 
 
 @bp.route("/")

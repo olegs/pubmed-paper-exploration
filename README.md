@@ -66,3 +66,7 @@ The app can now accessed at `localhost/app` on port 80.
 - `svd_dimensions`: The number of dimensions to which to reduce the tf-idf representations of the datasets.
 - `topic_words`: The number of keywords to extract for cluster/topic. It must be at least 5.
 - `log_level`: Logging level. It can be one of: `DEBUG`, `INFO`, `WARNING` or `ERROR`.
+- `BERN2.url`: URL to the BERN2 API endpoint
+- `BERN2.rate_limit`: Maximum number of requests per second to the BERN2 API endpoint
+
+

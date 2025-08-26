@@ -7,6 +7,7 @@ from src.standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lo
 from src.standardization.named_entity_recognizer import NamedEntityRecognizer, NamedEntity
 from src.standardization.entity_normalizer import EntityNormalizer, NormalizationResult
 from src.standardization.ner_nen_pipeline import NER_NEN_Pipeline, PipelineResult
+from src.config import config
 
 
 @RateLimited(max_per_second=3)
@@ -42,6 +43,7 @@ class BERN2Pipeline(NER_NEN_Pipeline):
     def preprocess_annotations(self, annotations, text):
         return annotations
 
+    @RateLimited(config.bern2_rate_limit)
     def __call__(self, text: str) -> List[PipelineResult]:
         response = None
         tries = 0

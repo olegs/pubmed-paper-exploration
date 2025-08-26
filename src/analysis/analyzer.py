@@ -12,8 +12,8 @@ from src.analysis.analysis_result import AnalysisResult
 from src.config import logger
 from src.config import config
 from src.model.geo_dataset import GEODataset
-from src.tissue_and_cell_type_standardization.get_standard_name_bern2 import BERN2Error
-from src.tissue_and_cell_type_standardization.bern2_angel_pipeline import BERN2AngelPipeline
+from src.standardization.get_standard_name_bern2 import BERN2Error
+from src.standardization.bern2_angel_pipeline import BERN2AngelPipeline
 from src.analysis.standardization_resources import StandardizationResources
 from src.model.geo_sample import GEOSample
 from src.analysis.get_term_hierarchy import get_hierarchy
@@ -38,7 +38,7 @@ class DatasetAnalyzer:
         if mesh_lookup:
             self.standardization_resources = StandardizationResources(
                 mesh_lookup)
-            self.bern2_pipeline = BERN2AngelPipeline(mesh_lookup, ncbi_gene, must_normalize_to_mesh=True)
+            self.bern2_pipeline = BERN2AngelPipeline(mesh_lookup, ncbi_gene, must_normalize_to_mesh=True, url=config.bern2_url)
 
     def analyze_paper_datasets(self, pubmed_ids: List[int]) -> AnalysisResult:
         """

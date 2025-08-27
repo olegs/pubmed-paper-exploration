@@ -1,0 +1,585 @@
+,tissue_or_cell_type,synonym
+0,"induced pluripotent stem cell, differentiated;oligodendrocyteprogenitors.day42",oligodendrocyte progenitor cell
+2,fb,fibroblast
+3,t lymphocyte cells,t lymphocytes
+4,cell line,cell line
+5,normal cells of the uterine cervix art18886,uterine cervix
+7,normal cells of the uterine cervix art6530,uterine cervix
+9,t cd8+ cells,cd8-positive t-lymphocyte
+10,mpp,multipotent stem cell
+15,hfib2-derived ipsc line 4,induced pluripotent stem cells
+16,normal cells of the uterine cervix art1386,uterine cervix
+18,cd45- thymic stroma cells,stromal cells
+19,pax7+ stem cells,muscle satellite cell
+20,normal cells of the uterine cervix art28530,uterine cervix
+21,normal cells of the uterine cervix art20985,uterine cervix
+22,foreskin melanocyte,melanocyte
+25,gmp,granulocyte-macrophage progenitor cell
+30,normal cells of the uterine cervix art8372,uterine cervix
+31,cells of the uterine cervix 1445,uterine cervix
+32,common myeloid progenitor (cmp),myeloid progenitor cell
+34,primary human mammary epithelial cells,epithelial cells
+37,normal cells of the uterine cervix art16928,uterine cervix
+45,cd34+ cell,hematopoietic stem cell
+46,hematopoietic stem cells,hematopoietic stem cell
+49,human myoblasts,myoblasts
+51,mrc5-ips7,induced pluripotent stem cells
+52,conjunctival epithelial cell,epithelial cells
+56,cells of the uterine cervix 954,uterine cervix
+60,b lymphoblastoid,b lymphocytes
+62,cells of the uterine cervix 1935,uterine cervix
+64,normal cells of the uterine cervix art17828,uterine cervix
+66,msc,mesenchymal stromal cells
+70,colon carcinoma cells,colorectal neoplasms
+73,mefs,fibroblast
+78,leukemia cells,leukemia
+81,hematopoietic cells,hematopoietic stem cell
+82,embryonic stem cells (escs),embryonic stem cell
+83,normal cells of the uterine cervix art4249,uterine cervix
+84,normal cells of the uterine cervix art2601,uterine cervix
+85,normal cells of the uterine cervix art966,uterine cervix
+86,h9 escs,embryonic stem cell
+87,neurons,neuron
+89,leydig cells,leydig cells
+92,cells of the uterine cervix 2607,uterine cervix
+94,blood mononuclear cells,"leukocytes, mononuclear"
+95,cells of the uterine cervix 3998,uterine cervix
+96,cells of the uterine cervix 3319,uterine cervix
+97,cells of the uterine cervix 1656,uterine cervix
+98,"dermal fibroblasts, immortalized",fibroblast
+99,normal cells of the uterine cervix art2337,uterine cervix
+100,h9 human embryonic stem cells,embryonic stem cell
+101,in vitro activated mouse b cells,b lymphocytes
+102,breast cancer cell line,breast neoplasms
+103,cells of the uterine cervix 1839,uterine cervix
+104,adipose stromal cell (asc) pre-adipocyte,mesenchymal stem cells
+108,blood,blood
+110,hips_17b_p35,induced pluripotent stem cells
+111,mouse embryonic stem cells,embryonic stem cell
+112,old fibroblasts,fibroblast
+113,heb16d_27e_p44,embryonic stem cell
+114,j1 esc,embryonic stem cell
+115,es-derived post mitotic neuronal cells,neuron
+116,granulocyte,granulocyte
+118,143btk-,osteosarcoma
+120,normal cells of the uterine cervix art61019,uterine cervix
+121,mouse embryonic fibroblasts (mefs),fibroblast
+122,normal cells of the uterine cervix art17559,uterine cervix
+128,embryonic stem cells (es),embryonic stem cell
+129,cells of the uterine cervix 2520,uterine cervix
+131,cells of the uterine cervix 2424,uterine cervix
+134,human nueronal cells,neuron
+135,normal cells of the uterine cervix art10872,uterine cervix
+136,msc fibroblasts,fibroblast
+138,normal cells of the uterine cervix art17049,uterine cervix
+141,ganglionic eminence neural stem and progenitor cells,neural stem cells
+143,normal cells of the uterine cervix art8132,uterine cervix
+146,monocytes,monocyte
+147,t cell,t lymphocytes
+150,erythrocyte,erythrocyte
+151,normal cells of the uterine cervix art4423,uterine cervix
+154,normal cells of the uterine cervix art4259,uterine cervix
+156,normal cells of the uterine cervix art5066,uterine cervix
+158,lin-cd34+ cells,hematopoietic stem cell
+160,es cells,embryonic stem cell
+162,normal cells of the uterine cervix art7211,uterine cervix
+165,"embryonic stem cell, differentiated;oligodendrocyteprogenitors.day42",oligodendrocyte progenitor cell
+166,normal cells of the uterine cervix art60709,uterine cervix
+167,cells of the uterine cervix 792,uterine cervix
+168,pbmc,"leukocytes, mononuclear"
+170,normal cells of the uterine cervix art8984,uterine cervix
+177,young skin epidermal stem cells,stem cell
+178,hspc,hematopoietic stem cell
+179,b cells,b lymphocytes
+180,normal cells of the uterine cervix art7570,uterine cervix
+181,normal cells of the uterine cervix art17167,uterine cervix
+182,a rasv12-transformed human ovarian epithelial cell line,ovary
+183,primary t-cells,t lymphocytes
+184,normal cells of the uterine cervix art60089,uterine cervix
+188,cells of the uterine cervix 2173,uterine cervix
+189,imr-90 fibroblasts,fibroblast
+190,cells of the uterine cervix 3334,uterine cervix
+193,mega,megakaryocyte
+194,gmp-c,granulocyte-macrophage progenitor cell
+195,"induced pluripotent stem cell, differentiated;neuralprogenitors.day22",neural stem cells
+196,mesenchymal stromal cells,mesenchymal stromal cells
+197,normal cells of the uterine cervix art13778,uterine cervix
+198,primary neural stem cells,neural stem cells
+200,human embryonic kidney,kidney
+202,primary lung fibroblasts,fibroblast
+203,female pronucleus,oocyte
+204,normal cells of the uterine cervix art11205,uterine cervix
+208,embryonal carcinoma cells,embryonal carcinoma cell
+209,normal cells of the uterine cervix art18749,uterine cervix
+212,normal cells of the uterine cervix art18761,uterine cervix
+213,normal cells of the uterine cervix art23651,uterine cervix
+214,cells of the uterine cervix 2571,uterine cervix
+215,normal cells of the uterine cervix art1827,uterine cervix
+216,msc-ips1,induced pluripotent stem cells
+218,renal cancer cell line,renal cell carcinoma
+219,old nsc,neural stem cells
+220,alveolar macrophages,alveolar macrophages
+221,"induced pluripotent stem cell, differentiated;neuralprogenitors.day23",neural stem cells
+222,hfib2-ips4,induced pluripotent stem cells
+227,cells of the uterine cervix 500,uterine cervix
+228,normal cells of the uterine cervix art6406,uterine cervix
+229,lymphoblastoid cells,b lymphocytes
+232,cells of the uterine cervix 1671,uterine cervix
+236,"parthenogentic embryonic stem cell, undifferentiated",embryonic stem cell
+237,cells of the uterine cervix 5272,uterine cervix
+239,"interneuron, other",interneuron
+240,aged skin epithelium,epithelium
+241,hematopoietic stem cell (hsc),hematopoietic stem cell
+242,bone marrow-derived macrophages,bone marrow-derived macrophages
+246,fetal primary nsc,neural stem cells
+247,monocyte,monocyte
+248,foreskin keratinocyte,keratinocyte
+249,e14 mesc,mouse embryonic stem cell
+250,megakaryocitic erythroyd progenitor (mep),megakaryocyte-erythroid progenitor
+252,normal cells of the uterine cervix art12751,uterine cervix
+253,hes_h1_p25,embryonic stem cell
+254,normal cells of the uterine cervix art12918,uterine cervix
+256,msc-derived ipsc line 3,induced pluripotent stem cells
+257,mononuclear cell,"leukocytes, mononuclear"
+258,normal cells of the uterine cervix art2497,uterine cervix
+259,normal cells of the uterine cervix art16109,uterine cervix
+260,bj1-ips2,induced pluripotent stem cells
+262,normal cells of the uterine cervix art13767,uterine cervix
+263,normal cells of the uterine cervix art60561,uterine cervix
+265,hes_h9_p58_rep2,embryonic stem cell
+267,human embryonic stem cell line,embryonic stem cell
+268,stimulated cd14 monocytes,monocyte
+269,human dermal fibroblasts from naonatal foreskin,fibroblast
+270,cd34-ips4,induced pluripotent stem cells
+271,primary acute lymphoblastic leukemia cells,"leukemia, acute lymphoblastic"
+274,immortalized mouse myoblast,myoblast
+277,normal cells of the uterine cervix art13446,uterine cervix
+279,cells of the uterine cervix 1483,uterine cervix
+280,"carcinoma, derived from the metastatic site, bone of a prostate cancer patient",prostatic neoplasms
+281,cells of the uterine cervix 2780,uterine cervix
+282,es-derived neuronal progenitor cells,neural stem cells
+283,normal cells of the uterine cervix art9038,uterine cervix
+284,human_blood_cd19,b lymphocytes
+286,npc,neural stem cells
+287,normal cells of the uterine cervix art11801,uterine cervix
+288,cells of the uterine cervix 4144,uterine cervix
+291,hepatocellular carcinoma,hepatocellular carcinoma
+292,normal cells of the uterine cervix art14569,uterine cervix
+294,hes_hues48_p15,embryonic stem cell
+295,heb16d_hues62_p18,embryonic stem cell
+298,embryonic stem cell,embryonic stem cell
+299,normal cells of the uterine cervix art609,uterine cervix
+302,cholinergic interneuron,interneuron
+304,cells of the uterine cervix 1408,uterine cervix
+305,normal cells of the uterine cervix art5306,uterine cervix
+306,normal cells of the uterine cervix art7874,uterine cervix
+307,human dental pulp cells,dental pulp
+309,car t cells,t lymphocytes
+310,normal cells of the uterine cervix art8159,uterine cervix
+311,lung fibroblast,fibroblast
+315,healthy white blood cells,leukocyte
+316,normal cells of the uterine cervix art14472,uterine cervix
+317,normal cells of the uterine cervix art60069,uterine cervix
+319,microglia,microglia
+320,normal cells of the uterine cervix art23729,uterine cervix
+321,normal cells of the uterine cervix art11913,uterine cervix
+323,somatic.tissue,tissue
+324,aged skin hair follicle stem cells,hair follicle
+326,liver carcinoma cells,liver neoplasms
+327,cd4+cd25- t,t lymphocytes
+328,hfib2-ips5,induced pluripotent stem cells
+331,promyelocytic leukemia cells,"leukemia, promyelocytic, acute"
+332,cells of the uterine cervix 2706,uterine cervix
+334,primary mouse embryonic fibroblasts (mefs),fibroblast
+335,normal cells of the uterine cervix art7352,uterine cervix
+336,normal cells of the uterine cervix art15986,uterine cervix
+337,bj1,fibroblast
+338,mrc-5,fibroblast
+342,normal cells of the uterine cervix art8406,uterine cervix
+346,gastric adenocarcinoma cells,adenocarcinoma
+347,brain astrocyte,astrocyte
+349,stroma cells,stromal cells
+351,cd 8 t cell,cd8-positive t-lymphocyte
+355,lin-sca1+kit- bone marrow cells,bone marrow cells
+357,mouse embryonic fibroblast,fibroblast
+358,cells of the uterine cervix 1934,uterine cervix
+360,nk cells,natural killer cells
+362,lung,lung
+365,neutrophil,neutrophils
+367,multipotent progenitor (mpp),multipotent stem cell
+368,endothelial cells,endothelial cells
+369,normal cells of the uterine cervix art945,uterine cervix
+371,cells of the uterine cervix 5226,uterine cervix
+374,normal cells of the uterine cervix art13193,uterine cervix
+380,epithelial,epithelium
+382,mrc5-derived ipsc line 7,induced pluripotent stem cells
+383,normal cells of the uterine cervix art60419,uterine cervix
+384,heart,heart
+385,cd34-ips8,induced pluripotent stem cells
+386,normal cells of the uterine cervix art61199,uterine cervix
+387,esc,embryonic stem cell
+388,etoposide-induced senescent (etis) cells,cells
+390,normal cells of the uterine cervix art15114,uterine cervix
+392,mrc5,fibroblast
+393,colon cancer cell line,colorectal neoplasms
+395,es cell,embryonic stem cell
+396,normal cells of the uterine cervix art7029,uterine cervix
+399,granulocytes,granulocyte
+401,cells of the uterine cervix 524,uterine cervix
+403,esc-derived neuronal progenitor cells,neural stem cells
+404,erythrocytes a (ery a),erythrocyte
+406,breast cancer,breast neoplasms
+407,cells of the uterine cervix 1826,uterine cervix
+408,b cell,b lymphocytes
+409,leukocyte,leukocyte
+411,adipose stromal cell (asc) pre-adipocytes and adipocytes,mesenchymal stem cells
+412,lymphocyte,lymphocyte
+413,dental pulp cell,dental pulp
+418,young skin hair follicle stem cells,hair follicle
+420,peripheral blood mononuclear cells (pbmc),"leukocytes, mononuclear"
+421,human peripheral blood mononuclear cells,"leukocytes, mononuclear"
+422,breast fibroblast,fibroblast
+425,mep,megakaryocyte-erythroid progenitor
+427,normal cells of the uterine cervix art20241,uterine cervix
+428,cells of the uterine cervix 929,uterine cervix
+430,cd4 t cell,cd4-positive t-lymphocytes
+433,normal cells of the uterine cervix art12244,uterine cervix
+435,normal cells of the uterine cervix art571,uterine cervix
+436,cells of the uterine cervix 3358,uterine cervix
+439,hsc,hematopoietic stem cell
+440,cells of the uterine cervix 337,uterine cervix
+442,affinity purified cd71+ cells,cells
+443,cells of the uterine cervix 3461,uterine cervix
+444,hff fibroblasts,fibroblast
+447,immortalised mouse embryonic fibroblasts (mefs),fibroblast
+449,cmp,myeloid progenitor cell
+450,normal human primary prostate stromal cells,stromal cells
+452,normal cells of the uterine cervix art10037,uterine cervix
+456,cells of the uterine cervix 1392,uterine cervix
+457,brain cells,brain
+458,normal cells of the uterine cervix art20198,uterine cervix
+460,lmpp,lymphoid stem cells
+461,normal cells of the uterine cervix art9983,uterine cervix
+465,bone marrow macrophages,bone marrow-derived macrophages
+466,"embryonic stem cell, differentiated;neuralprogenitors.day22",neural stem cells
+469,cells of the uterine cervix 1456,uterine cervix
+471,in vitro activated b cells,b lymphocytes
+475,hfib2 fibroblasts,fibroblast
+476,normal cells of the uterine cervix art14109,uterine cervix
+480,human embryonic stem cells,embryonic stem cell
+481,normal cells of the uterine cervix art4895,uterine cervix
+482,colon cancer cell line; dnmt3b & dnm1 ko,colorectal neoplasms
+483,retinal neuron,retinal neuron
+484,hes_h1_p30,embryonic stem cell
+488,cells of the uterine cervix 2227,uterine cervix
+489,normal cells of the uterine cervix art12459,uterine cervix
+490,embyonic stem cell,embryonic stem cell
+491,hes_h1_p32,embryonic stem cell
+492,breast variant human mammary epithelial cell,epithelial cells
+495,normal cells of the uterine cervix art17165,uterine cervix
+497,cells of the uterine cervix 563,uterine cervix
+498,human induced pluripotent stem cells,induced pluripotent stem cells
+500,normal cells of the uterine cervix art4817,uterine cervix
+504,bj1 fibroblasts,fibroblast
+505,mouse embryonic fibroblasts,fibroblast
+506,normal cells of the uterine cervix art27142,uterine cervix
+511,normal cells of the uterine cervix art2133,uterine cervix
+512,normal cells of the uterine cervix art19417,uterine cervix
+513,cells of the uterine cervix 1227,uterine cervix
+514,colon cancer,colorectal neoplasms
+516,aged skin epidermal stem cells,stem cell
+517,male pronucleus,sperm
+520,cd8+ t cells,cd8-positive t-lymphocyte
+521,human skin fibroblast,fibroblast
+522,human fibroblast,fibroblast
+524,normal cells of the uterine cervix art2092,uterine cervix
+525,pancreatic cancer cell,pancreatic neoplasms
+526,human embryonic lung fibroblasts,fibroblast
+529,hfib2-ips5 cells,induced pluripotent stem cells
+530,hepatoma cell,hepatoma
+531,liver,liver
+534,astrocytes,astrocytes
+536,normal cells of the uterine cervix art16563,uterine cervix
+537,normal cells of the uterine cervix art23158,uterine cervix
+540,hbec-3kt,epithelial cells
+542,cells of the uterine cervix 55,uterine cervix
+544,kidney,kidney
+546,normal cells of the uterine cervix art11874,uterine cervix
+547,es-derived neural progenitor cells,neural stem cells
+548,cells of the uterine cervix 1867,uterine cervix
+549,mouse es cells,embryonic stem cell
+550,mole,nevus
+551,bg01 escs,embryonic stem cell
+552,renal,kidney
+553,mouse embryonic fibroblasts (mef),fibroblast
+554,hepatocyte,hepatocyte
+555,normal cells of the uterine cervix art17887,uterine cervix
+556,cells of the uterine cervix 440,uterine cervix
+558,"prec, normal cells",cells
+559,hes_hues1_p28,embryonic stem cell
+560,cells of the uterine cervix 1215,uterine cervix
+563,hes_hues48_p23,embryonic stem cell
+564,normal cells of the uterine cervix art13254,uterine cervix
+565,mrc5-ips20,induced pluripotent stem cells
+566,androgenetic haploid embryonic stem cells (ag-haescs),embryonic stem cell
+567,normal cells of the uterine cervix art22647,uterine cervix
+569,mixed cell culture,"cell, cultured"
+571,cells of the uterine cervix 401,uterine cervix
+573,normal cells of the uterine cervix art6314,uterine cervix
+575,hematopoietic progenitors,hematopoietic progenitor cells
+579,"interneuron, fast spiking",interneuron
+581,bj fibroblasts,fibroblast
+587,normal cells of the uterine cervix art1013,uterine cervix
+591,normal cells of the uterine cervix art14845,uterine cervix
+594,tissue dissociated cells,cells
+597,human_blood_cd34,hematopoietic stem cell
+600,normal cells of the uterine cervix art4084,uterine cervix
+603,wi-38 fibroblasts,fibroblast
+604,hct116 cell line,colorectal neoplasms
+605,erythrocytes b (ery b),erythrocyte
+606,"pancreatic cell lines including (bxpc-3, panc-1 and cfpac-1)",pancreatic neoplasms
+607,cells of the uterine cervix 1823,uterine cervix
+608,normal cells of the uterine cervix art14891,uterine cervix
+610,long term hematopoietic stem cell (lt-hsc),hematopoietic stem cell
+612,normal cells of the uterine cervix art10323,uterine cervix
+613,normal cells of the uterine cervix art14457,uterine cervix
+617,normal cells of the uterine cervix art18949,uterine cervix
+618,cells of the uterine cervix 2123,uterine cervix
+622,bladder cells,bladder
+627,normal cells of the uterine cervix art6595,uterine cervix
+628,normal cells of the uterine cervix art9185,uterine cervix
+629,gmp-b,granulocyte-macrophage progenitor cell
+632,cells of the uterine cervix 1447,uterine cervix
+633,hfib2a,fibroblast
+634,normal cells of the uterine cervix art28927,uterine cervix
+635,adipose stromal cell (asc) adipocyte,adipocyte
+636,b-cells,b lymphocytes
+638,hes_h1_p60,embryonic stem cell
+639,chronic myeloid leukemia cells,"leukemia, chronic myelogenous"
+643,mrc5-derived ipsc line 20,induced pluripotent stem cells
+644,normal cells of the uterine cervix art20542,uterine cervix
+648,mait t cells,mait cells
+650,an immortalized but non-transformed ovarian epithelial cell line,ovary
+651,normal cells of the uterine cervix art15027,uterine cervix
+652,"induced pluripotent stem cell, undifferentiated",induced pluripotent stem cells
+655,granmono,granulocyte-macrophage progenitors
+656,bladder cancer cell lines,bladder neoplasms
+657,normal cells of the uterine cervix art9933,uterine cervix
+658,polar body,polar body
+659,hips_27e_p32,induced pluripotent stem cells
+661,nrbc,erythroblasts
+665,ex vivo t lymphocytes,t lymphocytes
+668,normal,tissue
+671,"grade iv, adenocarcinoma, derived from the metastatic site, brain of a prostate cancer patient",prostatic neoplasms
+672,normal cells of the uterine cervix art9369,uterine cervix
+674,haematopoietic stem cells,hematopoietic stem cell
+675,cd45 positive immune cells,leukocyte
+677,nsc,neural stem cells
+678,fibroblasts,fibroblast
+679,normal cells of the uterine cervix art4319,uterine cervix
+680,epithelial adenocarcinoma,adenocarcinoma
+682,cells of the uterine cervix 1342,uterine cervix
+684,astrocyte,astrocytes
+685,msc-derived ipsc line 1,induced pluripotent stem cells
+687,mouse haploid embryonic stem cells,embryonic stem cell
+688,endothelial cells isolation(cd31 positive selection),endothelial cells
+691,normal cells of the uterine cervix art723,uterine cervix
+692,hips_27b_p31,induced pluripotent stem cells
+693,cafs,cancer-associated fibroblast
+695,cd45-pdgfra+ thymic stroma cells,stromal cells
+697,normal cells of the uterine cervix art12863,uterine cervix
+698,gmp-a,granulocyte-macrophage progenitor cell
+702,ebv-transformed lymphoblastoid cells,b lymphocytes
+707,normal cells of the uterine cervix art2572,uterine cervix
+709,umbilical vein epithelial cells,epithelial cells
+712,3t3-l1 pre-adipocyte,adipocyte
+713,lung cells,lung
+715,cd8 t cell,cd8-positive t-lymphocyte
+716,"embryonic stem cell, differentiated;spontaneous.day3",embryonic stem cell
+719,rbc nrbc,erythrocyte
+720,pgc,germ cells
+721,cells of the uterine cervix 570,uterine cervix
+722,intestine,intestine
+723,normal cells of the uterine cervix art6305,uterine cervix
+725,3t3-l1 adipocytes,adipocyte
+728,cells of the uterine cervix 5211,uterine cervix
+729,erya cells,erythrocyte
+731,es-derived human musculoskeletal stem cells,mesenchymal stem cells
+732,hips_29e_p32,induced pluripotent stem cells
+737,clp,lymphoid stem cells
+738,normal cells of the uterine cervix art2367,uterine cervix
+740,hesc-derived neuroectoderm cells,neuroectoderm
+742,human aortic endothelial cells,endothelial cells
+743,breast cancer cells,breast neoplasms
+744,nk cell,natural killer cells
+746,cervix adenocarcinoma clells,cervical neoplasms
+748,normal cells of the uterine cervix art584,uterine cervix
+749,mouse embryonic stem cell,embryonic stem cell
+751,cd8 t-cells,cd8-positive t-lymphocyte
+752,somatic.primary,tissue
+753,mii oocyte,oocyte
+756,short term hematopoietic stem cell (st-hsc),hematopoietic stem cell
+757,adipose stromal cells,mesenchymal stem cells
+758,normal cells of the uterine cervix art357,uterine cervix
+764,normal cells of the uterine cervix art10742,uterine cervix
+767,normal cells of the uterine cervix art19707,uterine cervix
+771,k562,"leukemia, chronic myelogenous"
+773,cells of the uterine cervix 1853,uterine cervix
+774,cd4 t-cells,cd4-positive t-lymphocytes
+781,normal cells of the uterine cervix art2036,uterine cervix
+782,np cells,neural stem cells
+783,hes_hues1_p29,embryonic stem cell
+784,human brest cancer cell line,breast neoplasms
+785,cells of the uterine cervix 3356,uterine cervix
+786,epc,endothelial progenitor cells
+789,lung cd4+ t cells,cd4-positive t-lymphocytes
+790,cells of the uterine cervix 3016,uterine cervix
+791,ec,endothelial cells
+792,normal cells of the uterine cervix art10658,uterine cervix
+793,cells of the uterine cervix 4489,uterine cervix
+796,normal cells of the uterine cervix art13004,uterine cervix
+798,cd14 monocytes,monocyte
+800,normal cells of the uterine cervix art778,uterine cervix
+802,intratumoral cd45+cd3+cd4+ t cells,t lymphocytes
+805,oligodendrocyte,oligodendrocyte
+811,dermal fibroblast,fibroblast
+812,pbl,lymphocyte
+814,3t3-l1 pre-adipocytes and adipocytes,adipocyte
+815,mesenchymal stromal cell,mesenchymal stromal cells
+820,cd45-pecam1+ thymic stroma cells,stromal cells
+825,heb16d_hues8_p40,embryonic stem cell
+827,3t3-l1 adipocyte,adipocyte
+828,normal cells of the uterine cervix art17144,uterine cervix
+829,es-cells,embryonic stem cell
+832,normal cells of the uterine cervix art10417,uterine cervix
+833,normal cells of the uterine cervix art8269,uterine cervix
+836,cd4+ yfp-foxp3+ cd25+ cells,cd4-positive t-lymphocytes
+837,normal cells of the uterine cervix art5441,uterine cervix
+838,col2a1+ growth plate chondrocytes (tdtomato+),chondrocytes
+839,myeloid leukemia,myeloid leukemia
+840,normal cells of the uterine cervix art11552,uterine cervix
+841,hes_hues8_p27,embryonic stem cell
+843,normal cells of the uterine cervix art20151,uterine cervix
+844,hesc,embryonic stem cell
+845,mrc-5 fibroblasts,fibroblast
+847,prec,erythroid precursor cells
+849,mef,fibroblast
+852,lung cancer cell lines,lung neoplasms
+855,normal cells of the uterine cervix art1077,uterine cervix
+857,normal cells of the uterine cervix art2604,uterine cervix
+858,muscle stem cells,skeletal muscle satellite cells
+859,mesenchymal stem cells,mesenchymal stem cells
+860,human mesenchymal stem cells,mesenchymal stem cells
+861,normal cells of the uterine cervix art6079,uterine cervix
+862,heb16d_h9_p65,embryonic stem cell
+863,cells of the uterine cervix 1279,uterine cervix
+864,"interneuron, non-fast spiking",interneuron
+865,cells of the uterine cervix 303,uterine cervix
+866,cd34+ cells,hematopoietic stem cell
+867,cell culture,"cell, cultured"
+869,neuronal progenitor (np) cells,neural stem cells
+870,normal cells of the uterine cervix art12722,uterine cervix
+871,normal cells of the uterine cervix art8610,uterine cervix
+873,total brain cells,brain
+876,normal cells of the uterine cervix art19141,uterine cervix
+877,normal cells of the uterine cervix art4820,uterine cervix
+878,primary astrocytes,astrocytes
+879,hes_hues8_p29,embryonic stem cell
+884,corneal epithelial cell,epithelial cells
+885,u2os,osteosarcoma
+886,npc_h9_derived,neural stem cells
+887,cells of the uterine cervix 2007,uterine cervix
+888,podocytes,podocytes
+889,cells of the uterine cervix 617,uterine cervix
+891,foreskin fibroblast,fibroblast
+892,human dermal fibroblasts,fibroblast
+893,"embryonic stem cell, undifferentiated",embryonic stem cell
+895,e14.5 mouse brain derived neural stem cells,neural stem cells
+896,fibroblast,fibroblast
+899,striatopallidal medium spiny neuron,medium spiny neuron
+900,normal cells of the uterine cervix art4090,uterine cervix
+904,normal cells of the uterine cervix art5723,uterine cervix
+905,imr90 fetal lung fibroblasts,fibroblast
+907,human keratinocyte,keratinocyte
+908,normal cells of the uterine cervix art4706,uterine cervix
+910,heb16d_15b_p54,embryonic stem cell
+911,3t3-l1 pre-adipocytes,adipocyte
+914,normal cells of the uterine cervix art15717,uterine cervix
+918,normal cells of the uterine cervix art15599,uterine cervix
+919,human diploid fibroblast imr-90,fibroblast
+920,cells of the uterine cervix 610,uterine cervix
+921,osteosarcoma,osteosarcoma
+922,cells of the uterine cervix 3446,uterine cervix
+923,cells of the uterine cervix 3366,uterine cervix
+924,normal cells of the uterine cervix art11513,uterine cervix
+927,hfib2,fibroblast
+928,ex vivo b lymphocytes,b lymphocytes
+929,normal cells of the uterine cervix art9553,uterine cervix
+930,peripheral mononuclear blood cell,"leukocytes, mononuclear"
+933,human_blood,blood
+934,hfib2-derived ipsc line 5,induced pluripotent stem cells
+942,normal cells of the uterine cervix art12118,uterine cervix
+943,human cord blood cd34 (+) cells,cord blood
+947,normal cells of the uterine cervix art17029,uterine cervix
+948,common lymphoid progenitor (clp),lymphoid stem cells
+949,bj1-derived ipsc line 2,induced pluripotent stem cells
+950,cortex neural stem and progenitor cells,neural stem cells
+951,mucosal-associated invariant t (mait) cells,mait cells
+952,peripheral blood mononuclear cells,"leukocytes, mononuclear"
+953,normal cells of the uterine cervix art519,uterine cervix
+954,cells of the uterine cervix 4900,uterine cervix
+956,normal cells of the uterine cervix art16319,uterine cervix
+958,normal cells of the uterine cervix art23786,uterine cervix
+961,normal cells of the uterine cervix art16545,uterine cervix
+963,human umbilical vein endothelial cells,endothelial cells
+964,normal cells of the uterine cervix art11608,uterine cervix
+965,bone marrow-derived mesenchymal stem cells,mesenchymal stem cells
+968,normal cells of the uterine cervix art9887,uterine cervix
+969,paracentral neural stem and progenitor cells,neural stem cells
+971,lncap,prostatic neoplasms
+972,cells of the uterine cervix 2295,uterine cervix
+974,sperm,sperm
+975,hff,fibroblast
+978,msc-ips3,induced pluripotent stem cells
+979,hepatic cell line,hepatocytes
+980,hes_h1_p37,embryonic stem cell
+982,human diploid lung fibroblast,fibroblast
+986,mix cell types from lung,lung
+987,cells of the uterine cervix 4268,uterine cervix
+990,normal cells of the uterine cervix art2270,uterine cervix
+991,bone marrow mononuclear cells,bone marrow cells
+995,normal cells of the uterine cervix art60247,uterine cervix
+996,granulocyte monocyte progenitor (gmp),granulocyte-macrophage progenitor cell
+1001,mrc5 fibroblasts,fibroblast
+1003,normal cells of the uterine cervix art10550,uterine cervix
+1004,bone marrow cells,bone marrow cells
+1007,cells of the uterine cervix 3892,uterine cervix
+1011,young skin epithelium,epithelium
+1013,brain,brain
+1014,normal cells of the uterine cervix art7248,uterine cervix
+1017,muscle,muscle
+1018,normal cells of the uterine cervix art23845,uterine cervix
+1019,normal cells of the uterine cervix art10395,uterine cervix
+1020,normal cells of the uterine cervix art12931,uterine cervix
+1021,peripheral blood mononuclear cell,"leukocytes, mononuclear"
+1022,muscle stem,skeletal muscle satellite cells
+1024,normal cells of the uterine cervix art2167,uterine cervix
+1025,t cd4+ cells,cd4-positive t-lymphocytes
+1027,normal cells of the uterine cervix art4486,uterine cervix
+1030,normal cells,cells
+1032,normal cells of the uterine cervix art23545,uterine cervix
+1033,human skin-precursors-derived hepatocyte-like cells (hskp-hpc),hepatocyte
+1035,embryonic stem cells,embryonic stem cell
+1036,cells of the uterine cervix 902,uterine cervix
+1038,cells of the uterine cervix 3418,uterine cervix
+1040,g-mdsc purified from pbmc,myeloid-derived suppressor cells
+1041,hes_h1_p34,embryonic stem cell
+1042,es-derived lung fibroblast cells,fibroblast
+1043,normal cells of the uterine cervix art189,uterine cervix
+1044,normal cells of the uterine cervix art276,uterine cervix
+1045,macrophage cells,macrophage
+1046,erythroleukemia cell line,erythroleukemia
+1047,normal cells of the uterine cervix art6874,uterine cervix
+1048,normal cells of the uterine cervix art5458,uterine cervix
+1049,mesc,mouse embryonic stem cell
+1050,striatonigral medium spiny neuron,medium spiny neuron

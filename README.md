@@ -41,7 +41,7 @@ python -m src.standardization.generate_ncbi_gene_map Homo_sapiens.gene_info gene
 ```
 6. Generate the mapping between GPL numbers and platfrom names by running this R script (may take a while)
 ```bash
-R < get_gpl_names.R
+R --no-save < get_gpl_names.R
 mv gpl_platform_map.json src/model/gpl_platform_map.json
 ```
 7. Clone [PubTrends](https://github.com/jetBrains-Research/pubtrends/) and launch the fasttext container

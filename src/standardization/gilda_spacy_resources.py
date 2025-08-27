@@ -1,7 +1,7 @@
 from typing import Dict, Set
 import spacy
 
-class StandardizationResources:
+class GildaSpacyResources:
     """
     A container for the resources needed by the get_standard_name function.
     Instances of this class are hashable, allowing them to be used with lru_cache.
@@ -14,4 +14,4 @@ class StandardizationResources:
         return 1
 
     def __eq__(self, other):
-        return isinstance(other, StandardizationResources)
+        return isinstance(other, GildaSpacyResources)

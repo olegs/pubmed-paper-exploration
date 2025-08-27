@@ -8,7 +8,7 @@ import pandas as pd
 from src.standardization.get_standard_name import get_standard_name
 from src.standardization.mesh_vocabulary import build_mesh_lookup, is_term_in_one_of_categories
 from src.standardization.get_standard_name_spacy import create_entity_linking_pipeline_with_ner
-from src.standardization.standardization_resources import StandardizationResources
+from src.standardization.gilda_spacy_resources import GildaSpacyResources
 from src.standardization.get_standard_name_gilda import get_standard_name_gilda
 from src.standardization.get_standard_name_spacy import get_standard_name_spacy
 from src.standardization.get_standard_name_fasttext import FasttextNormalizer
@@ -164,7 +164,7 @@ if __name__ == "__main__":
     print("Mesh terms", len(mesh_lookup))
     mesh_term_to_id_map = {key.strip().lower(): entry.id
                    for key, entry in mesh_lookup.items()}
-    resources = StandardizationResources(mesh_lookup, nlp)
+    resources = GildaSpacyResources(mesh_lookup, nlp)
 
     terms_synoyms_df = pd.read_csv(args.file)
     synonym_column = args.true_column

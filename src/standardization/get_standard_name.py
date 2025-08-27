@@ -2,7 +2,7 @@ from typing import Dict, Set
 from functools import lru_cache
 from src.standardization.get_standard_name_gilda import get_standard_name_gilda
 from src.standardization.get_standard_name_spacy import get_standard_name_spacy
-from src.standardization.standardization_resources import StandardizationResources
+from src.standardization.gilda_spacy_resources import GildaSpacyResources
 
 
 def preprocess_tissue_name(name: str) -> str:
@@ -11,9 +11,10 @@ def preprocess_tissue_name(name: str) -> str:
 
 
 @lru_cache(10000)
-def get_standard_name(name: str, resources: StandardizationResources) -> str | None:
+def get_standard_name(name: str, resources: GildaSpacyResources) -> str | None:
     """
     Standardizes the name for a tissue or cell type.
+    Uses the Gilda and scispacy NLP utilities.
 
     :param name: Tissue or cell type name to standardize
     :param resources: An instance of StandardizationResources containing
@@ -35,7 +36,7 @@ if __name__ == "__main__":
     from src.standardization.get_standard_name_spacy import create_entity_linking_pipeline_with_ner
     nlp = create_entity_linking_pipeline_with_ner()
     mesh_lookup = build_mesh_lookup("desc2025.xml")
-    resources = StandardizationResources(mesh_lookup, nlp)
+    resources = GildaSpacyResources(mesh_lookup, nlp)
 
     print("Mouse fat", get_standard_name("mouse fat", resources))
     print("that thing", get_standard_name(

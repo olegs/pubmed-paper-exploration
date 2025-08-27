@@ -1,6 +1,6 @@
 from typing import List, Tuple
 from operator import itemgetter
-from sklearn.cluster import AgglomerativeClustering
+from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 from sklearn.decomposition import TruncatedSVD
 from sklearn.pipeline import make_pipeline
@@ -15,48 +15,54 @@ n_topic_words = config.topic_words
 
 
 def get_clusters_top_terms(
-    embeddings: spmatrix, cluster_assignments: List[int], vocabulary: List[str]
+    cluster_assignments: List[int], vocabulary, corpus_counts, n_topic_words,
 ) -> List[List[str]]:
     """
     Identifies key descriptive words for each cluster by analyzing the
-    distribution of TF-IDF values in dataset descriptions. Words are ranked
-    based on how closely the sums of their TF-IDF in each cluster match a
+    frequencies of words in dataset descriptions. Words are ranked
+    based on how closely their frequencies in each cluster match a
     reference pattern where each word is strongly associated with a single
     cluster ([0, ..., 0, 1, 0, ..., 0] vector). This similiraty is measured
     using cosine_similarity.
 
     Based on _get_topics_description_cosine from PubTrends.
 
-    :param embeddings: Vector representations of the datasets.
     :param cluster_assignements: Cluster assignments for each dataset.
     :param vocabulary: Vocabulary of the datasets.
+    :param corpus_counts: Number of occurences of each token in each dataset.
+    :param n_topic_words: Number of key words to extract for each cluster.
     :return: List of lists of most influential terms for every cluster.
     """
 
     n_clusters = np.max(cluster_assignments) + 1
-    word_tf_idf_per_cluster = np.zeros((n_clusters, embeddings.shape[1]))
-    for i in range(n_clusters):
-        word_tf_idf_per_cluster[i] = np.sum(
-            embeddings[cluster_assignments == i], axis=0
+    tokens_freqs_per_comp = np.zeros(
+        shape=(n_clusters, corpus_counts.shape[1]), dtype=np.float32)
+    for cluster_idx in range(n_clusters):
+        tokens_freqs_per_comp[cluster_idx] = np.sum(
+            corpus_counts[cluster_assignments == cluster_idx], axis=0
         )
 
-    tf_idf_norm = np.sqrt(np.diag(word_tf_idf_per_cluster.T @ word_tf_idf_per_cluster))
-    word_tf_idf_per_cluster = word_tf_idf_per_cluster / tf_idf_norm
+    # Calculate total number of occurrences for each word
+    tokens_freqs_total = np.sum(tokens_freqs_per_comp, axis=0)
 
-    # Calculate cosine distance between the tf-idf vector and [0, ..., 0, 1, 0, ..., 0] for each cluster
+    # Normalize frequency vector for each word to have length of 1
+    tokens_freqs_norm = np.sqrt(
+        np.diag(tokens_freqs_per_comp.T @ tokens_freqs_per_comp))
+    tokens_freqs_per_comp = tokens_freqs_per_comp / tokens_freqs_norm
+
+    logger.debug(
+        'Take frequent tokens that have the most descriptive frequency vector for topics')
+    # Calculate cosine distance between the frequency vector and [0, ..., 0, 1, 0, ..., 0] for each cluster
     cluster_mask = np.eye(n_clusters)
-    distance = word_tf_idf_per_cluster.T @ cluster_mask
-    total_tf_idf = np.sum(embeddings, axis=0)
-    total_tf_idf = np.squeeze(np.asarray(total_tf_idf))
-
-    # Adjust cosine distances by tf-idf across the corpus so super rare words don't come out on top
-    adjusted_distance = distance.T * np.log1p(total_tf_idf)
+    distance = tokens_freqs_per_comp.T @ cluster_mask
+    # Add some weight for more frequent tokens to get rid of extremely rare ones in the top
+    adjusted_distance = distance.T * np.log1p(tokens_freqs_total)
 
     top_term_indices_per_cluster = adjusted_distance.argsort()[:, ::-1]
     top_terms = []
-    for i in range(n_clusters):
+    for cluster_idx in range(n_clusters):
         top_terms.append([])
-        for ind in top_term_indices_per_cluster[i, :n_topic_words]:
+        for ind in top_term_indices_per_cluster[cluster_idx, :n_topic_words]:
             top_terms[-1].append(vocabulary[ind])
 
     return top_terms
@@ -70,7 +76,8 @@ def sort_cluster_labels(cluster_assignments: np.array) -> np.array:
     """
     cluster_labels, counts = np.unique(cluster_assignments, return_counts=True)
     cluster_labels_sorted = cluster_labels[np.argsort(-counts)]
-    cluster_ranks = {cluster_label: rank for rank, cluster_label in enumerate(cluster_labels_sorted)}
+    cluster_ranks = {cluster_label: rank for rank,
+                     cluster_label in enumerate(cluster_labels_sorted)}
     return np.array([cluster_ranks[cluster_assignment] for cluster_assignment in cluster_assignments])
 
 
@@ -80,10 +87,10 @@ def cluster(embeddings: spmatrix, n_clusters: int) -> Tuple[List[int], np.ndarra
 
     :param embeddings: Vector representations of the datasets.
     :param n_cluster: Number of clusters to create.
-    :return: Cluster assignements for each dataset.
+    :return: Cluster assignements for each dataset and silhouette score.
     """
 
-    clusterer = AgglomerativeClustering(n_clusters=n_clusters)
+    clusterer = KMeans(n_clusters=n_clusters, random_state=42)
 
     try:
         cluster_assignments = clusterer.fit_predict(embeddings)
@@ -94,9 +101,27 @@ def cluster(embeddings: spmatrix, n_clusters: int) -> Tuple[List[int], np.ndarra
     cluster_assignments = sort_cluster_labels(cluster_assignments)
 
     silhouette_avg = silhouette_score(embeddings, cluster_assignments)
-    logger.info(f"Silhouette score: {silhouette_avg}")
+    logger.debug(f"Silhouette score: {silhouette_avg}")
 
-    return cluster_assignments
+    return cluster_assignments, silhouette_avg
+
+
+def auto_cluster(embeddings: spmatrix) -> Tuple[List[int], np.ndarray]:
+    """
+    Clusters the vector representations of GEO datasets and chooses the optimal
+    number of clusters based on silhoutte score.
+
+    :param embeddings: Vector representations of the datasets.
+    :return: Cluster assignements for each dataset, silhouette score and number of clusters.
+    """
+    best_clustering = (None, -1, 0)
+    for n_cluster in range(8, min(20, embeddings.shape[0])):
+        cluster_assignments, silhouette_score = cluster(embeddings, n_cluster)
+        if silhouette_score > best_clustering[1]:
+            best_clustering = (cluster_assignments,
+                               silhouette_score, n_cluster)
+
+    return best_clustering
 
 
 if __name__ == "__main__":
@@ -109,7 +134,7 @@ if __name__ == "__main__":
 
     # ids.txt is a copy of the provided PMIDs_list.txt
     with open("ids.txt") as file:
-        pubmed_ids = map(int, file)
+        pubmed_ids = list(map(int, file))
         datasets = download_geo_datasets(pubmed_ids)
 
         embeddings, vocabulary = vectorize_datasets(datasets)
@@ -119,12 +144,15 @@ if __name__ == "__main__":
         )
         embeddings_svd = lsa.fit_transform(embeddings)
         explained_variance = lsa[0].explained_variance_ratio_.sum()
-        print(f"Explained variance of the SVD step: {explained_variance * 100:.1f}%")
+        print(
+            f"Explained variance of the SVD step: {explained_variance * 100:.1f}%")
 
         begin = time.time()
-        labels = cluster(embeddings_svd, N_CLUSTERS)
+        labels, score, n_clusters = auto_cluster(embeddings_svd)
         end = time.time()
         print("Clustering time:", end - begin)
+        print("Number of clusters", n_clusters)
+        print("Silhouette score", score)
         topics = get_clusters_top_terms(embeddings, labels, vocabulary)
         for i in range(len(topics)):
             print(f"Cluster {i} topics: {' '.join(topics[i])}")

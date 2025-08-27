@@ -2,14 +2,32 @@ from typing import List
 from os import path
 import os
 import asyncio
+import concurrent.futures
 import GEOparse
 import aiohttp
 from src.model.geo_dataset import GEODataset
+from src.model.geo_sample import GEOSample
 from src.ingestion.fetch_geo_ids import fetch_geo_ids
-from src.ingestion.fetch_geo_accessions import fetch_geo_accessions
+from src.ingestion.fetch_geo_accessions import fetch_geo_accessions, fetch_geo_accessions_europepmc
 from src.config import config
+from src.exception.http_error import HttpError
+import aiofiles
 
 download_folder = config.download_folder
+
+
+def is_running_in_jupyter():
+    """
+    Checks if code is being run inside a Jupyter notebook.
+
+    :returns: True if code is being run inside a Jupyter notebook, otherwise
+    False.
+    """
+    try:
+        __IPYTHON__
+        return True
+    except NameError:
+        return False
 
 
 def download_geo_datasets(pubmed_ids: List[int]) -> List[GEODataset]:
@@ -20,7 +38,11 @@ def download_geo_datasets(pubmed_ids: List[int]) -> List[GEODataset]:
     :returns: A list containing the dowloaded datasets.
     """
 
-    return asyncio.run(_download_geo_datasets(pubmed_ids))
+    if not is_running_in_jupyter():
+        return asyncio.run(_download_geo_datasets(pubmed_ids))
+    else:
+        pool = concurrent.futures.ThreadPoolExecutor()
+        return pool.submit(asyncio.run, _download_geo_datasets(pubmed_ids)).result()
 
 
 async def _download_geo_datasets(pubmed_ids: List[int]) -> List[GEODataset]:
@@ -32,7 +54,10 @@ async def _download_geo_datasets(pubmed_ids: List[int]) -> List[GEODataset]:
     """
     async with aiohttp.ClientSession() as session:
         geo_ids = await fetch_geo_ids(pubmed_ids, session)
-        accessions = await fetch_geo_accessions(geo_ids, session)
+        accessions_geo = fetch_geo_accessions(geo_ids, session)
+        accessions_pmc = fetch_geo_accessions_europepmc(pubmed_ids, session)
+
+        accessions = set(await accessions_geo) | set(await accessions_pmc)
 
         return await asyncio.gather(
             *(download_geo_dataset(accession, session) for accession in accessions)
@@ -46,9 +71,13 @@ def _make_directory_if_not_exist(dir_path: str):
 
 async def _download_from_url(url: str, destination_path: str, session: aiohttp.ClientSession):
     async with session.get(url) as response:
-        assert response.status == 200
-        with open(destination_path, "w") as f:
-            f.write(await response.text())
+        if response.status != 200:
+            print("Download error, HTTP status:", response.status)
+            print("Body:", await response.text())
+            raise HttpError(f"Status: {response.status}")
+        async with aiofiles.open(destination_path, "wb") as f:
+            async for chunk in response.content.iter_chunked(10):
+                await f.write(chunk)
 
 
 async def download_geo_dataset(accession: str, session: aiohttp.ClientSession) -> GEODataset:
@@ -64,14 +93,15 @@ async def download_geo_dataset(accession: str, session: aiohttp.ClientSession) -
 
     _make_directory_if_not_exist(download_folder)
     if not path.isfile(download_path):
-        await _download_from_url(dataset_metadata_url, download_path, session)
+        try:
+            await _download_from_url(dataset_metadata_url, download_path, session)
+        except Exception:
+            print("Retrying download", accession)
+            await _download_from_url(dataset_metadata_url, download_path, session)
 
     with open(download_path) as soft_file:
-        relevant_lines = filter(
-            lambda line: not line.startswith("!Series_sample_id"), soft_file
-        )
-        metadata = GEOparse.GEOparse.parse_metadata(relevant_lines)
-        return GEODataset(metadata)
+        metadata = GEOparse.GEOparse.parse_metadata(soft_file)
+        return GEODataset(metadata) if accession.startswith("GSE") else GEOSample(metadata)
 
 
 if __name__ == "__main__":

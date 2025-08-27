@@ -1,7 +1,8 @@
-{% extends "base.html" %} 
+{% extends "base.html" %}
 {% block title %}PubMed Dataset Explorer{% endblock title %}
 {% block head_css_js %}{% endblock head_css_js %}
 {% block body %}
+
 <body>
   <div class="container mt-3">
     <div class="p-5 bg-body-tertiary rounded-3 mb-3" id="home-card">
@@ -18,72 +19,14 @@
       <div class="card">
         <div class="card-header">Enter PubMed IDs to explore</div>
         <div class="card-body">
-          <form class="row g-3" action="/visualize" method="post" id="id-form">
+          <form class="row g-3" action="{{ url_for('app.visualize_pubmed_ids') }}" method="post" id="id-form">
             <input name="pubmed_ids" type="hidden" value="">
-            <div class="col-md-10 mb-1">
+            <div class="col-md-12 mb-1">
               <div class="input-group">
-                <span class="input-group-text" id="basic-addon-1"
-                  >PubMed IDs</span
-                >
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Enter a comma-separated list of PubMed IDs"
-                  aria-label="PubMed IDs"
-                  aria-describedby="basic-addon-1"
-                  id="add-ids-input"
-                />
-                <div class="invalid-feedback" id="id-form-input-error">
-                </div>
+                <span class="input-group-text" id="basic-addon-1">Query</span>
+                <input name="query" type="text" class="form-control" placeholder="Enter PubMed search query"
+                  aria-label="Search query" aria-describedby="basic-addon-1" id="query-input" />
               </div>
-            </div>
-            <div class="col-md-2 mb-1">
-              <button
-                type="button"
-                class="w-100 btn btn-success"
-                id="id-form-add-btn"
-              >
-                Add
-              </button>
-            </div>
-            <div class="col-md-12 mb-1">
-              <label for="formFile" class="form-label"
-                >Import PubMed IDs from file (each ID should be on a separate
-                line)</label
-              >
-              <input class="form-control" type="file" id="id-form-file" onchange="onFileUpload(event)" accept=".txt" />
-              <div class="invalid-feedback" id="id-form-file-error">
-              </div>
-            </div>
-            <div class="col-md-12 mb-1">
-              <label for="n_clusters" class="form-label"
-                >Number of clusters</label
-              >
-              <select id="n-clusters-select" name="n_clusters" class="form-select" aria-label="Select the number of clusters">
-                <option value="5">5</option>
-                <option value="10" selected>10</option>
-                <option value="15">15</option>
-                <option value="20">20</option>
-              </select>
-            </div>
-            <div class="col-md-12 mb-1 overflow-scroll" id="id-table-div">
-              <table class="table">
-                <thead class="table-light">
-                  <th scope="col">ID</th>
-                  <th scope="col">
-                    <button
-                      type="button"
-                      class="btn btn-danger"
-                      id="delete-all-btn"
-                      disabled
-                    >
-                      Delete All
-                    </button>
-                  </th>
-                </thead>
-                <tbody>
-                </tbody>
-              </table>
             </div>
             <div class="col-md-12">
               <button class="btn btn-primary" type="submit" id="submit-button">
@@ -102,7 +45,8 @@
   <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="import-success-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="toast-header">
-        <svg class="bd-placeholder-img rounded me-2" width="20" height="20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false">
+        <svg class="bd-placeholder-img rounded me-2" width="20" height="20" xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false">
           <rect width="100%" height="100%" fill="#198754"></rect>
         </svg>
         <strong class="me-auto">PubMed IDs Imported Sucessfully</strong>
@@ -117,7 +61,8 @@
   <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="error-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="toast-header">
-        <svg class="bd-placeholder-img rounded me-2" width="20" height="20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false">
+        <svg class="bd-placeholder-img rounded me-2" width="20" height="20" xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false">
           <rect width="100%" height="100%" fill="#dc3545"></rect>
         </svg>
         <strong class="me-auto" id="error-short-message">PubMed IDs Imported Sucessfully</strong>
@@ -129,17 +74,14 @@
       </div>
     </div>
   </div>
-  <script src="{{ url_for('static',filename='index.js') }}"></script>
+  <script src="{{ url_for('app.static',filename='index.js') }}"></script>
   <script>
-    {% if pubmed_ids %}
-      addPubmedIds({{pubmed_ids}});
-    {% endif %}
     {% if short_error_message and full_error_message %}
-      triggerErrorToast("{{short_error_message}}", "{{full_error_message}}")
+    triggerErrorToast("{{short_error_message}}", "{{full_error_message}}")
     {% endif %}
     {% if n_clusters %}
-      const nClustersSelect = document.getElementById("n-clusters-select")
-      nClustersSelect.value = "{{n_clusters}}"
+    const nClustersSelect = document.getElementById("n-clusters-select")
+    nClustersSelect.value = "{{n_clusters}}"
     {% endif %}
   </script>
 </body>

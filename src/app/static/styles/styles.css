@@ -1,5 +1,5 @@
 #home-card {
-  background-image: url("/static/blurred-library-processed.jpg");
+  background-image: url("/app/static/blurred-library-processed.jpg");
 }
 
 #id-table-div {
@@ -21,4 +21,36 @@
 
 #id-table-div table {
     table-layout: fixed;
+}
+
+.tab-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.tab-title {
+    font-size: 1.2rem;
+    text-align: left;
+    display: block;
+}
+
+.nav-tabs {
+    margin-left: 5%;
+    margin-top: 32px;
+}
+
+.tab-pane {
+    padding-left: 5%;
+}
+
+#datasets-table tbody tr {
+    cursor: pointer;
+}
+
+td fa-solid {
+    display: inline;
+}
+
+.emphasized-field {
+    font-size: 1.25rem;
 }

@@ -135,10 +135,11 @@ function changeSubmitButtonToLoadingIndicator() {
     submitButtonLoadingIndicator.style.display = "inline";
 }
 
-function submitPubmedIds(event) {
+function submitQuery(event) {
     event.preventDefault();
+    queryInput = document.getElementById("query-input");
 
-    if (pubmedIds.length === 0) {
+    if (pubmedIds.length === 0 && queryInput.value === "") {
         const errorElement = document.getElementById("id-form-input-error");
         displayError(errorElement, emptyInputErrorMessage);
         triggerErrorToast("PubMed IDs have not been entered", "No PubMed IDs have been entered. Please enter or import PubMed IDs.")
@@ -170,39 +171,12 @@ function deleteAllIds() {
 }
 
 function setUpEventsAndToasts() {
-    const addButton = document.getElementById("id-form-add-btn");
-    const addIdInput = document.getElementById("add-ids-input");
     const form = document.getElementById("id-form");
-    const deleteAllButton = document.getElementById("delete-all-btn")
-    addButton.addEventListener("click",
-        (event) => {
-            onClickAddPumbedIds();
-        }
-    );
-
     form.addEventListener("submit",
         (event) => {
-            submitPubmedIds(event);
+            submitQuery(event);
         }
     );
-
-    addIdInput.addEventListener("keypress", 
-        (event) => {
-            if (event.keyCode == 13) {
-                event.preventDefault();
-                onClickAddPumbedIds();
-            }
-        }
-    );
-
-    deleteAllButton.addEventListener("click",
-        (event) => {
-            deleteAllIds();
-        }
-    );
-
-    const sucessToast = document.getElementById("import-success-toast");
-    successToastBootstrap = bootstrap.Toast.getOrCreateInstance(sucessToast);
 
     const errorToast = document.getElementById("error-toast");
     errorToastBootstrap = bootstrap.Toast.getOrCreateInstance(errorToast);

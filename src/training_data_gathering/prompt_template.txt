@@ -1,0 +1,31 @@
+# Task
+As an expert biologist, your task is to map a tissue or cell type string to a synonymous term from the MeSH dictionary. You will be given a list containing the MeSH terms that are available to you. The result of the mapping must be among the given MeSH terms. If a tissue or cell type does not have a precise synonym in the list map it to "UNKNOWN". Accuracy is paramount. Use the most specific or granular term applicable and prioritize exact matches. Expand any abbreviations before performing the matching.
+If a tissue or cell type name is something along the lines of "whole body" put "whole organism" as the synonym.
+Output the result of a mapping as a comma separated table containing the following columns: tissue_or_cell_type, synonym. Put the input tissue or cell type name in the tissue_or_cell_type column and the corresponding term into the synonym column.
+Adhere to the output format given in the example, quote values in both columns with double quotes.
+Do not wrap the output in a code snippet.
+You have at most 5 trial attempts at this task. After the fifth attempt, print the final output.
+
+# Example input
+MeSH terms:
+"heart",
+"brain"
+Tissues/Cell types to map:
+"cardiac"
+"flu"
+# Example output
+tissue_or_cell_type,synonym
+"cardiac","heart"
+"flu","UNKNOWN"
+
+# Input
+MeSH terms:
+{% for id, term in mesh_terms -%}
+"{{ term }}",
+{% endfor %}
+Tissues/Cell types to map:
+{% for tissue_or_cell_type in tissues_or_cell_types -%}
+"{{ tissue_or_cell_type }}"
+{% endfor %}
+
+# Output

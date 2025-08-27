@@ -18,22 +18,29 @@ async def fetch_geo_ids(
     :returns: A list that contains the IDs of the GEO datasets associated with the PubMed IDs.
     """
     check_limit()
-    async with session.get(
+    async with session.post(
         elink_request_url,
         params={
             "dbfrom": "pubmed",
             "db": "gds",
             "linkname": "pubmed_gds",
-            "id": ",".join(map(str, pubmed_ids)),
             "retmode": "json",
         },
+        data={
+            "id": ",".join(map(str, pubmed_ids)),
+        }
     ) as response:
+        if response.status != 200:
+            raise Exception("ELink error")
         response = await response.json()
         if "ERROR" in response:
             raise EntrezError("Error when fetching GEO IDs")
 
-        geo_ids_str = response["linksets"][0]["linksetdbs"][0]["links"]
-        return [int(geo_id) for geo_id in geo_ids_str]
+        try:
+            geo_ids_str = response["linksets"][0]["linksetdbs"][0]["links"]
+            return [int(geo_id) for geo_id in geo_ids_str]
+        except KeyError:
+            return []
 
 
 async def main():

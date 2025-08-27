@@ -175,6 +175,19 @@ cython_debug/
 
 # Downloaded GEO Datasets
 GEO_Datasets/
+Downloads/
 
 # List PubMed IDs
 ids.txt
+
+# MeSH vocabulary
+desc2025.xml
+
+# Word2Vec model
+BioWordVec_PubMed_MIMICIII_d200.vec.bin
+
+# Experimental data
+./*.csv
+
+pubtrends
+completed_jobs/

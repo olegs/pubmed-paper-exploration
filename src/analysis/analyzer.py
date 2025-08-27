@@ -12,7 +12,7 @@ from src.analysis.analysis_result import AnalysisResult
 from src.config import logger
 from src.config import config
 from src.model.geo_dataset import GEODataset
-from src.standardization.get_standard_name_bern2 import BERN2Error
+from src.standardization.bern2_pipeline import BERN2Error
 from src.standardization.bern2_angel_pipeline import BERN2AngelPipeline
 from src.analysis.standardization_resources import StandardizationResources
 from src.model.geo_sample import GEOSample

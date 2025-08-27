@@ -1,5 +1,5 @@
 from typing import Dict
-from src.standardization.get_standard_name_bern2 import BERN2Pipeline
+from src.standardization.bern2_pipeline import BERN2Pipeline
 from typing import Dict
 from src.standardization.angel_normalizer import ANGELMeshNormalizer
 from src.utils.get_line_at_index import get_line_at_index

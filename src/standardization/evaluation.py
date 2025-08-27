@@ -12,7 +12,7 @@ from src.standardization.standardization_resources import StandardizationResourc
 from src.standardization.get_standard_name_gilda import get_standard_name_gilda
 from src.standardization.get_standard_name_spacy import get_standard_name_spacy
 from src.standardization.get_standard_name_fasttext import FastTextParser, FasttextNormalizer
-from src.standardization.get_standard_name_bern2 import get_standard_name_bern2, BERN2Recognizer
+from src.standardization.bern2_pipeline import get_standard_name_bern2, BERN2Recognizer
 from src.standardization.ner_nen_pipeline import NER_NEN_Pipeline
 from src.standardization.angel_normalizer import ANGELMeshNormalizer
 from src.standardization.bern2_angel_pipeline import BERN2AngelPipeline

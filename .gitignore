@@ -190,3 +190,4 @@ BioWordVec_PubMed_MIMICIII_d200.vec.bin
 *.csv
 
 pubtrends
+completed_jobs/

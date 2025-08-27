@@ -1,5 +1,9 @@
 # geo-dataset-clustering
-This repository contains a web app which takes a set of PubMed IDs and clusters datasets in the [GEO database](https://www.ncbi.nlm.nih.gov/gds/) that are associated with those PubMed IDs based on text similarity.
+This respository contains a web app for exploring datasets in the [GEO database](https://www.ncbi.nlm.nih.gov/gds/) related to a particular research area.
+
+This app enables users to:
+- Filter datasets based on experimental conditions such as organism, cell type, disease state and drug treatment.
+- Find clusters of similar datasets.
 
 The app was built using [flask](https://flask.palletsprojects.com/en/stable/) and [bokeh](https://bokeh.org/).
 

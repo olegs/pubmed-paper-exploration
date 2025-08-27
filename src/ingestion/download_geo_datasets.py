@@ -99,9 +99,8 @@ async def download_geo_dataset(accession: str, session: aiohttp.ClientSession) -
             print("Retrying download", accession)
             await _download_from_url(dataset_metadata_url, download_path, session)
 
-    async with aiofiles.open(download_path) as soft_file:
-        lines = await soft_file.readlines()
-        metadata = GEOparse.GEOparse.parse_metadata(lines)
+    with open(download_path) as soft_file:
+        metadata = GEOparse.GEOparse.parse_metadata(soft_file)
         return GEODataset(metadata) if accession.startswith("GSE") else GEOSample(metadata)
 
 

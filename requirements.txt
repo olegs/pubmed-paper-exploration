@@ -55,8 +55,8 @@ docker-pycreds==0.4.0
 docopt==0.6.2
 docstring_parser==0.16
 en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl
-en_core_sci_md==0.5.4
-en_ner_bionlp13cg_md==0.5.4
+en_core_sci_md @ https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.4/en_core_sci_md-0.5.4.tar.gz
+en_ner_bc5cdr_md @ https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.4/en_ner_bc5cdr_md-0.5.4.tar.gz
 eval_type_backport==0.2.0
 exceptiongroup==1.2.2
 executing==2.2.0
@@ -151,7 +151,6 @@ nest-asyncio==1.6.0
 networkx==3.4.2
 ninja==1.11.1.1
 nltk==3.9.1
-nmslib==2.1.2
 nmslib-metabrainz==2.1.3
 notebook==7.4.3
 notebook_shim==0.2.4

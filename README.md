@@ -48,7 +48,7 @@ mv gpl_platform_map.json src/model/gpl_platform_map.json
 ```bash
 git clone https://github.com/jetBrains-Research/pubtrends/
 cd pubtrends
-docker compose up -f docker-compose.fasttext -d
+docker compose -f docker-compose. fasttext up -d
 cd ..
 ```
 8. Launch the flask app

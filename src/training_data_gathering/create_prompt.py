@@ -12,7 +12,7 @@ from src.ingestion.download_related_paper_datasets import \
 from src.ingestion.download_samples import download_samples
 from src.model.geo_dataset import GEODataset
 from src.model.geo_sample import GEOSample
-from src.standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup, is_term_in_one_of_categories
+from src.standardization.mesh_vocabulary import build_mesh_lookup, is_term_in_one_of_categories
 
 
 async def download_samples_for_datasets(datasets: List[GEODataset]) -> List[GEOSample]:

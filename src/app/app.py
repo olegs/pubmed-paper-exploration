@@ -10,7 +10,7 @@ from src.visualization.visualize_clusters import visualize_clusters_html
 from src.visualization.get_topic_table import get_topic_table
 from src.config import config
 from src.exception.not_enough_datasets_error import NotEnoughDatasetsError
-from src.standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
+from src.standardization.mesh_vocabulary import build_mesh_lookup
 from src.ingestion.get_pubmed_ids import get_pubmed_ids, get_pubmed_ids_esearch
 import pickle
 from bokeh.embed import server_document

@@ -46,7 +46,7 @@ class ANGELFasttextMeshNormalizer(ANGELMeshNormalizer):
 
 
 if __name__ == "__main__":
-    from src.standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
+    from src.standardization.mesh_vocabulary import build_mesh_lookup
     mesh_lookup = build_mesh_lookup("desc2025.xml")
 
     mesh_id_map = {key.strip().lower(): entry.id

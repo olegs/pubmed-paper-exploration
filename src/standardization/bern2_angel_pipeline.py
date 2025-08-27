@@ -4,7 +4,7 @@ from typing import Dict
 from src.standardization.angel_normalizer import ANGELMeshNormalizer
 from src.utils.get_line_at_index import get_line_at_index
 from src.model.geo_dataset import GEO_DATASET_CHARCTERISTICS_STR_SEPARATOR
-from src.standardization.is_mesh_term_in_anatomy_or_disease import is_term_in_one_of_categories
+from src.standardization.mesh_vocabulary import is_term_in_one_of_categories
 
 
 class BERN2AngelPipeline(BERN2Pipeline):
@@ -70,7 +70,7 @@ class BERN2AngelPipeline(BERN2Pipeline):
 
 if __name__ == "__main__":
     import json
-    from src.standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
+    from src.standardization.mesh_vocabulary import build_mesh_lookup
     mesh_lookup = build_mesh_lookup("desc2025.xml")
     mesh_id_map = {entry.id: key.strip().lower()
                    for key, entry in mesh_lookup.items()}

@@ -1,4 +1,4 @@
-from src.standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
+from src.standardization.mesh_vocabulary import build_mesh_lookup
 import pandas as pd
 
 def is_synonym_valid(synonym, mesh_lookup):

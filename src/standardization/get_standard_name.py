@@ -31,7 +31,7 @@ def get_standard_name(name: str, resources: StandardizationResources) -> str | N
 
 
 if __name__ == "__main__":
-    from src.standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
+    from src.standardization.mesh_vocabulary import build_mesh_lookup
     from src.standardization.get_standard_name_spacy import create_entity_linking_pipeline_with_ner
     nlp = create_entity_linking_pipeline_with_ner()
     mesh_lookup = build_mesh_lookup("desc2025.xml")

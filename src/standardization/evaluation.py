@@ -6,7 +6,7 @@ import logging
 from src.training_data_gathering.validate_data import is_synonym_valid
 import pandas as pd
 from src.standardization.get_standard_name import get_standard_name
-from src.standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup, is_term_in_one_of_categories
+from src.standardization.mesh_vocabulary import build_mesh_lookup, is_term_in_one_of_categories
 from src.standardization.get_standard_name_spacy import create_entity_linking_pipeline_with_ner
 from src.standardization.standardization_resources import StandardizationResources
 from src.standardization.get_standard_name_gilda import get_standard_name_gilda

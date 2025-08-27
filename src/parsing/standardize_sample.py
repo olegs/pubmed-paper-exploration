@@ -69,7 +69,7 @@ def parse_sample(sample: GEOSample, ner_nen_pipeline: NER_NEN_Pipeline) -> Parse
 
 if __name__ == "__main__":
     from src.ingestion.download_geo_datasets import download_geo_dataset
-    from src.standardization.is_mesh_term_in_anatomy_or_disease import build_mesh_lookup
+    from src.standardization.mesh_vocabulary import build_mesh_lookup
     from src.standardization.get_standard_name_fasttext import FasttextNormalizer
     from src.standardization.ner_nen_pipeline import NER_NEN_Pipeline
     import os

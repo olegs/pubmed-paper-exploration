@@ -1,4 +1,4 @@
-from src.standardization.is_mesh_term_in_anatomy_or_disease import is_term_in_one_of_categories
+from src.standardization.mesh_vocabulary import is_term_in_one_of_categories
 
 
 class StandardizationResources:

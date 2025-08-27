@@ -11,10 +11,9 @@ from src.standardization.get_standard_name_spacy import create_entity_linking_pi
 from src.standardization.standardization_resources import StandardizationResources
 from src.standardization.get_standard_name_gilda import get_standard_name_gilda
 from src.standardization.get_standard_name_spacy import get_standard_name_spacy
-from src.standardization.get_standard_name_fasttext import FastTextParser, FasttextNormalizer
+from src.standardization.get_standard_name_fasttext import FasttextNormalizer
 from src.standardization.bern2_pipeline import get_standard_name_bern2, BERN2Recognizer
 from src.standardization.ner_nen_pipeline import NER_NEN_Pipeline
-from src.standardization.angel_normalizer import ANGELMeshNormalizer
 from src.standardization.bern2_angel_pipeline import BERN2AngelPipeline
 from tqdm import tqdm
 
@@ -201,7 +200,7 @@ if __name__ == "__main__":
             model, "gilda", x_full, y_full, mesh_term_to_id_map)
 
     if "fasttext" in args.pipelines:
-        fasttext_parser = FastTextParser(
+        fasttext_parser = FasttextNormalizer(
             "BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_lookup)
 
         def model(term): return fasttext_parser.get_standard_name(term)[0]
@@ -209,12 +208,16 @@ if __name__ == "__main__":
                  y_full, mesh_term_to_id_map)
 
     if "reranked_fasttext" in args.pipelines:
+        fasttext_parser = FasttextNormalizer(
+            "BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_lookup)
         def model(term): return fasttext_parser.get_standard_name_reranked(
             term)[0]
         evaluate(model, "reranked_fasttext", x_full,
                  y_full, mesh_term_to_id_map)
 
     if "gilda_plus_fasttext" in args.pipelines:
+        fasttext_parser = FasttextNormalizer(
+            "BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_lookup)
         def gilda_plus_fasttext(term):
             global mesh_lookup
             term = term.replace("_", " ")

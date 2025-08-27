@@ -44,11 +44,12 @@ python -m src.standardization.generate_ncbi_gene_map Homo_sapiens.gene_info gene
 R --no-save < get_gpl_names.R
 mv gpl_platform_map.json src/model/gpl_platform_map.json
 ```
-7. Clone [PubTrends](https://github.com/jetBrains-Research/pubtrends/) and launch the fasttext container
+7. Clone [PubTrends](https://github.com/jetBrains-Research/pubtrends/) and launch the fasttext container. Please wait until the embedding model is downloaded to .pubtrends/fasttext.
 ```bash
 git clone https://github.com/jetBrains-Research/pubtrends/
 cd pubtrends
-docker compose -f docker-compose. fasttext up -d
+mkdir ~/.pubtrends
+docker compose -f docker-compose.fasttext.yml up embeddings -d
 cd ..
 ```
 8. Launch the flask app
@@ -63,6 +64,8 @@ python -m bokeh serve --allow-websocket-origin=localhost --allow-websocket-origi
 ```bash
 docker compose up -d
 ```
+
+To run the evaluation (src/standardization/evaluation.py) script for various NER+NEN and NEN algorithms you need to make a copy of the fasttext model pubtrends in the root directory of this project. However, this step is not required to run the app.
 
 The app can now accessed at `localhost/app` on port 80.
 

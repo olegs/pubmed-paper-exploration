@@ -13,6 +13,8 @@ The app was built using [flask](https://flask.palletsprojects.com/en/stable/) an
 - pip
 - venv
 - Local [BERN2](https://github.com/dmis-lab/BERN2) instance. You can find the installation and launch instructions for BERN2 [here](https://github.com/dmis-lab/BERN2?tab=readme-ov-file#installing-bern2).
+- At least 64GB of RAM
+- NVIDIA GPU with at least 4GB of VRAM that supports CUDA
 
 
 

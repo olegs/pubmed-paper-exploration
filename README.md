@@ -70,5 +70,10 @@ The app can now accessed at `localhost/app` on port 80.
 - `BERN2.url`: URL to the BERN2 API endpoint
 - `BERN2.rate_limit`: Maximum number of requests per second to the BERN2 API endpoint
 - `search.backend`: Which API to use to search for papers. Can be either `pubtrends` or `esearch`. ESearch is generally faster.
+- `ANGEL.model_load_path`: Name on HuggingFace of the ANGEL model to use in the ANGEL normalizer
+- `ANGEL.model_token_path`: Name on HuggingFace of the tokenizer to use for ANGEL
+- `ANGEL.per_device_eval_batch_size`: Batch size of the ANGEL model
+- `ANGEL.num_beams`: Number of beams in ANGEL's beam search. Higher numbers of beams produce better results, but increase processing time.
+- `ANGEL.prefix_mention_is`: Whether the ANGEL model is prompted with "entity is"
 
 

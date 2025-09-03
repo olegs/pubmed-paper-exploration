@@ -1,6 +1,0 @@
-*.joblib
-benchmarks/
-model/
-logs/
-__pycache__/
-.venv

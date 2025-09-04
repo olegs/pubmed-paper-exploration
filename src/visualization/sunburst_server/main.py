@@ -1,33 +1,25 @@
-from random import random
+import pickle
 from typing import List
 
 from bokeh.layouts import row, column
 from bokeh.models import Select, MultiChoice, ColumnDataSource, CustomJS, Styles
-from bokeh.models.renderers.glyph_renderer import GlyphRenderer
-from bokeh.palettes import RdYlBu3
 from bokeh.plotting import curdoc
-import pickle
+
 from src.analysis.analysis_result import AnalysisResult
-from src.visualization.sunburst_server.plot_sunburst import SunburstPlot
-from src.visualization.sunburst_server.hierarchical_data_counter import HierarchicalDataCounter
 from src.visualization.sunburst_server.contains_name_at_level_filter import ContainsNameAtLevelFilter
+from src.visualization.sunburst_server.hierarchical_data_counter import HierarchicalDataCounter
+from src.visualization.sunburst_server.plot_sunburst import SunburstPlot
 from src.visualization.sunburst_server.value_in_cell_filter import AnyValueInCellFilter
 
 NUMBER_OF_LEVELS_TO_DISPLAY = int(2)
 
 
 def get_entity_name(hierarchy_col):
-    return hierarchy_col \
-        .replace("_hierarchy", "")\
-        .replace("_", " ")\
-        .title()
+    return hierarchy_col.replace("_hierarchy", "").replace("_", " ").title()
 
 
 def get_hierarchy_column_name(entity_name):
-    return entity_name\
-        .lower()\
-        .replace(" ", "_")\
-        + "_hierarchy"
+    return entity_name.lower().replace(" ", "_") + "_hierarchy"
 
 
 def flatten(l):
@@ -50,7 +42,8 @@ class InteractiveSunburst:
         self.zoom_filters = []
         self.value_filters = {}
         self.plot = SunburstPlot(
-            self.preprocess_entity_hierarchies(), self.get_title(), self.entity, lambda row: self._click_callback(row), lambda: self._zoom_out_callback())
+            self.preprocess_entity_hierarchies(), self.get_title(), self.entity, lambda row: self._click_callback(row),
+            lambda: self._zoom_out_callback())
 
         # A dummy data source for sending updated data to the frontend using
         # BokehJS events
@@ -89,7 +82,7 @@ class InteractiveSunburst:
         current_entity_column = get_hierarchy_column_name(self.entity)
         self.zoom_levels.append(new_zoom_level)
         self.zoom_filters.append(ContainsNameAtLevelFilter(
-            category, new_zoom_level-1, current_entity_column))
+            category, new_zoom_level - 1, current_entity_column))
         if self.is_zoom_valid():
             self._redraw()
         else:
@@ -182,7 +175,6 @@ with open(f"completed_jobs/{job_id}.pkl", "rb") as f:
 
 interactive_sunburst = InteractiveSunburst(results)
 
-
 selectable_entities = interactive_sunburst.get_selectable_entities()
 initial_col_name = get_hierarchy_column_name(selectable_entities[0])
 
@@ -229,7 +221,6 @@ def organism_multi_choice_on_change(attr, old, new):
 
 
 organism_multi_choice.on_change("value", organism_multi_choice_on_change)
-
 
 # put the button and plot in a layout and add to the document
 curdoc().add_root(row(interactive_sunburst.plot.plot, column(group_by_select,

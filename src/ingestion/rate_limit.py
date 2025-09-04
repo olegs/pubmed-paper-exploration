@@ -1,7 +1,7 @@
 # Credit: https://stackoverflow.com/a/64845203 and https://stackoverflow.com/a/43727014
 
-import time
 import threading
+import time
 
 
 # make it work nice across threads

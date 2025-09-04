@@ -1,6 +1,6 @@
 from typing import List, Dict, Set
+
 import spacy
-import scispacy.linking_utils
 from scispacy.linking import EntityLinker
 
 
@@ -20,7 +20,7 @@ def create_entity_linking_pipeline_with_ner(knowledge_base: str = "mesh") -> spa
     # the AbbreviationDetector pipe and setting resolve_abbreviations to True means
     # that linking will only be performed on the long form of abbreviations.
     nlp.add_pipe("scispacy_linker", config={
-                 "resolve_abbreviations": True, "linker_name": knowledge_base})
+        "resolve_abbreviations": True, "linker_name": knowledge_base})
     return nlp
 
 
@@ -90,7 +90,8 @@ def get_standard_name_spacy(name: str, nlp, mesh_lookup: Dict[str, Set[str]]) ->
 
 
 if __name__ == "__main__":
-    from src.standardization.mesh_vocabulary import build_mesh_lookup
+    from src.mesh.mesh_vocabulary import build_mesh_lookup
+
     nlp = create_entity_linking_pipeline_with_ner("mesh")
     mesh_lookup = build_mesh_lookup("desc2025.xml")
     print(get_standard_name_spacy("mouse fat", nlp, mesh_lookup))

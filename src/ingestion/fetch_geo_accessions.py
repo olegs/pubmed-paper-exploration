@@ -1,14 +1,16 @@
-import re
-import itertools
-from lxml import etree
-from typing import List
-import aiohttp
-from src.ingestion.rate_limit import check_limit
 import asyncio
+import itertools
+import re
+from typing import List
+
+import aiohttp
+from lxml import etree
+
+from src.ingestion.rate_limit import check_limit
 
 
 async def fetch_geo_accessions(
-    geo_ids: List[str], session: aiohttp.ClientSession
+        geo_ids: List[str], session: aiohttp.ClientSession
 ) -> List[str]:
     """
     Fetches GEO accessions for the given GEO IDs from the NCBI E-Utilities.
@@ -19,8 +21,8 @@ async def fetch_geo_accessions(
     """
     check_limit()
     async with session.get(
-        "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
-        params={"db": "gds", "id": ",".join(map(str, geo_ids))},
+            "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
+            params={"db": "gds", "id": ",".join(map(str, geo_ids))},
     ) as response:
         assert response.status == 200
         geo_summaries = await response.text()
@@ -32,7 +34,7 @@ async def fetch_geo_accessions(
 
 
 async def fetch_geo_accessions_europepmc(
-    pubmed_ids: List[str], session: aiohttp.ClientSession
+        pubmed_ids: List[str], session: aiohttp.ClientSession
 ) -> List[str]:
     """
     Fetches GEO accessions for several PubMed IDs from the EuropePMC database.
@@ -55,7 +57,7 @@ async def fetch_geo_accessions_europepmc(
 
 
 async def _fetch_geo_accession_batch_europepmc(
-    pubmed_ids: List[str], session: aiohttp.ClientSession
+        pubmed_ids: List[str], session: aiohttp.ClientSession
 ) -> List[str]:
     """
     Fetches GEO references in a list of papers (max 8 papers) from EuropePMC's
@@ -68,13 +70,13 @@ async def _fetch_geo_accession_batch_europepmc(
     """
     article_ids = ",".join([f"MED:{id}" for id in pubmed_ids])
     async with session.get(
-        f"https://www.ebi.ac.uk/europepmc/annotations_api/annotationsByArticleIds",
-        params={
-            "articleIds": article_ids,
-            "type": "Accession Numbers",
-            "subType": "geo",
-            "format": "xml"
-        },
+            f"https://www.ebi.ac.uk/europepmc/annotations_api/annotationsByArticleIds",
+            params={
+                "articleIds": article_ids,
+                "type": "Accession Numbers",
+                "subType": "geo",
+                "format": "xml"
+            },
     ) as pmc_response:
         assert pmc_response.status == 200
         pmc_response = await pmc_response.text()

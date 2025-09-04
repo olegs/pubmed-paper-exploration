@@ -1,17 +1,19 @@
-from typing import List
-from os import path
-import os
 import asyncio
 import concurrent.futures
+import os
+from os import path
+from typing import List
+
 import GEOparse
+import aiofiles
 import aiohttp
-from src.model.geo_dataset import GEODataset
-from src.model.geo_sample import GEOSample
-from src.ingestion.fetch_geo_ids import fetch_geo_ids
-from src.ingestion.fetch_geo_accessions import fetch_geo_accessions, fetch_geo_accessions_europepmc
+
 from src.config import config
 from src.exception.http_error import HttpError
-import aiofiles
+from src.ingestion.fetch_geo_accessions import fetch_geo_accessions, fetch_geo_accessions_europepmc
+from src.ingestion.fetch_geo_ids import fetch_geo_ids
+from src.model.geo_dataset import GEODataset
+from src.model.geo_sample import GEOSample
 
 download_folder = config.download_folder
 

@@ -1,4 +1,4 @@
-def get_line_at_index(text: str, index: int, separator: str="\n") -> str:
+def get_line_at_index(text: str, index: int, separator: str = "\n") -> str:
     """
     Returns the entire line containing a specific character index in a multi-line string.
 

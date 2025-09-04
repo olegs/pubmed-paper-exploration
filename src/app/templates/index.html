@@ -3,86 +3,89 @@
 {% block head_css_js %}{% endblock head_css_js %}
 {% block body %}
 
-<body>
-  <div class="container mt-3">
-    <div class="p-5 bg-body-tertiary rounded-3 mb-3" id="home-card">
-      <h1 class="text-body-emphasis">PubMed Dataset Visualizer</h1>
-      <p class="card-text">
-        This app visualizes the GEO datasets associated with a set of papers
-        in the PubMed database.
-      </p>
-      <p class="card-text">
-        Enter the IDs of papers you are interested in to get started.
-      </p>
-    </div>
-    <main>
-      <div class="card">
-        <div class="card-header">Enter PubMed IDs to explore</div>
-        <div class="card-body">
-          <form class="row g-3" action="{{ url_for('app.visualize_pubmed_ids') }}" method="post" id="id-form">
-            <input name="pubmed_ids" type="hidden" value="">
-            <div class="col-md-12 mb-1">
-              <div class="input-group">
-                <span class="input-group-text" id="basic-addon-1">Query</span>
-                <input name="query" type="text" class="form-control" placeholder="Enter PubMed search query"
-                  aria-label="Search query" aria-describedby="basic-addon-1" id="query-input" />
-              </div>
-            </div>
-            <div class="col-md-12">
-              <button class="btn btn-primary" type="submit" id="submit-button">
-                <span id="submit-button-label">Visualize</span>
-                <span id="submit-button-loading-indicator" class="loading-indicator">
+    <body>
+    <div class="container mt-3">
+        <div class="p-5 bg-body-tertiary rounded-3 mb-3" id="home-card">
+            <h1 class="text-body-emphasis">PubMed Dataset Visualizer</h1>
+            <p class="card-text">
+                This app visualizes the GEO datasets associated with a set of papers
+                in the PubMed database.
+            </p>
+            <p class="card-text">
+                Enter the IDs of papers you are interested in to get started.
+            </p>
+        </div>
+        <main>
+            <div class="card">
+                <div class="card-header">Enter PubMed IDs to explore</div>
+                <div class="card-body">
+                    <form class="row g-3" action="{{ url_for('app.visualize_pubmed_ids') }}" method="post" id="id-form">
+                        <input name="pubmed_ids" type="hidden" value="">
+                        <div class="col-md-12 mb-1">
+                            <div class="input-group">
+                                <span class="input-group-text" id="basic-addon-1">Query</span>
+                                <input name="query" type="text" class="form-control"
+                                       placeholder="Enter PubMed search query"
+                                       aria-label="Search query" aria-describedby="basic-addon-1" id="query-input"/>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <button class="btn btn-primary" type="submit" id="submit-button">
+                                <span id="submit-button-label">Visualize</span>
+                                <span id="submit-button-loading-indicator" class="loading-indicator">
                   <div class="spinner-border spinner-border-sm" role="status"></div>
                   <span role="status">Analyzing GEO datasets for the specified PubMed IDs. Please wait.</span>
                 </span>
-              </button>
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-          </form>
+        </main>
+    </div>
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="import-success-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <svg class="bd-placeholder-img rounded me-2" width="20" height="20" xmlns="http://www.w3.org/2000/svg"
+                     aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false">
+                    <rect width="100%" height="100%" fill="#198754"></rect>
+                </svg>
+                <strong class="me-auto">PubMed IDs Imported Sucessfully</strong>
+                <small>now</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="toast-full-message">
+                Successfully imported # PubMed IDs from
+                <file>.
+            </div>
         </div>
-      </div>
-    </main>
-  </div>
-  <div class="toast-container position-fixed bottom-0 end-0 p-3">
-    <div id="import-success-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="toast-header">
-        <svg class="bd-placeholder-img rounded me-2" width="20" height="20" xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false">
-          <rect width="100%" height="100%" fill="#198754"></rect>
-        </svg>
-        <strong class="me-auto">PubMed IDs Imported Sucessfully</strong>
-        <small>now</small>
-        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-      </div>
-      <div class="toast-body" id="toast-full-message">
-        Successfully imported # PubMed IDs from <file>.
-      </div>
     </div>
-  </div>
-  <div class="toast-container position-fixed bottom-0 end-0 p-3">
-    <div id="error-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="toast-header">
-        <svg class="bd-placeholder-img rounded me-2" width="20" height="20" xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false">
-          <rect width="100%" height="100%" fill="#dc3545"></rect>
-        </svg>
-        <strong class="me-auto" id="error-short-message">PubMed IDs Imported Sucessfully</strong>
-        <small>now</small>
-        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-      </div>
-      <div class="toast-body" id="error-full-message">
-        Successfully imported # PubMed IDs from <file>.
-      </div>
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="error-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <svg class="bd-placeholder-img rounded me-2" width="20" height="20" xmlns="http://www.w3.org/2000/svg"
+                     aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false">
+                    <rect width="100%" height="100%" fill="#dc3545"></rect>
+                </svg>
+                <strong class="me-auto" id="error-short-message">PubMed IDs Imported Sucessfully</strong>
+                <small>now</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="error-full-message">
+                Successfully imported # PubMed IDs from
+                <file>.
+            </div>
+        </div>
     </div>
-  </div>
-  <script src="{{ url_for('app.static',filename='index.js') }}"></script>
-  <script>
-    {% if short_error_message and full_error_message %}
-    triggerErrorToast("{{short_error_message}}", "{{full_error_message}}")
-    {% endif %}
-    {% if n_clusters %}
-    const nClustersSelect = document.getElementById("n-clusters-select")
-    nClustersSelect.value = "{{n_clusters}}"
-    {% endif %}
-  </script>
-</body>
+    <script src="{{ url_for('app.static',filename='index.js') }}"></script>
+    <script>
+        {% if short_error_message and full_error_message %}
+            triggerErrorToast("{{short_error_message}}", "{{full_error_message}}")
+        {% endif %}
+        {% if n_clusters %}
+            const nClustersSelect = document.getElementById("n-clusters-select")
+            nClustersSelect.value = "{{n_clusters}}"
+        {% endif %}
+    </script>
+    </body>
 {% endblock body %}

@@ -1,21 +1,21 @@
 from typing import List, Tuple
-from operator import itemgetter
+
+import numpy as np
+from scipy.sparse import spmatrix
 from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score
 from sklearn.decomposition import TruncatedSVD
+from sklearn.metrics import silhouette_score
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import Normalizer
-from scipy.sparse import spmatrix
-import numpy as np
-from src.exception.not_enough_datasets_error import NotEnoughDatasetsError
-from src.config import config, logger
 
+from src.config import config, logger
+from src.exception.not_enough_datasets_error import NotEnoughDatasetsError
 
 n_topic_words = config.topic_words
 
 
 def get_clusters_top_terms(
-    cluster_assignments: List[int], vocabulary, corpus_counts, n_topic_words,
+        cluster_assignments: List[int], vocabulary, corpus_counts, n_topic_words,
 ) -> List[List[str]]:
     """
     Identifies key descriptive words for each cluster by analyzing the
@@ -77,7 +77,7 @@ def sort_cluster_labels(cluster_assignments: np.array) -> np.array:
     cluster_labels, counts = np.unique(cluster_assignments, return_counts=True)
     cluster_labels_sorted = cluster_labels[np.argsort(-counts)]
     cluster_ranks = {cluster_label: rank for rank,
-                     cluster_label in enumerate(cluster_labels_sorted)}
+    cluster_label in enumerate(cluster_labels_sorted)}
     return np.array([cluster_ranks[cluster_assignment] for cluster_assignment in cluster_assignments])
 
 

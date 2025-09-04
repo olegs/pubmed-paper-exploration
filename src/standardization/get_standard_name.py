@@ -1,5 +1,5 @@
-from typing import Dict, Set
 from functools import lru_cache
+
 from src.standardization.get_standard_name_gilda import get_standard_name_gilda
 from src.standardization.get_standard_name_spacy import get_standard_name_spacy
 from src.standardization.gilda_spacy_resources import GildaSpacyResources
@@ -32,8 +32,9 @@ def get_standard_name(name: str, resources: GildaSpacyResources) -> str | None:
 
 
 if __name__ == "__main__":
-    from src.standardization.mesh_vocabulary import build_mesh_lookup
+    from src.mesh.mesh_vocabulary import build_mesh_lookup
     from src.standardization.get_standard_name_spacy import create_entity_linking_pipeline_with_ner
+
     nlp = create_entity_linking_pipeline_with_ner()
     mesh_lookup = build_mesh_lookup("desc2025.xml")
     resources = GildaSpacyResources(mesh_lookup, nlp)

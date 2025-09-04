@@ -1,10 +1,13 @@
-from src.standardization.mesh_vocabulary import build_mesh_lookup
 import pandas as pd
+
+from src.mesh.mesh_vocabulary import build_mesh_lookup
+
 
 def is_synonym_valid(synonym, mesh_lookup):
     if synonym in ["UNKNOWN", "whole organism"]:
         return True
     return synonym.strip().lower() in mesh_lookup
+
 
 if __name__ == "__main__":
     df = pd.read_csv("test_synonyms.csv")

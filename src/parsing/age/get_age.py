@@ -1,7 +1,8 @@
-from typing import Tuple, List
 import re
-from src.model.geo_sample import GEOSample
+from typing import Tuple, List
+
 from src.model.geo_dataset import GEODataset
+from src.model.geo_sample import GEOSample
 from src.parsing.age.extract_age import extract_age, normalize_to_years
 
 
@@ -49,5 +50,5 @@ def get_age(sample: GEOSample) -> float | Tuple[float, float] | None:
     return normalize_to_years(age, unit) if age is not None else None
 
 
-def get_sample_ages(dataset: GEODataset) -> List[float| Tuple[float, float] | None]:
+def get_sample_ages(dataset: GEODataset) -> List[float | Tuple[float, float] | None]:
     return [get_age(sample) for sample in dataset.samples]

@@ -1,111 +1,116 @@
-{% extends "base.html" %} {% block title %}PubMed Dataset Explorer - Visualization{% endblock title %}
+{% extends "base.html" %}
+{% block title %}PubMed Dataset Explorer - Visualization{% endblock title %}
 {% block head_css_js %}
-<script src="{{ url_for('app.static',filename='datasetTable.js') }}"></script>
-<script type="text/javascript" src="/static/js/bokeh.min.js?v=54230d5bae06805e980b1e9c2f283cb7211714250a6ca620e2b7284d537903673502717d41126c6177289aee62adad252e78ab0b72b51596e7cd16435bb78e4b"></script>
-<script type="text/javascript" src="/static/js/bokeh-gl.min.js?v=515fb88e02db1c83a7355899f0034a2af078f7a8f8bf6117da89f1848427c44347afa84d6137b948a24e0e238ee2c967e8dcd01c328027d54ced9d3ccc73331d"></script>
-<script type="text/javascript" src="/static/js/bokeh-widgets.min.js?v=d5b821e8717b837fe44619b82717fc30e3d8f1bcca5fb3a6a9535b1f0cb6795a949247e44157319518324ad9ccb4e790d2f591cf19f1ee885e38e6ad06d951fd"></script>
-<script type="text/javascript" src="/static/js/bokeh-tables.min.js?v=8e6afd489317749752767572f2a6ad77bec29bee73c7ef922f2fc83b5af1e50639b886abfdf2d35179ab14ebfc5f9a8f7d319fdbfe84d900a0409191d94192fc"></script>
-<script type="text/javascript" src="/static/js/bokeh-mathjax.min.js?v=9dcfcc1bd398c3920f4252b5d60e4ab3947ca1d3bb486f809f0b815dbfa84c8723b4be6fa13ea5c265769af4a1a281108282ff638bcb3fc95a1fa88a7bf07421"></script>
-<script type="text/javascript">
-    Bokeh.set_log_level("info");
-</script>
-{% endblock head_css_js%}
+    <script src="{{ url_for('app.static',filename='datasetTable.js') }}"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.6.3.min.js"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.6.3.min.js"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.6.3.min.js"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-gl-3.6.3.min.js"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-3.6.3.min.js"
+            crossorigin="anonymous"></script>
+{% endblock head_css_js %}
+
 {% block body %}
-
-<body>
-  <nav class="navbar navbar-expand-lg bg-body-tertiary" style="--bs-breadcrumb-divider: '>';">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="{{ url_for('app.index') }}">PubMed Dataset Explorer</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item">{{ n_ids }} PubMed IDs</li>
-          <li class="breadcrumb-item">{{ n_datasets }} GEO Datasets</li>
-        </ol>
-      </div>
-    </div>
-  </nav>
-  <nav>
-    <div class="nav nav-tabs" id="nav-tab" role="tablist">
-      <button class="nav-link active" id="nav-datasets-tab" data-bs-toggle="tab" data-bs-target="#nav-datasets"
-        type="button" role="tab" aria-controls="nav-datasets" aria-selected="true">
-        <span class="tab-title">Datasets</span>
-        <span class="tab-number">{{ n_datasets }}</span> datasets
-      </button>
-      <button class="nav-link" id="nav-clustering-tab" data-bs-toggle="tab" data-bs-target="#nav-clustering"
-        type="button" role="tab" aria-controls="nav-clustering" aria-selected="false">
-        <span class="tab-title">Clustering</span>
-        <span class="tab-number">{{ n_clusters }}</span> clusters
-      </button>
-    </div>
-  </nav>
-  <div class="tab-content" id="nav-tabContent">
-    <div class="tab-pane fade show active" id="nav-datasets" role="tabpanel" aria-labelledby="nav-datasets-tab">
-      {{ sunburst_plot | safe }}
-      <div id="sunburst-container">
-
-      </div>
-      <table id="datasets-table" class="table display table-hover">
-        <thead>
-          <th scope="col">Accession</th>
-          <th scope="col">Title</th>
-          <th scope="col">Organism</th>
-          <th scope="col">Type</th>
-          <th scope="col"># Samples</th>
-          <th scope="col"></th>
-        </thead>
-      </table>
-      <script>
-        let geo_datasets = {{ datasets_json | tojson | safe }};
-      </script>
-    </div>
-    <div class="tab-pane fade" id="nav-clustering" role="tabpanel" aria-labelledby="nav-clustering-tab">
-      <main class="container mt-3">
-        <div class="card mb-3">
-          <div class="card-header">Clustering</div>
-          <div class="card-body">
-            <strong>Dataset similarity</strong>
-            <p>Similar datasets are located close to each other. <br> The color of a point represnts the topic of the
-              dataset.</p>
-            <div class="graph">
-              {{ clustering_html | safe }}
+    <body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary" style="--bs-breadcrumb-divider: '>';">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('app.index') }}">PubMed Dataset Explorer</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">{{ n_ids }} PubMed IDs</li>
+                    <li class="breadcrumb-item">{{ n_datasets }} GEO Datasets</li>
+                </ol>
             </div>
-          </div>
         </div>
-        <div class="card">
-          <div class="card-header">Topics</div>
-          <div class="card-body">
-            <strong>Topics</strong>
-            <p>A topic is a collection of datasets that focus on a common subject, have elements in common etc.<br>
-              Topics are determined based on text similarity.</p>
-            <table id="topics-table" class="table display">
-              <thead>
-                <th scope="col">#</th>
-                <th scope="col">Datasets</th>
-                <th scope="col">Topics</th>
-              </thead>
-              <tbody>
-                {% for index, datasets, color, topics in topic_table %}
-                <tr scope="row">
-                  <td>{{ index }} <i class="fa-solid fa-circle" style="color: {{ color }};"></i></td>
-                  <td>{{ datasets }}</td>
-                  <td>{{ topics }}</td>
-                </tr>
-                {% endfor %} data: geo_datasets,
-                columns: [
-                { data: 'id' },
-                { data: 'title' },
-                ]
-              </tbody>
+    </nav>
+    <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <button class="nav-link active" id="nav-datasets-tab" data-bs-toggle="tab" data-bs-target="#nav-datasets"
+                    type="button" role="tab" aria-controls="nav-datasets" aria-selected="true">
+                <span class="tab-title">Datasets</span>
+                <span class="tab-number">{{ n_datasets }}</span> datasets
+            </button>
+            <button class="nav-link" id="nav-clustering-tab" data-bs-toggle="tab" data-bs-target="#nav-clustering"
+                    type="button" role="tab" aria-controls="nav-clustering" aria-selected="false">
+                <span class="tab-title">Clustering</span>
+                <span class="tab-number">{{ n_clusters }}</span> clusters
+            </button>
+        </div>
+    </nav>
+    <div class="tab-content" id="nav-tabContent">
+        <div class="tab-pane fade show active" id="nav-datasets" role="tabpanel" aria-labelledby="nav-datasets-tab">
+            {{ sunburst_plot | safe }}
+            <div id="sunburst-container">
+
+            </div>
+            <table id="datasets-table" class="table display table-hover">
+                <thead>
+                <th scope="col">Accession</th>
+                <th scope="col">Title</th>
+                <th scope="col">Organism</th>
+                <th scope="col">Type</th>
+                <th scope="col"># Samples</th>
+                <th scope="col"></th>
+                </thead>
             </table>
-            <script>let topic_table = new DataTable('#topics-table');</script>
-          </div>
+            <script>
+                let geo_datasets = {{ datasets_json | tojson | safe }};
+            </script>
         </div>
-      </main>
+        <div class="tab-pane fade" id="nav-clustering" role="tabpanel" aria-labelledby="nav-clustering-tab">
+            <main class="container mt-3">
+                <div class="card mb-3">
+                    <div class="card-header">Clustering</div>
+                    <div class="card-body">
+                        <strong>Dataset similarity</strong>
+                        <p>Similar datasets are located close to each other. <br> The color of a point represnts the
+                            topic of the
+                            dataset.</p>
+                        <div class="graph">
+                            {{ clustering_html | safe }}
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Topics</div>
+                    <div class="card-body">
+                        <strong>Topics</strong>
+                        <p>A topic is a collection of datasets that focus on a common subject, have elements in common
+                            etc.<br>
+                            Topics are determined based on text similarity.</p>
+                        <table id="topics-table" class="table display">
+                            <thead>
+                            <th scope="col">#</th>
+                            <th scope="col">Datasets</th>
+                            <th scope="col">Topics</th>
+                            </thead>
+                            <tbody>
+                            {% for index, datasets, color, topics in topic_table %}
+                                <tr scope="row">
+                                    <td>{{ index }} <i class="fa-solid fa-circle" style="color: {{ color }};"></i></td>
+                                    <td>{{ datasets }}</td>
+                                    <td>{{ topics }}</td>
+                                </tr>
+                            {% endfor %} data: geo_datasets,
+                            columns: [
+                            { data: 'id' },
+                            { data: 'title' },
+                            ]
+                            </tbody>
+                        </table>
+                        <script>let topic_table = new DataTable('#topics-table');</script>
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
-  </div>
-</body>
+    </body>
 {% endblock body %}

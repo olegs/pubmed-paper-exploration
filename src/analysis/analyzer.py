@@ -1,24 +1,25 @@
-from typing import List, Dict
 import time
+from typing import List, Dict
+
+import pandas as pd
 from sklearn.decomposition import TruncatedSVD
+from sklearn.manifold import TSNE
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import Normalizer
-from sklearn.manifold import TSNE
+from tqdm import tqdm
+
+from src.analysis.analysis_result import AnalysisResult
+from src.analysis.cluster import auto_cluster, get_clusters_top_terms
+from src.analysis.get_term_hierarchy import get_hierarchy
+from src.analysis.vectorize_datasets import vectorize_datasets
+from src.config import config
+from src.config import logger
 from src.ingestion.download_geo_datasets import download_geo_datasets
 from src.ingestion.download_samples import download_samples_for_datasets
-from src.analysis.vectorize_datasets import vectorize_datasets
-from src.analysis.cluster import auto_cluster, get_clusters_top_terms
-from src.analysis.analysis_result import AnalysisResult
-from src.config import logger
-from src.config import config
 from src.model.geo_dataset import GEODataset
-from src.standardization.bern2_pipeline import BERN2Error
-from src.standardization.bern2_angel_pipeline import BERN2AngelPipeline
-from src.analysis.standardization_resources import StandardizationResources
 from src.model.geo_sample import GEOSample
-from src.analysis.get_term_hierarchy import get_hierarchy
-import pandas as pd
-from tqdm import tqdm
+from src.standardization.bern2_pipeline import BERN2Error, BERN2Pipeline
+from src.standardization.standardization_resources import StandardizationResources
 
 
 class DatasetAnalyzer:
@@ -38,7 +39,12 @@ class DatasetAnalyzer:
         if mesh_lookup:
             self.standardization_resources = StandardizationResources(
                 mesh_lookup)
-            self.bern2_pipeline = BERN2AngelPipeline(mesh_lookup, ncbi_gene, must_normalize_to_mesh=True, url=config.bern2_url)
+            # self.bern2_pipeline = BERN2AngelPipeline(mesh_lookup, ncbi_gene, must_normalize_to_mesh=True,
+            #                                          url=config.bern2_url)
+            # TODO: switch to BERN2AngelPipeline later
+            self.bern2_pipeline = BERN2Pipeline(mesh_lookup, ncbi_gene,
+                                                url=config.bern2_url)
+
 
     def analyze_paper_datasets(self, pubmed_ids: List[int]) -> AnalysisResult:
         """
@@ -46,7 +52,7 @@ class DatasetAnalyzer:
         clusters them.
 
         :param pumbed_ids: List of PubMed IDs for which to analyze datasets.
-        :return: An instance of AnalysisResult containg the results.
+        :return: An instance of AnalysisResult containing the results.
         """
 
         datasets = download_geo_datasets(pubmed_ids)
@@ -58,7 +64,7 @@ class DatasetAnalyzer:
         Analyzes the datasets and clusters them.
 
         :param datasets: List of GEODataset objects.
-        :return: An instance of AnalysisResult containg the results.
+        :return: An instance of AnalysisResult containing the results.
         """
         embeddings, vocabulary, corpus_counts = vectorize_datasets(datasets)
         embeddings_svd = self.svd.fit_transform(embeddings)
@@ -68,8 +74,7 @@ class DatasetAnalyzer:
                     explained_variance * 100)
 
         begin = time.time()
-        cluster_assignments, silhouette_score, n_clusters = auto_cluster(
-            embeddings_svd)
+        cluster_assignments, silhouette_score, n_clusters = auto_cluster(embeddings_svd)
         end = time.time()
         self.n_clusters = n_clusters
         logger.info("Clustering time: %.2fs", end - begin)
@@ -83,7 +88,8 @@ class DatasetAnalyzer:
             datasets)) if self.mesh_lookup else None
 
         return AnalysisResult(
-            datasets, n_clusters, cluster_assignments, cluster_topics, tsne_embeddings_2d, silhouette_score, unique_characteristics_values, None
+            datasets, n_clusters, cluster_assignments, cluster_topics, tsne_embeddings_2d, silhouette_score,
+            unique_characteristics_values, None
         )
 
     def standardize_unique_characteristics_values(self, datasets: List[GEODataset]) -> pd.DataFrame:
@@ -96,7 +102,6 @@ class DatasetAnalyzer:
         for dataset in tqdm(datasets):
             entities_per_dataset["id"].append(dataset.id)
             dataset_with_characteristics_str = dataset.get_str_with_sample_characteristics()
-            entities = []
             try:
                 entities = self.bern2_pipeline(dataset_with_characteristics_str)
             except BERN2Error as e:
@@ -106,23 +111,24 @@ class DatasetAnalyzer:
                 entities = []
             entities_per_dataset["entities"].append(entities)
 
-
-        
         return self._pivot_by_entity(entities_per_dataset)
 
     def _pivot_by_entity(self, entities_per_dataset):
-        entity_types = list({entity.entity_class for entity_list in entities_per_dataset["entities"] for entity in entity_list})
+        entity_types = list(
+            {entity.entity_class for entity_list in entities_per_dataset["entities"] for entity in entity_list})
         for entity_type in entity_types:
             entities_per_dataset[f"{entity_type}"] = []
             entities_per_dataset[f"{entity_type}_standardized"] = []
             entities_per_dataset[f"{entity_type}_ontology"] = []
             entities_per_dataset[f"{entity_type}_hierarchy"] = []
-        
+
         for entity_list in entities_per_dataset["entities"]:
             for entity_type in entity_types:
                 mentions = list(filter(lambda e: e.entity_class == entity_type, entity_list))
                 seen_standard_names = set()
-                mentions = [mention for mention in mentions if mention.standard_name not in seen_standard_names and not seen_standard_names.add(mention.standard_name)]
+                mentions = [mention for mention in mentions if
+                            mention.standard_name not in seen_standard_names and not seen_standard_names.add(
+                                mention.standard_name)]
                 entities_per_dataset[f"{entity_type}"].append(
                     [mention.mention for mention in mentions]
                 )
@@ -135,13 +141,10 @@ class DatasetAnalyzer:
                 entities_per_dataset[f"{entity_type}_hierarchy"].append(
                     [get_hierarchy(mention.standard_name, self.standardization_resources) for mention in mentions]
                 )
-        
+
         del entities_per_dataset["entities"]
 
-        
         return pd.DataFrame(entities_per_dataset)
-
-
 
     def normalize(self, characteristic: str, value: str):
         string_to_normalize = f"{characteristic}: {value}"
@@ -154,7 +157,8 @@ class DatasetAnalyzer:
                             "cell type", "tissue", "tissues" "cell", "cells", "healthy", "normal"]
         entities = self.normalizers[characteristic](string_to_normalize)
         entities = [
-            entity for entity in entities if (entity.mention not in invalid_mentions) and (entity.standard_name not in invalid_mentions)]
+            entity for entity in entities if
+            (entity.mention not in invalid_mentions) and (entity.standard_name not in invalid_mentions)]
 
         self.normalization_cache[string_to_normalize] = entities[0].standard_name if entities else None
         return self.normalization_cache[string_to_normalize]
@@ -189,7 +193,7 @@ class DatasetAnalyzer:
 
         return result
 
-    def get_standardized_characeristics_values(self, sample: GEOSample):
+    def get_standardized_characteristics_values(self, sample: GEOSample):
         standardized_sample_dict = {}
         standardized_sample_dict["id"] = sample.accession
         standardized_sample_dict["dataset_id"] = sample.dataset_id

@@ -70,8 +70,7 @@ def build_mesh_lookup(xml_file_path: str) -> Dict[str, MeshEntry]:
                     mesh_lookup[term_str] = MeshEntry(term_str, id_numbers[0])
                 mesh_lookup[term_str].tree_numbers.update(tree_numbers)
 
-        print(
-            f"Lookup built successfully. Found {len(mesh_lookup)} unique terms.")
+        print(f"Lookup built successfully. Found {len(mesh_lookup)} unique terms.")
         return mesh_lookup
 
     except FileNotFoundError:
@@ -146,28 +145,20 @@ if __name__ == "__main__":
 
         # Example 1: A term that IS in the Anatomy category
         anatomy_term = "Femur"
-        is_anatomy = is_mesh_term_in_anatomy_or_cancer(
-            anatomy_term, local_mesh_db)
-        print(
-            f"Is '{anatomy_term}' an anatomy or disease term? {'Yes' if is_anatomy else 'No'}\n")
+        is_anatomy = is_mesh_term_in_anatomy_or_cancer(anatomy_term, local_mesh_db)
+        print(f"Is '{anatomy_term}' an anatomy or disease term? {'Yes' if is_anatomy else 'No'}\n")
 
         # Example 2: A synonym that IS in the Anatomy category
         anatomy_term_2 = "Blood"  # A synonym for Cornea
-        is_anatomy_2 = is_mesh_term_in_anatomy_or_cancer(
-            anatomy_term_2, local_mesh_db)
-        print(
-            f"Is '{anatomy_term_2}' an anatomy term? {'Yes' if is_anatomy_2 else 'No'}\n")
+        is_anatomy_2 = is_mesh_term_in_anatomy_or_cancer(anatomy_term_2, local_mesh_db)
+        print(f"Is '{anatomy_term_2}' an anatomy term? {'Yes' if is_anatomy_2 else 'No'}\n")
 
         # Example 3: A term that IS NEITHER in the Anatomy category nor Disease category
         non_anatomy_term = "Aspirin"
-        is_anatomy_3 = is_mesh_term_in_anatomy_or_cancer(
-            non_anatomy_term, local_mesh_db)
-        print(
-            f"Is '{non_anatomy_term}' an anatomy term? {'Yes' if is_anatomy_3 else 'No'}\n")
+        is_anatomy_3 = is_mesh_term_in_anatomy_or_cancer(non_anatomy_term, local_mesh_db)
+        print(f"Is '{non_anatomy_term}' an anatomy term? {'Yes' if is_anatomy_3 else 'No'}\n")
 
         # Example 4: A term that IS in the Disease category
         non_anatomy_term = "Breast Cancer"
-        is_anatomy_4 = is_mesh_term_in_anatomy_or_cancer(
-            non_anatomy_term, local_mesh_db)
-        print(
-            f"Is '{non_anatomy_term}' an anatomy term? {'Yes' if is_anatomy_4 else 'No'}\n")
+        is_anatomy_4 = is_mesh_term_in_anatomy_or_cancer(non_anatomy_term, local_mesh_db)
+        print(f"Is '{non_anatomy_term}' an anatomy term? {'Yes' if is_anatomy_4 else 'No'}\n")

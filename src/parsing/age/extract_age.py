@@ -1,5 +1,6 @@
 import re
 from typing import Tuple
+
 INF_AGE = 130
 MIN_AGE = 0
 
@@ -48,7 +49,7 @@ def extract_age(age_str: str, normalize=True) -> float | Tuple[float, float] | N
     is_greater_than_age, age_range = try_extract_greater_than_age(age_str)
     if is_greater_than_age:
         return age_range
-    
+
     # Handle <60
     is_less_than_age, age_range = try_extract_less_than_age(age_str)
     if is_less_than_age:
@@ -58,7 +59,6 @@ def extract_age(age_str: str, normalize=True) -> float | Tuple[float, float] | N
     if is_age_plus_unit:
         return age
 
-    
     return None
 
 

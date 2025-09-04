@@ -1,24 +1,23 @@
-import traceback
+import asyncio
+import csv
 import json
-import uuid
-import os.path as path
 import os
-from flask import Flask, render_template, request, abort, Blueprint, url_for
-from src.analysis.analyzer import DatasetAnalyzer
+import os.path as path
+import pickle
+import uuid
+
+from bokeh.embed import server_document
+from flask import Flask, render_template, request, abort, Blueprint, redirect
+from flask_cors import CORS, cross_origin
+
 from src.analysis.analysis_result import AnalysisResult
-from src.visualization.visualize_clusters import visualize_clusters_html
-from src.visualization.get_topic_table import get_topic_table
+from src.analysis.analyzer import DatasetAnalyzer
 from src.config import config
 from src.exception.not_enough_datasets_error import NotEnoughDatasetsError
-from src.standardization.mesh_vocabulary import build_mesh_lookup
 from src.ingestion.get_pubmed_ids import get_pubmed_ids, get_pubmed_ids_esearch
-import pickle
-from bokeh.embed import server_document
-from flask_cors import CORS, cross_origin
-from bokeh.embed import server_document
-import csv
-import asyncio
-
+from src.mesh.mesh_vocabulary import build_mesh_lookup
+from src.visualization.get_topic_table import get_topic_table
+from src.visualization.visualize_clusters import visualize_clusters_html
 
 app = Flask(__name__)
 cors = CORS(app, origins=["http://localhost:5006"])
@@ -28,11 +27,10 @@ bp = Blueprint('app', __name__,
                template_folder='templates',
                static_folder="static")
 
-
 svd_dimensions = config.svd_dimensions
 mesh_lookup = build_mesh_lookup("desc2025.xml")
 ncbi_gene = {}
-with open("gene_ontology_map.json") as f:
+with open("resources/gene_ontology_map.json") as f:
     ncbi_gene = json.load(f)
 analyzer = DatasetAnalyzer(svd_dimensions, mesh_lookup, ncbi_gene)
 get_pubmed_ids = get_pubmed_ids if config.search_backend == "pubtrends" else get_pubmed_ids_esearch
@@ -49,7 +47,7 @@ def save_result(result):
     job_id = str(uuid.uuid4())
     with open(f"completed_jobs/{job_id}.pkl", "wb") as f:
         pickle.dump(result, f)
-    result.df.to_csv(f"completed_jobs/{job_id}_df.csv", quotechar='"', quoting=csv.QUOTE_NONNUMERIC) 
+    result.df.to_csv(f"completed_jobs/{job_id}_df.csv", quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
     if result.samples:
         result.samples.to_csv(f"completed_jobs/{job_id}_samples.csv")
     return job_id
@@ -155,8 +153,8 @@ def visualize_pubmed_ids():
             short_error_message="Too few PubMed IDs",
             full_error_message="Not enough datasests are associated with the PubMed IDs. Please add more PubMed IDs.",
         ), 400
-    except Exception:
-        app.logger.error(traceback.format_exc())
+    except Exception as e:
+        app.logger.error(e)
         return render_template(
             "index.html",
             pubmed_ids=pubmed_ids,
@@ -166,3 +164,20 @@ def visualize_pubmed_ids():
 
 
 app.register_blueprint(bp, url_prefix='/app')
+
+
+# Convenience: if user opens the root URL, redirect to the blueprint's index
+@app.route("/")
+def root_redirect():
+    return redirect("/app/")
+
+
+if __name__ == "__main__":
+    # Allow overriding host/port/debug via environment variables
+    host = os.environ.get("FLASK_HOST", "0.0.0.0")
+    port = int(os.environ.get("FLASK_PORT", "5000"))
+    debug_env = os.environ.get("FLASK_DEBUG", "").lower()
+    debug = debug_env in ("1", "true", "yes", "on")
+
+    # Start the built-in development server
+    app.run(host=host, port=port, debug=debug, threaded=True)

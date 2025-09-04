@@ -1,4 +1,4 @@
-from src.standardization.mesh_vocabulary import is_term_in_one_of_categories
+from src.mesh.mesh_vocabulary import is_term_in_one_of_categories
 
 
 class StandardizationResources:
@@ -21,5 +21,6 @@ class StandardizationResources:
         self.mesh_tree_number_to_term_map = {}
         for term, entry in self.mesh_lookup.items():
             for tree_number in entry.tree_numbers:
-                if tree_number not in self.mesh_tree_number_to_term_map or len(term) < len(self.mesh_tree_number_to_term_map[tree_number]):
+                if tree_number not in self.mesh_tree_number_to_term_map or len(term) < len(
+                        self.mesh_tree_number_to_term_map[tree_number]):
                     self.mesh_tree_number_to_term_map[tree_number] = term

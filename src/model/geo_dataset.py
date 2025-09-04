@@ -1,13 +1,16 @@
-from typing import List, Dict
-from src.model.geo_sample import GEOSample
-from dateutil.parser import parse as parse_date
 import json
+from typing import List, Dict
+
+from dateutil.parser import parse as parse_date
+
+from src.model.geo_sample import GEOSample
 
 platform_map = None
-with open("src/model/gpl_platform_map.json") as f:
+with open("resources/gpl_platform_map.json") as f:
     platform_map = json.load(f)
 
 GEO_DATASET_CHARCTERISTICS_STR_SEPARATOR = " ; "
+
 
 class GEODataset:
     def __init__(self, metadata: dict[str, List[str]]):
@@ -44,7 +47,8 @@ class GEODataset:
             return []
         else:
             return list(set(
-                sample.characteristics[characteristic] for sample in self.samples if characteristic in sample.characteristics
+                sample.characteristics[characteristic] for sample in self.samples if
+                characteristic in sample.characteristics
             ))
 
     def __str__(self):
@@ -58,20 +62,20 @@ class GEODataset:
 
     def __eq__(self, other):
         return (
-            self.title == other.title
-            and self.experiment_type == other.experiment_type
-            and self.summary == other.summary
-            and set(self.organisms) == set(other.organisms)
-            and self.overall_design == other.overall_design
-            and set(self.pubmed_ids) == set(other.pubmed_ids)
+                self.title == other.title
+                and self.experiment_type == other.experiment_type
+                and self.summary == other.summary
+                and set(self.organisms) == set(other.organisms)
+                and self.overall_design == other.overall_design
+                and set(self.pubmed_ids) == set(other.pubmed_ids)
         )
 
     def is_not_superseries(self):
         return (
-            self.summary
-            != "This SuperSeries is composed of the SubSeries listed below."
+                self.summary
+                != "This SuperSeries is composed of the SubSeries listed below."
         )
-    
+
     def get_str_with_sample_characteristics(self):
         string = f"Title: {self.title}{GEO_DATASET_CHARCTERISTICS_STR_SEPARATOR}Experiment type: {self.experiment_type}{GEO_DATASET_CHARCTERISTICS_STR_SEPARATOR}Overall design: {self.overall_design}{GEO_DATASET_CHARCTERISTICS_STR_SEPARATOR}"
         string += self._get_sample_characteristics_str(GEO_DATASET_CHARCTERISTICS_STR_SEPARATOR)
@@ -81,13 +85,14 @@ class GEODataset:
     def _get_sample_characteristics_str(self, sep="\n"):
         string = ""
         characteristics = {}
-        for sample in self.samples:
-            for key, value in sample.characteristics.items():
-                if key in characteristics:
-                    characteristics[key].add(value)
-                else:
-                    characteristics[key] = set([value])
-        
+        if self.samples is not None:
+            for sample in self.samples:
+                for key, value in sample.characteristics.items():
+                    if key in characteristics:
+                        characteristics[key].add(value)
+                    else:
+                        characteristics[key] = set([value])
+
         for key, values in characteristics.items():
             if len(values) < 20:
                 string += f"{key}: {','.join(values)}" + sep
@@ -98,16 +103,14 @@ class GEODataset:
             lines = string.split(sep)
             lines.remove(max(lines, key=len))
             string = sep.join(lines)
-        
+
         return string
-    
+
     def get_metadata_str(self, sep="\n"):
         string = f"{self.experiment_type}{sep}{self.summary}{sep}{self.overall_design}{sep}"
         string += self._get_sample_characteristics_str(sep)
         bern2_character_limit = 3000
         return self._shorten_string_to_limit(string, sep, bern2_character_limit)
-
-
 
     def to_dict(self) -> Dict:
         """

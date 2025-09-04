@@ -1,11 +1,11 @@
-import pandas as pd
-import numpy as np
-from bokeh.plotting import figure, show
-from bokeh.models import ColumnDataSource, HoverTool
-
-from bokeh.palettes import Category20c
 from textwrap import wrap
+
 import colorcet as cc
+import numpy as np
+import pandas as pd
+from bokeh.models import ColumnDataSource, HoverTool
+from bokeh.palettes import Category20c
+from bokeh.plotting import figure, show
 
 WEDGES_RENDERER_NAME = "wedges"
 WEDGE_TEXT_RENDERER_NAME = "wedge_text"
@@ -13,7 +13,8 @@ CATEGORY_TEXT_RENDER_NAME = "category_text"
 
 
 class SunburstPlot:
-    def __init__(self, df, title, category_name, click_callback, zoom_out_callback, ring_width=0.8, max_text_width=18, root_id=""):
+    def __init__(self, df, title, category_name, click_callback, zoom_out_callback, ring_width=0.8, max_text_width=18,
+                 root_id=""):
         self.ring_width = ring_width
         self.max_text_width = max_text_width
         self.category_text = category_name
@@ -95,8 +96,8 @@ def calculate_angles_and_radii(df, ring_width, root_id=""):
             end_angle = current_angle + child['angle']
             plot_df.loc[idx, 'end_angle'] = end_angle
 
-            plot_df.loc[idx, 'inner_radius'] = level*ring_width
-            plot_df.loc[idx, 'outer_radius'] = level*ring_width + ring_width
+            plot_df.loc[idx, 'inner_radius'] = level * ring_width
+            plot_df.loc[idx, 'outer_radius'] = level * ring_width + ring_width
             plot_df.loc[idx, 'level'] = level
 
             calculate_angles(child['id'], current_angle, level + 1)
@@ -179,7 +180,7 @@ def calculate_text_positions(plot_df):
     plot_df['text_angle'] = center_angle
     # Flip texts in the left half of the sunburst so they do not appear upside down
     plot_df.loc[plot_df["text_angle"].between(
-        np.pi/2, 3 * np.pi/2), "text_angle"] += np.pi
+        np.pi / 2, 3 * np.pi / 2), "text_angle"] += np.pi
     return plot_df
 
 
@@ -236,8 +237,10 @@ class SunburstClickCallbackManager:
         return (start_angle < angle < end_angle) and (inner_radius < r < outer_radius)
 
     def _trigger_zoom_out_callback(self, x, y):
-        if (self.zoom_out_text_x - self.zoom_out_text_width / 2 < x < self.zoom_out_text_x + self.zoom_out_text_width / 2)\
-                and (self.zoom_out_text_y - self.zoom_out_text_height / 2 < y < self.zoom_out_text_y + self.zoom_out_text_height / 2):
+        if (
+                self.zoom_out_text_x - self.zoom_out_text_width / 2 < x < self.zoom_out_text_x + self.zoom_out_text_width / 2) \
+                and (
+                self.zoom_out_text_y - self.zoom_out_text_height / 2 < y < self.zoom_out_text_y + self.zoom_out_text_height / 2):
             self.zoom_out_callback()
 
 
@@ -259,7 +262,8 @@ def truncate_display_names(plot_df):
     return plot_df
 
 
-def plot_sunburst(df, title, category_name, click_callback, zoom_out_callback, ring_width=0.8, max_text_width=18, root_id=""):
+def plot_sunburst(df, title, category_name, click_callback, zoom_out_callback, ring_width=0.8, max_text_width=18,
+                  root_id=""):
     plot_df = process_data_for_sunburst(df, ring_width, root_id)
     source = ColumnDataSource(plot_df)
 
@@ -294,8 +298,8 @@ def plot_sunburst(df, title, category_name, click_callback, zoom_out_callback, r
     p.text(
         x='text_x',
         y='text_y',
-        text='display_name',           # Use the 'name' column for the text
-        angle='text_angle',    # Rotate text to match the wedge angle
+        text='display_name',  # Use the 'name' column for the text
+        angle='text_angle',  # Rotate text to match the wedge angle
         source=source,
         text_align='center',
         text_baseline='middle',
@@ -340,12 +344,13 @@ def plot_sunburst(df, title, category_name, click_callback, zoom_out_callback, r
 
 if __name__ == "__main__":
     from src.visualization.sunburst_server.hierarchical_data_counter import HierarchicalDataCounter
+
     hierarchies = [
         ['home', 'momir', 'repos'],
-        ['home', 'momir',],
-        ['home', 'lost+found',],
+        ['home', 'momir', ],
+        ['home', 'lost+found', ],
         ['var', 'log'],
-        ['lib',],
+        ['lib', ],
     ]
 
     counter = HierarchicalDataCounter(hierarchies)

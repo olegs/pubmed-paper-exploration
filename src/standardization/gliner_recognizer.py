@@ -1,12 +1,13 @@
-from src.standardization.named_entity_recognizer import NamedEntityRecognizer, NamedEntity
 from gliner import GLiNER
+
+from src.standardization.named_entity_recognizer import NamedEntityRecognizer, NamedEntity
 
 
 class GlinerRecognizer(NamedEntityRecognizer):
-    def __init__(self, labels=["Disease", "Drug", "Drug dosage", "Drug frequency", "Lab test", "Lab test value", "Demographic information"]
+    def __init__(self, labels=["Disease", "Drug", "Drug dosage", "Drug frequency", "Lab test", "Lab test value",
+                               "Demographic information"]
                  ):
         self.model = GLiNER.from_pretrained("Ihor/gliner-biomed-large-v1.0")
-
         self.labels = labels
 
     def extract_named_entities(self, text: str):

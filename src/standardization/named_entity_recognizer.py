@@ -1,8 +1,9 @@
-from typing import List
-from collections import namedtuple
 from abc import ABC, abstractmethod
+from collections import namedtuple
+from typing import List
 
 NamedEntity = namedtuple("NamedEntity", ["entity", "entity_class", "score"])
+
 
 class NamedEntityRecognizer(ABC):
     @abstractmethod
@@ -13,7 +14,6 @@ class NamedEntityRecognizer(ABC):
         :param text: The text on which to perform named entity recognition
         :return: List of NamedEntity objects containing the extracted named entities.
         """
-    
+
     def __call__(self, text: str) -> List[NamedEntity]:
         return self.extract_named_entities(text)
-

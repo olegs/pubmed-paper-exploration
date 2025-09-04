@@ -3,7 +3,7 @@ let datasetTable = null;
 function get_fields_html(dataset) {
     let no_tissue = (!dataset.tissue_standardized) || dataset.tissue_standardized.every(value => value === null);
     let no_disease = (!dataset.disease_standardized) || dataset.disease_standardized.every(value => value === null);
-    let no_cell_type = (!dataset.cell_type_standardized)  || dataset.cell_type_standardized.every(value => value === null);
+    let no_cell_type = (!dataset.cell_type_standardized) || dataset.cell_type_standardized.every(value => value === null);
 
     if (no_tissue && no_cell_type && no_disease) {
         return "";
@@ -48,8 +48,7 @@ function expandRowClickHandler(e) {
     if (row.child.isShown()) {
         // This row is already open - close it
         row.child.hide();
-    }
-    else {
+    } else {
         // Open this row
         row.child(get_expanded_html(row.data())).show();
     }
@@ -83,16 +82,16 @@ document.addEventListener("DOMContentLoaded", function () {
     datasetTable = new DataTable('#datasets-table', {
         data: geo_datasets,
         columns: [
-            { 
+            {
                 data: 'id',
-                render: function(data, type, row) {
+                render: function (data, type, row) {
                     return `<a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=${row.id}" target="_blank">${row.id}</a>`;
                 }
             },
-            { data: 'title', className: "dt-title" },
-            { data: 'organisms' },
-            { data: 'experiment_type' },
-            { data: 'sample_count' },
+            {data: 'title', className: "dt-title"},
+            {data: 'organisms'},
+            {data: 'experiment_type'},
+            {data: 'sample_count'},
             {
                 className: "dt-download",
                 orderable: false,
@@ -106,24 +105,24 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function toListOfDicts(dictOfLists) {
-  const result = [];
-  const keys = Object.keys(dictOfLists);
-  
-  if (keys.length === 0) {
-    return result;
-  }
-  
-  const arrayLength = dictOfLists[keys[0]].length;
-  
-  for (let i = 0; i < arrayLength; i++) {
-    const newObj = {};
-    for (const key of keys) {
-      newObj[key] = dictOfLists[key][i];
+    const result = [];
+    const keys = Object.keys(dictOfLists);
+
+    if (keys.length === 0) {
+        return result;
     }
-    result.push(newObj);
-  }
-  
-  return result;
+
+    const arrayLength = dictOfLists[keys[0]].length;
+
+    for (let i = 0; i < arrayLength; i++) {
+        const newObj = {};
+        for (const key of keys) {
+            newObj[key] = dictOfLists[key][i];
+        }
+        result.push(newObj);
+    }
+
+    return result;
 }
 
 function refreshTable(newData) {

@@ -1,5 +1,4 @@
 from typing import Dict, List
-from src.config import logger
 
 
 class GEOSample:
@@ -36,7 +35,7 @@ class GEOSample:
                 unparsed_key = "unparsed_characteristics"
                 current_unparsed = characteristics_dict.get(unparsed_key, "")
                 characteristics_dict[unparsed_key] = current_unparsed + \
-                    "|" + characteristic
+                                                     "|" + characteristic
         return characteristics_dict
 
     def __eq__(self, other):

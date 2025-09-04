@@ -12,19 +12,6 @@ EMBEDDINGS_SENTENCE_OVERLAP = 0
 EMBEDDINGS_QUESTIONS_CHUNK_SIZE = 64
 EMBEDDINGS_QUESTIONS_SENTENCE_OVERLAP = 1
 
-
-#############################
-## Embeddings settings #####
-#############################
-
-# Size of a chunk for global text embeddings used for clustering
-EMBEDDINGS_CHUNK_SIZE = 512
-EMBEDDINGS_SENTENCE_OVERLAP = 0
-
-# Size of a chunk for precise questioning
-EMBEDDINGS_QUESTIONS_CHUNK_SIZE = 64
-EMBEDDINGS_QUESTIONS_SENTENCE_OVERLAP = 1
-
 #####################
 ## Analysis config ##
 #####################
@@ -47,8 +34,6 @@ WORD2VEC_WINDOW = 5
 WORD2VEC_EPOCHS = 3
 
 
-
-
 class Config:
     def __init__(self, config_path):
         self._config = configparser.ConfigParser()
@@ -56,7 +41,8 @@ class Config:
         self.svd_dimensions = self._config.getint("clustering", "svd_dimensions")
         self.topic_words = self._config.getint("clustering", "topic_words")
         if self.topic_words < 5:
-            raise ValueError("clustering.topic_words must be greater than or equal to 5. Please check the configuration.")
+            raise ValueError(
+                "clustering.topic_words must be greater than or equal to 5. Please check the configuration.")
         self.download_folder = self._config["ingestion"]["download_folder"]
         self.loglevel = self._config["logging"]["log_level"]
         self.angel_config = {
@@ -71,5 +57,6 @@ class Config:
         self.search_backend = self._config["search"]["backend"]
         if self.search_backend not in ["esearch", "pubtrends"]:
             raise Exception("search.backend should be either 'esearch' or 'pubtrends'")
+
 
 config = Config("config.ini")

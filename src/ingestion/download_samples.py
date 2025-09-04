@@ -7,7 +7,6 @@ import aiohttp
 from src.ingestion.download_geo_datasets import (download_geo_dataset,
                                                  is_running_in_jupyter)
 from src.model.geo_dataset import GEODataset
-from src.model.geo_sample import GEOSample
 
 
 async def download_samples(geo_series: GEODataset, session: aiohttp.ClientSession) -> List[GEODataset]:
@@ -26,6 +25,7 @@ async def download_samples_with_new_session(geo_series: GEODataset) -> List[GEOD
     async with aiohttp.ClientSession() as session:
         return await download_samples(geo_series, session)
 
+
 def download_samples_for_datasets(geo_series: List[GEODataset]) -> List[GEODataset]:
     """
     Downloads the samples which are associated with the given series.
@@ -35,9 +35,10 @@ def download_samples_for_datasets(geo_series: List[GEODataset]) -> List[GEODatas
     which the samples need to be downloaded.
     :return: List of GEOSample objects asscociated with that series.
     """
+
     async def _download_samples(datasets: List[GEODataset]):
         # Download samples
-        samples = set() # We are using a set because some samples can occur twice. For example, a sample appears twice when it is in a subseries and superseries
+        samples = set()  # We are using a set because some samples can occur twice. For example, a sample appears twice when it is in a subseries and superseries
         async with aiohttp.ClientSession() as session:
             for series in datasets:
                 try:
@@ -51,7 +52,6 @@ def download_samples_for_datasets(geo_series: List[GEODataset]) -> List[GEODatas
 
         return list(samples)
 
-
     if not is_running_in_jupyter():
         return asyncio.run(_download_samples(geo_series))
     else:
@@ -59,9 +59,9 @@ def download_samples_for_datasets(geo_series: List[GEODataset]) -> List[GEODatas
         return pool.submit(asyncio.run, _download_samples(geo_series)).result()
 
 
-
 if __name__ == "__main__":
     from src.ingestion.download_geo_datasets import download_geo_datasets
+
     datasets = download_geo_datasets(
         [30530648]
     )

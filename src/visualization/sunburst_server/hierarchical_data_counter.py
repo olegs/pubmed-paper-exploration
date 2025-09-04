@@ -1,5 +1,6 @@
-from typing import List
 import uuid
+from typing import List
+
 import pandas as pd
 
 
@@ -10,7 +11,7 @@ class Node:
         self.children = {}
         self.value = 0
         self.parent_id = parent_id
-    
+
     def copy(self):
         copy = Node(self.name, self.parent_id)
         copy.id = self.id
@@ -19,7 +20,6 @@ class Node:
         copy.value = self.value
         copy.parent_id = self.parent_id
         return copy
-
 
     def add(self, hierarchy: List):
         self.value += 1
@@ -95,10 +95,10 @@ class HierarchicalDataCounter():
 if __name__ == "__main__":
     hierarchies = [
         ['home', 'momir', 'repos'],
-        ['home', 'momir',],
-        ['home', 'lost+found',],
+        ['home', 'momir', ],
+        ['home', 'lost+found', ],
         ['var', 'log'],
-        ['lib',],
+        ['lib', ],
     ]
 
     counter = HierarchicalDataCounter(hierarchies)

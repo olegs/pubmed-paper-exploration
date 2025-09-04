@@ -1,9 +1,11 @@
-from src.standardization.named_entity_recognizer import NamedEntityRecognizer
-from src.standardization.entity_normalizer import EntityNormalizer
 from collections import namedtuple
 from typing import List
 
+from src.standardization.entity_normalizer import EntityNormalizer
+from src.standardization.named_entity_recognizer import NamedEntityRecognizer
+
 PipelineResult = namedtuple("PipelineResult", ["mention", "entity_class", "standard_name", "ontology", "cui", "score"])
+
 
 class NER_NEN_Pipeline():
     def __init__(self, recognizer: NamedEntityRecognizer, normalizer: EntityNormalizer):

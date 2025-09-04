@@ -1,12 +1,10 @@
 import numpy as np
 from gensim.models import KeyedVectors
 from nltk import download, word_tokenize
-# Import and download stopwords from NLTK.
 from nltk.corpus import stopwords
 from scipy.spatial.distance import cosine
-import numpy as np
+
 from src.standardization.entity_normalizer import EntityNormalizer, NormalizationResult
-import time
 
 download('stopwords')  # Download stopwords list.
 download('punkt_tab')
@@ -94,20 +92,21 @@ class FasttextNormalizer(EntityNormalizer):
 
 
 if __name__ == "__main__":
-    from src.standardization.mesh_vocabulary import build_mesh_lookup
+    from src.mesh.mesh_vocabulary import build_mesh_lookup
     import time
+
     mesh_lookup = build_mesh_lookup("desc2025.xml")
     begin = time.time()
     normalizer = FasttextNormalizer(
         "BioWordVec_PubMed_MIMICIII_d200.vec.bin", mesh_lookup)
     end = time.time()
-    print("Parser ready in ", end-begin, "seconds")
+    print("Parser ready in ", end - begin, "seconds")
 
     begin = time.time()
     result = normalizer("lymph node")
     print(result)
     end = time.time()
-    print("Parsing done in ", end-begin, "seconds")
+    print("Parsing done in ", end - begin, "seconds")
 
     while True:
         name = input("Enter name to standardize: ")
@@ -120,4 +119,4 @@ if __name__ == "__main__":
         print(normalizer.get_standard_name_reranked(name, 50, n_outputs))
         print(normalizer.get_standard_name(name, n_outputs))
         end = time.time()
-        print("Parsing done in ", end-begin, "seconds")
+        print("Parsing done in ", end - begin, "seconds")

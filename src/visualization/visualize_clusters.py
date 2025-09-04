@@ -1,12 +1,13 @@
 from string import Template
 from typing import List, Tuple
+
+import pandas as pd
+from bokeh.embed import components
 from bokeh.io import output_notebook
-from bokeh.plotting import figure, show
 from bokeh.models import ColumnDataSource, Text, HoverTool
 from bokeh.palettes import Category10, Category20
+from bokeh.plotting import figure, show
 from bokeh.transform import factor_cmap
-from bokeh.embed import components
-import pandas as pd
 
 
 def get_topic_colors(n_topics) -> List[str]:
@@ -193,7 +194,6 @@ def _visualize_clusters(datasets_df: pd.DataFrame, cluster_topics: List[List[str
 
     hover_tool.renderers = [scatter]
     return cluster_visualization
-
 
 
 if __name__ == "__main__":

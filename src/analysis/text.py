@@ -81,22 +81,6 @@ def vectorize_corpus(df, max_features, min_df, max_df, test=False):
     return filtered_corpus, corpus_tokens, counts
 
 
-def get_frequent_tokens(tokens, fraction=0.1, min_tokens=20):
-    """
-    Compute tokens weighted frequencies
-    :param tokens List of tokens
-    :param fraction: fraction of most common tokens
-    :param min_tokens: minimal number of tokens to return
-    :return: dictionary {token: frequency}
-    """
-    counter = FreqDist(tokens)
-    result = {}
-    tokens = len(counter)
-    for token, cnt in counter.most_common(max(min_tokens, int(tokens * fraction))):
-        result[token] = cnt / tokens
-    return result
-
-
 # Convert pos_tag output to WordNetLemmatizer tags
 try:
     NLTK_LOCK.acquire()
@@ -188,7 +172,7 @@ def embeddings(df, corpus, corpus_tokens, corpus_counts, test=False):
         if is_texts_embeddings_available():
             logger.debug('Collecting chunks for embeddings')
             data = [(pid, f'{title}. {abstract}')
-                     for pid, title, abstract in zip(df['id'], df['title'], df['abstract'])]
+                    for pid, title, abstract in zip(df['id'], df['title'], df['abstract'])]
             chunks, chunks_idx = collect_papers_chunks((data, EMBEDDINGS_CHUNK_SIZE, EMBEDDINGS_SENTENCE_OVERLAP))
             logger.debug(f'Done collecting chunks for embeddings: {len(chunks)}')
             return fetch_texts_embedding(chunks), chunks_idx

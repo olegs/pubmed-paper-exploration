@@ -1,16 +1,19 @@
-from io import StringIO
 import asyncio
-from typing import List
 import time
-from src.exception.http_error import HttpError
-from src.config import logger
-import pandas as pd
-import aiohttp
 import xml.etree.ElementTree as ET
+from io import StringIO
+from typing import List
+
+import aiohttp
+import pandas as pd
+
+from src.config import logger
+from src.exception.http_error import HttpError
 
 PUBTRENDS_BASE_URL = "https://pubtrends.info"
 EUTILS_BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
 PUBTRENDS_POLL_INTERVAL_SECONDS = 1
+
 
 async def get_pubmed_ids_esearch(query: str) -> List[int]:
     """
@@ -31,8 +34,6 @@ async def get_pubmed_ids_esearch(query: str) -> List[int]:
             esearch_response = await response.text()
             esearch_xml = ET.fromstring(esearch_response)
             return [int(e.text) for e in esearch_xml.findall(".//Id")]
-
-
 
 
 async def get_pubmed_ids(query: str) -> List[int]:
@@ -63,16 +64,15 @@ async def get_pubmed_ids(query: str) -> List[int]:
 
 async def _get_pubtrends_result(session, job_id, query) -> List[int]:
     async with session.get("/get_result_api",
-                            params={
-                                "jobid": job_id,
-                                "query": query
-                            }) as result_response:
+                           params={
+                               "jobid": job_id,
+                               "query": query
+                           }) as result_response:
         if result_response.status != 200:
             raise HttpError("PubTrends get job result error")
         pubtrends_result = await result_response.json()
         df = await asyncio.to_thread(pd.read_json, StringIO(pubtrends_result["df"]))
         return df["id"].to_list()
-
 
 
 async def wait_for_job_to_complete(pubtrends_session: aiohttp.ClientSession, job_id: str):

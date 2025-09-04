@@ -1,14 +1,16 @@
-from typing import List
 import asyncio
+from typing import List
+
 import aiohttp
-from src.ingestion.rate_limit import check_limit
+
 from src.exception.entrez_error import EntrezError
+from src.ingestion.rate_limit import check_limit
 
 elink_request_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi"
 
 
 async def fetch_geo_ids(
-    pubmed_ids: List[int], session: aiohttp.ClientSession
+        pubmed_ids: List[int], session: aiohttp.ClientSession
 ) -> List[int]:
     """
     Fetches GEO dataset ids for papers with the specified PubMed IDs.
@@ -19,16 +21,16 @@ async def fetch_geo_ids(
     """
     check_limit()
     async with session.post(
-        elink_request_url,
-        params={
-            "dbfrom": "pubmed",
-            "db": "gds",
-            "linkname": "pubmed_gds",
-            "retmode": "json",
-        },
-        data={
-            "id": ",".join(map(str, pubmed_ids)),
-        }
+            elink_request_url,
+            params={
+                "dbfrom": "pubmed",
+                "db": "gds",
+                "linkname": "pubmed_gds",
+                "retmode": "json",
+            },
+            data={
+                "id": ",".join(map(str, pubmed_ids)),
+            }
     ) as response:
         if response.status != 200:
             raise Exception("ELink error")

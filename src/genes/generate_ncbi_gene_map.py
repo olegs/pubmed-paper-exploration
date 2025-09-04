@@ -1,11 +1,11 @@
 import argparse
-import re
 import json
+
 import pandas as pd
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("gene_ontology_path") # Homo_sapiens.gene_info from NCBI Gene
+    parser.add_argument("gene_ontology_path")  # Homo_sapiens.gene_info from NCBI Gene
     parser.add_argument("output_path")
     args = parser.parse_args()
 
@@ -18,4 +18,3 @@ if __name__ == "__main__":
 
     with open(args.output_path, "w") as f:
         json.dump(gene_ontology_json, f, indent=2)
-

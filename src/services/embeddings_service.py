@@ -1,13 +1,14 @@
 import logging
 import os
-import requests
 
 import numpy as np
+import requests
 
 logger = logging.getLogger(__name__)
 
 # Launch with a Docker address or locally
 EMBEDDINGS_SERVICE_URL = os.getenv('EMBEDDINGS_SERVICE_URL', 'http://localhost:5001')
+
 
 def is_embeddings_service_available():
     logger.debug(f'Check if embeddings service endpoint is available')
@@ -25,7 +26,8 @@ def is_embeddings_service_ready():
         r = requests.request(url=EMBEDDINGS_SERVICE_URL, method='GET')
         if r.status_code != 200:
             return False
-        r = requests.request(url=f'{EMBEDDINGS_SERVICE_URL}/check', method='GET', headers={'Accept': 'application/json'})
+        r = requests.request(url=f'{EMBEDDINGS_SERVICE_URL}/check', method='GET',
+                             headers={'Accept': 'application/json'})
         if r.status_code != 200 or r.json() is not True:
             return False
         return True

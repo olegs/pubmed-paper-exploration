@@ -1,13 +1,15 @@
 from typing import Dict
-import requests
-import json
 from typing import List
-from src.ingestion.rate_limit import RateLimited
-from src.standardization.mesh_vocabulary import build_mesh_lookup
-from src.standardization.named_entity_recognizer import NamedEntityRecognizer, NamedEntity
-from src.standardization.entity_normalizer import EntityNormalizer, NormalizationResult
-from src.standardization.ner_nen_pipeline import NER_NEN_Pipeline, PipelineResult
+import json
+
+import requests
+
 from src.config import config
+from src.ingestion.rate_limit import RateLimited
+from src.standardization.entity_normalizer import EntityNormalizer, NormalizationResult
+from src.mesh.mesh_vocabulary import build_mesh_lookup
+from src.standardization.named_entity_recognizer import NamedEntityRecognizer, NamedEntity
+from src.standardization.ner_nen_pipeline import NER_NEN_Pipeline, PipelineResult
 
 
 @RateLimited(max_per_second=3)
@@ -30,12 +32,15 @@ def get_standard_name_bern2(text, mesh_id_map, mesh_lookup, url="http://bern2.ko
         filter(lambda term: term.strip().lower() in mesh_lookup, candidate_terms))
     return candidate_terms[0] if candidate_terms else None
 
+
 class BERN2Error(Exception):
     def __init__(self, *args):
         super().__init__(*args)()
 
+
 class BERN2Pipeline(NER_NEN_Pipeline):
-    def __init__(self, mesh_id_to_term_map: Dict[str, str], ncbi_gene: Dict[str, str], url: str = "http://localhost:8888/plain"):
+    def __init__(self, mesh_id_to_term_map: Dict[str, str], ncbi_gene: Dict[str, str],
+                 url: str = "http://localhost:8888/plain"):
         self.url = url
         self.mesh_id_to_term_map = mesh_id_to_term_map
         self.ncbi_gene = ncbi_gene
@@ -77,17 +82,17 @@ class BERN2Pipeline(NER_NEN_Pipeline):
                 cui = annotation["id"][0]
                 ontology = cui.split(":")[0]
                 entities.append(PipelineResult(annotation["mention"], annotation["obj"], self.ncbi_gene.get(
-                    cui, cui), ontology,  cui, annotation["prob"]))
+                    cui, cui), ontology, cui, annotation["prob"]))
 
             for mesh_id in mesh_ids:
                 mesh_id = mesh_id[len("mesh:"):]
                 standard_name = self.mesh_id_to_term_map.get(mesh_id)
                 if standard_name:
                     entities.append(PipelineResult(
-                        annotation["mention"], annotation["obj"], standard_name, "MeSH",  mesh_id, annotation["prob"]))
+                        annotation["mention"], annotation["obj"], standard_name, "MeSH", mesh_id, annotation["prob"]))
                 else:
                     entities.append(PipelineResult(
-                        annotation["mention"], annotation["obj"], None, "MeSH",  None, annotation["prob"]))
+                        annotation["mention"], annotation["obj"], None, "MeSH", None, annotation["prob"]))
 
         return entities
 
@@ -133,11 +138,12 @@ class BERN2MeshNormalizer(EntityNormalizer):
 
 if __name__ == '__main__':
     import json
+
     mesh_lookup = build_mesh_lookup("desc2025.xml")
     mesh_id_map = {entry.id: key.strip().lower()
                    for key, entry in mesh_lookup.items()}
     ncbi_gene = {}
-    with open("gene_ontology_map.json") as f:
+    with open("resources/gene_ontology_map.json") as f:
         ncbi_gene = json.load(f)
     recognizer = BERN2Recognizer()
     normalizer = BERN2MeshNormalizer(mesh_id_map)

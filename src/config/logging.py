@@ -1,5 +1,5 @@
 import logging.config
-from pythonjsonlogger import json
+
 from src.config import config
 
 LOGGING = {
@@ -8,7 +8,7 @@ LOGGING = {
     "formatters": {
         "json": {
             "format": "%(asctime)s %(levelname)s %(message)s",
-            "class": "pythonjsonlogger.json.JsonFormatter",
+            "class": "pythonjsonlogger.jsonlogger.JsonFormatter",
         }
     },
     "handlers": {
@@ -20,7 +20,6 @@ LOGGING = {
     },
     "loggers": {"": {"handlers": ["stdout"], "level": f"{config.loglevel.upper()}"}},
 }
-
 
 logging.config.dictConfig(LOGGING)
 logger = logging.getLogger(__name__)

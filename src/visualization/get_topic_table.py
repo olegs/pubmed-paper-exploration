@@ -1,9 +1,12 @@
 from typing import List, Tuple
+
 import pandas as pd
+
 from src.visualization.visualize_clusters import get_topic_colors
 
+
 def get_topic_table(
-    cluster_topics: List[List[str]], datasets_df: pd.DataFrame
+        cluster_topics: List[List[str]], datasets_df: pd.DataFrame
 ) -> List[Tuple[int, int, str, str]]:
     """
     Returns a list of tuples where the elements are the index of the topic, the

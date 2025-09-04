@@ -1,5 +1,6 @@
 # geo-dataset-clustering
-This respository contains a web app for exploring datasets in the [GEO database](https://www.ncbi.nlm.nih.gov/gds/) related to a particular research area.
+
+This repository contains a web app for exploring datasets in the [GEO database](https://www.ncbi.nlm.nih.gov/gds/) related to a particular research area.
 
 This app enables users to:
 - Filter datasets based on experimental conditions such as organism, cell type, disease state and drug treatment.
@@ -14,10 +15,31 @@ The app was built using [flask](https://flask.palletsprojects.com/en/stable/) an
 - venv
 - Local [BERN2](https://github.com/dmis-lab/BERN2) instance. You can find the installation and launch instructions for BERN2 [here](https://github.com/dmis-lab/BERN2?tab=readme-ov-file#installing-bern2).
 - At least 64GB of RAM
-- NVIDIA GPU with at least 4GB of VRAM that supports CUDA
+- GPU with at least 4GB of VRAM that supports CUDA / MPS
 
 
+## Configuration
 
+If you want to use the ANGEL normalizer, you need to 
+
+1. clone the [ANGEL repository](https://github.com/dmis-lab/ANGEL).
+```bash
+git clone https://github.com/dmis-lab/ANGEL.git
+```
+
+2. Uncomment ANGLE section in `requirements.txt` if ANGEL is used.
+
+3. Setup system env variables 
+```bash
+export KMP_DUPLICATE_LIB_OK=TRUE
+export PYTHONPATH=$PYTHONPATH:<pubmed-paper-exploration>/ANGEL
+```
+
+4. Fix CUDA to support MPS also;
+```python
+# Use .to(device) instead of .cuda() calls
+device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
+```
 ## Launch instructions
 1. Create a virtual environment:
 ```bash
@@ -67,11 +89,16 @@ python -m bokeh serve --allow-websocket-origin=localhost --allow-websocket-origi
 docker compose up -d
 ```
 
-To run the evaluation (src/standardization/evaluation.py) script for various NER+NEN and NEN algorithms you need to make a copy of the fasttext model pubtrends in the root directory of this project. However, this step is not required to run the app.
+## Evaluation
+
+To run the evaluation (`src/standardization/evaluation.py`) script for various NER+NEN and NEN algorithms.
+You need to make a copy of the fasttext model pubtrends in the root directory of this project. 
+However, this step is not required to run the app.
 
 The app can now accessed at `localhost/app` on port 80.
 
 ## Configuration options
+
 - `download_folder`: The path to which to download the GEO datasets.
 - `svd_dimensions`: The number of dimensions to which to reduce the tf-idf representations of the datasets.
 - `topic_words`: The number of keywords to extract for cluster/topic. It must be at least 5.
